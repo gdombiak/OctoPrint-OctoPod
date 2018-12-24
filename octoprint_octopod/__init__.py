@@ -49,7 +49,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging = False,
-			server_url = 'http://gatohome.com:8680/apns/v1/push',
+			server_url = '',
 			camera_snapshot_url = 'http://localhost:8080/?action=snapshot',
 			api_key = None,
 			tokens = []
