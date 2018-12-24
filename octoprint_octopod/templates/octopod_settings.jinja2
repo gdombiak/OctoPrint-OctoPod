@@ -1,0 +1,30 @@
+<h4>OctoPod Notifications Settings</h4>
+
+<form class="form-horizontal">
+    <div class="control-group">
+        <label class="control-label">{{ _('Notification Server URL') }}</label>
+        <div class="controls">
+            <input type="text" class="input-block-level" id="server_url" data-bind="value: settings.plugins.octopod.server_url">
+            <span class="help-inline">{{ _('Enter the URL address to the server that sends Apple Push Notifications') }}</span>
+        </div>
+    </div>
+
+     <div class="control-group">
+        <!-- <label class="control-label">{{ _('Snapshot URL') }}</label> -->
+        <label class="control-label">Snapshot URL</label>
+        <div class="controls">
+            <input type="text" class="input-block-level" id="camera_snapshot_url" data-bind="value: settings.plugins.octopod.camera_snapshot_url">
+            <span class="help-inline">{{ _('Enter the URL address that provides an image snapshot that will be included in the notification') }}</span>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <div class="controls">
+            <label class="checkbox">
+            <input type="checkbox" data-bind="checked: settings.plugins.octopod.debug_logging"> Enable debug logging.
+            </label>
+        </div>
+    </div>
+</form>
+
+
