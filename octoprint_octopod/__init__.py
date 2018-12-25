@@ -78,7 +78,6 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		return dict(
 			js=["js/octopod.js"],
 			css=["css/octopod.css"],
-			less=["less/octopod.less"]
 		)
 
 	##~~ EventHandlerPlugin mixin
@@ -121,7 +120,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			self._octopod_logger.debug("Tokens saved")
 
 	def get_api_commands(self):
-		return dict(updateToken=["oldToken", "newToken", "deviceName"])
+		return dict(updateToken=["oldToken", "newToken", "deviceName"], test=[])
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
@@ -129,12 +128,16 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 		if command == 'updateToken':
 			self.updateToken("{oldToken}".format(**data), "{newToken}".format(**data), "{deviceName}".format(**data))
+		elif command == 'test':
+			code = self.send_notification("Testing push notification", data["server_url"], data["camera_snapshot_url"])
+			return flask.jsonify(dict(code=code))
+
 
 	##~~ TemplatePlugin mixin
 
 	def get_template_configs(self):
 		return [
-			dict(type="settings", name="OctoPod Notifications", custom_bindings=False)
+			dict(type="settings", name="OctoPod Notifications", custom_bindings=True)
 		]
 
 	##~~ Softwareupdate hook
@@ -161,17 +164,20 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	##~~ Private functions
 
-	def send_notification(self, message):
+	def send_notification(self, message, server_url, camera_snapshot_url):
 		# Create an url, if the fqdn is not correct you can manually set it at your config.yaml
-		url = self._settings.get(["server_url"])
+		if server_url:
+			url = server_url
+		else:
+			url = self._settings.get(["server_url"])
 		if not url or not url.strip():
 			# No APNS server has been defined so do nothing
-			return
+			return -1
 
 		tokens = self._settings.get(["tokens"])
 		if len(tokens) == 0:
 			# No iOS devices were registered so skip notification
-			return
+			return -1
 
 		apnsTokens = []
 		for token in tokens:
@@ -183,7 +189,10 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		data = {"appId": "org.octopod", "tokens": apnsTokens, "message": message}
 		files = {}
 		try:
-			camera_url = self._settings.get(["camera_snapshot_url"])
+			if camera_snapshot_url:
+				camera_url = camera_snapshot_url
+			else:
+				camera_url = self._settings.get(["camera_snapshot_url"])
 			if camera_url and camera_url.strip():
 				files['image'] = ("image.jpg", self.image(), "image/jpeg")
 				files['json'] = (None, json.dumps(data), "application/json")
@@ -200,8 +209,10 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.info("Response: %s" % str(r.content))
 			else:
 				self._logger.debug("Response: %s" % str(r.content))
+			return r.status_code
 		except Exception as e:
 			self._logger.info("Could not send message: %s" % str(e))
+			return -500
 
 
 	def image(self):

@@ -25,6 +25,12 @@
             </label>
         </div>
     </div>
+
+    <div class="control-group">
+        <div class="controls">
+            <button class="btn" data-bind="click: function() { testNotification() }"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Sending test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
+        </div>
+    </div>
 </form>
 
 
