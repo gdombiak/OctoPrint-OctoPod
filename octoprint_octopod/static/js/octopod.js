@@ -41,7 +41,9 @@ $(function() {
                     self.testResult(true);
                     self.testSuccessful(response.code == 204);
                     if (response.code == -1) {
-                        self.testMessage("No phone registered or configuration not completed");
+                        self.testMessage("Complete 'Notification Server URL'");
+                    } else if (response.code == -2) {
+                        self.testMessage("No iOS devices registered yet. Open OctoPod app on your iOS device");
                     } else if (response.code == 404) {
                         self.testMessage("404 - Notification Server URL was not found");
                     } else if (response.code == 500) {

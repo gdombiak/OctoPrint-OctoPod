@@ -173,11 +173,12 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		if not url or not url.strip():
 			# No APNS server has been defined so do nothing
 			return -1
+		url = url + '/v1/push'
 
 		tokens = self._settings.get(["tokens"])
 		if len(tokens) == 0:
 			# No iOS devices were registered so skip notification
-			return -1
+			return -2
 
 		apnsTokens = []
 		for token in tokens:
