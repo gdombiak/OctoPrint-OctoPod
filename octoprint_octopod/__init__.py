@@ -164,7 +164,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	##~~ Private functions
 
-	def send_notification(self, message, server_url, camera_snapshot_url):
+	def send_notification(self, message, server_url = None, camera_snapshot_url = None):
 		# Create an url, if the fqdn is not correct you can manually set it at your config.yaml
 		if server_url:
 			url = server_url
