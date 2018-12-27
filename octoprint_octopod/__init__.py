@@ -22,6 +22,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 					octoprint.plugin.SimpleApiPlugin,
 					octoprint.plugin.EventHandlerPlugin):
 
+	_lastPrinterState = None
+
 	def __init__(self):
 		self._logger = logging.getLogger("octoprint.plugins.octopod")
 		self._octopod_logger = logging.getLogger("octoprint.plugins.octopod.debug")
@@ -83,14 +85,12 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	##~~ EventHandlerPlugin mixin
 
 	def on_event(self, event, payload):
-		if event == Events.PRINT_DONE:
-			self.send_notification("Print Complete")
-		elif event == Events.PRINT_FAILED:
-			self.send_notification("Pring Failed")
+		if event == Events.PRINTER_STATE_CHANGED:
+			self.send_notification()
 
 	##~~ SimpleApiPlugin mixin
 
-	def updateToken(self, oldToken, newToken, deviceName):
+	def updateToken(self, oldToken, newToken, deviceName, printerID):
 		self._octopod_logger.debug("Received tokens for %s." % deviceName)
 
 		existing_tokens = self._settings.get(["tokens"])
@@ -110,7 +110,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		if not found:
 			self._octopod_logger.debug("Adding token for %s." % deviceName)
 			# Token was not found so we need to add it
-			existing_tokens.append({'apnsToken': newToken,'deviceName': deviceName,'date': datetime.datetime.now()})
+			existing_tokens.append({'apnsToken': newToken, 'deviceName': deviceName, 'date': datetime.datetime.now(), 'printerID': printerID})
 			updated = True
 		if updated:
 			# Save new settings
@@ -120,16 +120,16 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			self._octopod_logger.debug("Tokens saved")
 
 	def get_api_commands(self):
-		return dict(updateToken=["oldToken", "newToken", "deviceName"], test=[])
+		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], test=[])
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
 			return flask.make_response("Insufficient rights", 403)
 
 		if command == 'updateToken':
-			self.updateToken("{oldToken}".format(**data), "{newToken}".format(**data), "{deviceName}".format(**data))
+			self.updateToken("{oldToken}".format(**data), "{newToken}".format(**data), "{deviceName}".format(**data), "{printerID}".format(**data))
 		elif command == 'test':
-			code = self.send_notification("Testing push notification", data["server_url"], data["camera_snapshot_url"])
+			code = self.send_notification(data["server_url"], data["camera_snapshot_url"], True)
 			return flask.jsonify(dict(code=code))
 
 
@@ -164,8 +164,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	##~~ Private functions
 
-	def send_notification(self, message, server_url = None, camera_snapshot_url = None):
-		# Create an url, if the fqdn is not correct you can manually set it at your config.yaml
+	def send_notification(self, server_url = None, camera_snapshot_url = None, test = False):
 		if server_url:
 			url = server_url
 		else:
@@ -173,39 +172,75 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		if not url or not url.strip():
 			# No APNS server has been defined so do nothing
 			return -1
-		url = url + '/v1/push'
 
 		tokens = self._settings.get(["tokens"])
 		if len(tokens) == 0:
 			# No iOS devices were registered so skip notification
 			return -2
 
-		apnsTokens = []
-		for token in tokens:
-			apnsTokens.append(token["apnsToken"])
+		url = url + '/v1/push_printer'
 
-		if self._printer_profile_manager is not None and "name" in self._printer_profile_manager.get_current_or_default():
-			message = "%s - %s" % (self._printer_profile_manager.get_current_or_default()["name"], message)
+		if not test:
+			# Ignore other states that are not any of the following
+			currentPrinterStateId = self._printer.get_state_id()
+			if currentPrinterStateId != "OPERATIONAL" and currentPrinterStateId != "PRINTING" and \
+				currentPrinterStateId != "PAUSED" and currentPrinterStateId != "CLOSED" and \
+				currentPrinterStateId != "ERROR" and currentPrinterStateId != "CLOSED_WITH_ERROR" and \
+				currentPrinterStateId != "OFFLINE":
+				return -3
 
-		data = {"appId": "org.octopod", "tokens": apnsTokens, "message": message}
-		files = {}
+			currentPrinterState = self._printer.get_state_string()
+			if currentPrinterState == self._lastPrinterState:
+				# OctoPrint may report the same state more than once so ignore dups
+				return -4
+
+			self._lastPrinterState = currentPrinterState
+
+		image = None
 		try:
 			if camera_snapshot_url:
 				camera_url = camera_snapshot_url
 			else:
 				camera_url = self._settings.get(["camera_snapshot_url"])
 			if camera_url and camera_url.strip():
-				files['image'] = ("image.jpg", self.image(), "image/jpeg")
-				files['json'] = (None, json.dumps(data), "application/json")
+				image = self.image()
 		except:
 			self._logger.info("Could not load image from url")
 
-		# Multiple try catches so it will always send a message if the image raises an Exception
+		for token in tokens:
+			apnsToken = token["apnsToken"]
+			printerID = token["printerID"]
+
+			if not test:
+				completion = None
+				currentData = self._printer.get_current_data()
+				if "progress" in currentData and currentData["progress"] is not None \
+						and "completion" in currentData["progress"] and currentData["progress"][
+					"completion"] is not None:
+					completion = currentData["progress"]["completion"]
+
+				return self.send_request(apnsToken, image, printerID, currentPrinterState, completion, url)
+			else:
+				self.send_request(apnsToken, image, printerID, "Printing", 50, url)
+				return self.send_request(apnsToken, image, printerID, "Operational", 100, url)
+
+
+	def send_request(self, apnsToken, image, printerID, printerState, completion, url):
+		data = {"tokens": [apnsToken], "printerID": printerID, "printerState": printerState, "silent": True}
+
+		if completion:
+			data["printerCompletion"] = completion
+
 		try:
-			if len(files) > 0:
+			if image:
+				files = {}
+				files['image'] = ("image.jpg", image, "image/jpeg")
+				files['json'] = (None, json.dumps(data), "application/json")
+
 				r = requests.post(url, files=files)
 			else:
 				r = requests.post(url, json=data)
+
 			if r.status_code >= 400:
 				self._logger.info("Response: %s" % str(r.content))
 			else:
@@ -214,7 +249,6 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		except Exception as e:
 			self._logger.info("Could not send message: %s" % str(e))
 			return -500
-
 
 	def image(self):
 		"""
