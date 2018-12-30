@@ -94,6 +94,11 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		self._octopod_logger.debug("Received tokens for %s." % deviceName)
 
 		existing_tokens = self._settings.get(["tokens"])
+
+		## Safety check in case a user manually modified config.yaml and left invalid JSON
+		if existing_tokens == None:
+			existing_tokens = []
+
 		found = False
 		updated = False
 		for token in existing_tokens:
