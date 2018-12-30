@@ -98,7 +98,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		updated = False
 		for token in existing_tokens:
 			# Check if existing token has been updated
-			if token["apnsToken"] == oldToken:
+			if token["apnsToken"] == oldToken and token["printerID"] == printerID:
 				if oldToken != newToken:
 					self._octopod_logger.debug("Updating token for %s." % deviceName)
 					# Token that exists needs to be updated with new token
