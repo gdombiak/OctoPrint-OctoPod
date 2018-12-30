@@ -207,9 +207,19 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		except:
 			self._logger.info("Could not load image from url")
 
+		usedTokens = []
+		lastResult = None
 		for token in tokens:
 			apnsToken = token["apnsToken"]
 			printerID = token["printerID"]
+
+			# Ignore tokens that already received the notification
+			# This is the case when the same OctoPrint instance is added twice
+			# on the iOS app. Usually one for local address and one for public address
+			if apnsToken in usedTokens:
+				continue
+			# Keep track of tokens that received a notification
+			usedTokens.append(apnsToken)
 
 			if not test:
 				completion = None
@@ -219,10 +229,12 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 					"completion"] is not None:
 					completion = currentData["progress"]["completion"]
 
-				return self.send_request(apnsToken, image, printerID, currentPrinterState, completion, url)
+				lastResult = self.send_request(apnsToken, image, printerID, currentPrinterState, completion, url)
 			else:
 				self.send_request(apnsToken, image, printerID, "Printing", 50, url)
-				return self.send_request(apnsToken, image, printerID, "Operational", 100, url)
+				lastResult = self.send_request(apnsToken, image, printerID, "Operational", 100, url)
+
+		return lastResult
 
 
 	def send_request(self, apnsToken, image, printerID, printerState, completion, url):
