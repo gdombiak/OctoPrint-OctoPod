@@ -187,13 +187,13 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 		url = url + '/v1/push_printer'
 
+		currentPrinterStateId = self._printer.get_state_id()
 		if not test:
 			# Ignore other states that are not any of the following
-			currentPrinterStateId = self._printer.get_state_id()
 			if currentPrinterStateId != "OPERATIONAL" and currentPrinterStateId != "PRINTING" and \
 				currentPrinterStateId != "PAUSED" and currentPrinterStateId != "CLOSED" and \
 				currentPrinterStateId != "ERROR" and currentPrinterStateId != "CLOSED_WITH_ERROR" and \
-				currentPrinterStateId != "OFFLINE":
+				currentPrinterStateId != "OFFLINE" and currentPrinterStateId != "FINISHING":
 				return -3
 
 			currentPrinterState = self._printer.get_state_string()
@@ -203,17 +203,33 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 			self._lastPrinterState = currentPrinterState
 
-		image = None
-		try:
-			if camera_snapshot_url:
-				camera_url = camera_snapshot_url
-			else:
-				camera_url = self._settings.get(["camera_snapshot_url"])
-			if camera_url and camera_url.strip():
-				image = self.image()
-		except:
-			self._logger.info("Could not load image from url")
+		# Gather information about progress completion of the job
+		completion = None
+		currentData = self._printer.get_current_data()
+		if "progress" in currentData and currentData["progress"] is not None \
+				and "completion" in currentData["progress"] and currentData["progress"][
+			"completion"] is not None:
+			completion = currentData["progress"]["completion"]
 
+		# Get a snapshot of the camera
+		image = None
+		if completion == 100 and (currentPrinterStateId == "OPERATIONAL" or currentPrinterStateId == "FINISHING"):
+			# Only include image when print is complete. This is an optimization to avoid sending
+			# images that won't be rendered by the app
+			try:
+				if camera_snapshot_url:
+					camera_url = camera_snapshot_url
+				else:
+					camera_url = self._settings.get(["camera_snapshot_url"])
+				if camera_url and camera_url.strip():
+					image = self.image()
+			except:
+				self._logger.info("Could not load image from url")
+
+		# For each registered token we will send a push notification
+		# We do it individually since 'printerID' is included so that
+		# iOS app can properly render local notification with
+		# proper printer name
 		usedTokens = []
 		lastResult = None
 		for token in tokens:
@@ -229,13 +245,6 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			usedTokens.append(apnsToken)
 
 			if not test:
-				completion = None
-				currentData = self._printer.get_current_data()
-				if "progress" in currentData and currentData["progress"] is not None \
-						and "completion" in currentData["progress"] and currentData["progress"][
-					"completion"] is not None:
-					completion = currentData["progress"]["completion"]
-
 				lastResult = self.send_request(apnsToken, image, printerID, currentPrinterState, completion, url)
 			else:
 				self.send_request(apnsToken, image, printerID, "Printing", 50, url)
