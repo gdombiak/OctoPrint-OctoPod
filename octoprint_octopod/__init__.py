@@ -127,6 +127,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			return flask.make_response("Insufficient rights", 403)
 
 		if command == 'updateToken':
+			# Convert from ASCII to UTF-8 since somce chars will fail otherwise
+			data["deviceName"] = data["deviceName"].encode("utf-8")
 			self.updateToken("{oldToken}".format(**data), "{newToken}".format(**data), "{deviceName}".format(**data), "{printerID}".format(**data))
 		elif command == 'test':
 			code = self.send_notification(data["server_url"], data["camera_snapshot_url"], True)
