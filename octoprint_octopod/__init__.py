@@ -201,7 +201,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			if currentPrinterStateId != "OPERATIONAL" and currentPrinterStateId != "PRINTING" and \
 				currentPrinterStateId != "PAUSED" and currentPrinterStateId != "CLOSED" and \
 				currentPrinterStateId != "ERROR" and currentPrinterStateId != "CLOSED_WITH_ERROR" and \
-				currentPrinterStateId != "OFFLINE" and currentPrinterStateId != "FINISHING":
+				currentPrinterStateId != "OFFLINE":
 				return -3
 
 			currentPrinterState = self._printer.get_state_string()
@@ -217,7 +217,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 		# Get a snapshot of the camera
 		image = None
-		if completion == 100 and (currentPrinterStateId == "OPERATIONAL" or currentPrinterStateId == "FINISHING"):
+		if completion == 100 and currentPrinterStateId == "OPERATIONAL":
 			# Only include image when print is complete. This is an optimization to avoid sending
 			# images that won't be rendered by the app
 			try:
