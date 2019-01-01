@@ -187,6 +187,14 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 		url = url + '/v1/push_printer'
 
+		# Gather information about progress completion of the job
+		completion = None
+		currentData = self._printer.get_current_data()
+		if "progress" in currentData and currentData["progress"] is not None \
+				and "completion" in currentData["progress"] and currentData["progress"][
+			"completion"] is not None:
+			completion = currentData["progress"]["completion"]
+
 		currentPrinterStateId = self._printer.get_state_id()
 		if not test:
 			# Ignore other states that are not any of the following
@@ -202,14 +210,10 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				return -4
 
 			self._lastPrinterState = currentPrinterState
-
-		# Gather information about progress completion of the job
-		completion = None
-		currentData = self._printer.get_current_data()
-		if "progress" in currentData and currentData["progress"] is not None \
-				and "completion" in currentData["progress"] and currentData["progress"][
-			"completion"] is not None:
-			completion = currentData["progress"]["completion"]
+		else:
+			currentPrinterStateId = "OPERATIONAL"
+			currentPrinterState = "Operational"
+			completion = 100
 
 		# Get a snapshot of the camera
 		image = None
@@ -244,20 +248,19 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			# Keep track of tokens that received a notification
 			usedTokens.append(apnsToken)
 
-			if not test:
-				lastResult = self.send_request(apnsToken, image, printerID, currentPrinterState, completion, url)
-			else:
-				self.send_request(apnsToken, image, printerID, "Printing", 50, url)
-				lastResult = self.send_request(apnsToken, image, printerID, "Operational", 100, url)
+			lastResult = self.send_request(apnsToken, image, printerID, currentPrinterState, completion, url, test)
 
 		return lastResult
 
 
-	def send_request(self, apnsToken, image, printerID, printerState, completion, url):
+	def send_request(self, apnsToken, image, printerID, printerState, completion, url, test = False):
 		data = {"tokens": [apnsToken], "printerID": printerID, "printerState": printerState, "silent": True}
 
 		if completion:
 			data["printerCompletion"] = completion
+
+		if test:
+			data["test"] = True
 
 		try:
 			if image:
