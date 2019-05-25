@@ -3,6 +3,7 @@ from __future__ import absolute_import
 
 from octoprint.server import user_permission
 from octoprint.events import eventManager, Events
+from octoprint.util import RepeatedTimer
 from PIL import Image
 import logging
 import flask
@@ -26,25 +27,15 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	def __init__(self):
 		self._logger = logging.getLogger("octoprint.plugins.octopod")
-		self._octopod_logger = logging.getLogger("octoprint.plugins.octopod.debug")
+		self._checkTempTimer = None
+		self._printer_was_printing_above_bed_low = False
 
 	##~~ StartupPlugin mixin
 
-	def on_startup(self, host, port):
-		# setup customized logger
-		from octoprint.logging.handlers import CleaningTimedRotatingFileHandler
-		octopod_logging_handler = CleaningTimedRotatingFileHandler(
-			self._settings.get_plugin_logfile_path(postfix="debug"), when="D", backupCount=3)
-		octopod_logging_handler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s: %(message)s"))
-		octopod_logging_handler.setLevel(logging.DEBUG)
-
-		self._octopod_logger.addHandler(octopod_logging_handler)
-		self._octopod_logger.setLevel(
-			logging.DEBUG if self._settings.get_boolean(["debug_logging"]) else logging.INFO)
-		self._octopod_logger.propagate = False
-
 	def on_after_startup(self):
 		self._logger.info("OctoPod loaded!")
+		# Start timer that will check bed temperature and send notifications if needed
+		self._restartTimer()
 
 	##~~ SettingsPlugin mixin
 
@@ -54,7 +45,10 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			server_url = '',
 			camera_snapshot_url = 'http://localhost:8080/?action=snapshot',
 			api_key = None,
-			tokens = []
+			tokens = [],
+			bed_temp_notification = None,
+			temp_interval=5,
+			bed_low=0
 		)
 
 	def on_settings_save(self, data):
@@ -65,12 +59,18 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		new_debug_logging = self._settings.get_boolean(["debug_logging"])
 		if old_debug_logging != new_debug_logging:
 			if new_debug_logging:
-				self._octopod_logger.setLevel(logging.DEBUG)
+				self._logger.setLevel(logging.DEBUG)
 			else:
-				self._octopod_logger.setLevel(logging.INFO)
+				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 1
+		return 2
+
+	def on_settings_migrate(self, target, current):
+		if current == 1:
+			# add the 2 new values included
+			self._settings.set(['temp_interval'], self.get_settings_defaults()["temp_interval"])
+			self._settings.set(['bed_low'], self.get_settings_defaults()["bed_low"])
 
 	##~~ AssetPlugin mixin
 
@@ -86,12 +86,12 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_event(self, event, payload):
 		if event == Events.PRINTER_STATE_CHANGED:
-			self.send_notification()
+			self.send__print_job_notification()
 
 	##~~ SimpleApiPlugin mixin
 
 	def updateToken(self, oldToken, newToken, deviceName, printerID):
-		self._octopod_logger.debug("Received tokens for %s." % deviceName)
+		self._logger.debug("Received tokens for %s." % deviceName)
 
 		existing_tokens = self._settings.get(["tokens"])
 
@@ -105,7 +105,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			# Check if existing token has been updated
 			if token["apnsToken"] == oldToken and token["printerID"] == printerID:
 				if oldToken != newToken:
-					self._octopod_logger.debug("Updating token for %s." % deviceName)
+					self._logger.debug("Updating token for %s." % deviceName)
 					# Token that exists needs to be updated with new token
 					token["apnsToken"] = newToken
 					token["date"] = datetime.datetime.now()
@@ -113,7 +113,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				found = True
 				break
 		if not found:
-			self._octopod_logger.debug("Adding token for %s." % deviceName)
+			self._logger.debug("Adding token for %s." % deviceName)
 			# Token was not found so we need to add it
 			existing_tokens.append({'apnsToken': newToken, 'deviceName': deviceName, 'date': datetime.datetime.now(), 'printerID': printerID})
 			updated = True
@@ -122,7 +122,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			self._settings.set(["tokens"], existing_tokens)
 			self._settings.save()
 			eventManager().fire(Events.SETTINGS_UPDATED)
-			self._octopod_logger.debug("Tokens saved")
+			self._logger.debug("Tokens saved")
 
 	def get_api_commands(self):
 		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], test=[])
@@ -136,7 +136,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			data["deviceName"] = data["deviceName"].encode("utf-8")
 			self.updateToken("{oldToken}".format(**data), "{newToken}".format(**data), "{deviceName}".format(**data), "{printerID}".format(**data))
 		elif command == 'test':
-			code = self.send_notification(data["server_url"], data["camera_snapshot_url"], True)
+			code = self.send__print_job_notification(data["server_url"], data["camera_snapshot_url"], True)
 			return flask.jsonify(dict(code=code))
 
 
@@ -169,9 +169,56 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			)
 		)
 
-	##~~ Private functions
+	##~~ Timer functions
 
-	def send_notification(self, server_url = None, camera_snapshot_url = None, test = False):
+	def _restartTimer(self):
+		# stop the timer
+		if self._checkTempTimer:
+			self._logger.debug(u"Stopping Timer...")
+			self._checkTempTimer.cancel()
+			self._checkTempTimer = None
+
+		# start a new timer
+		interval = self._settings.get_int(['temp_interval'])
+		if interval:
+			self._logger.debug(u"Starting Timer...")
+			self._checkTempTimer = RepeatedTimer(interval, self.CheckTemps, None, None, True)
+			self._checkTempTimer.start()
+
+	def CheckTemps(self):
+		temps = self._printer.get_current_temperatures()
+		self._logger.debug(u"CheckTemps(): %r" % (temps,))
+		if not temps:
+			self._logger.debug(u"No Temperature Data")
+			return
+
+		for k in temps.keys():
+			# example dictionary from octoprint
+			# {
+			#   'bed': {'actual': 0.9, 'target': 0.0, 'offset': 0},
+			#   'tool0': {'actual': 0.0, 'target': 0.0, 'offset': 0},
+			#   'tool1': {'actual': 0.0, 'target': 0.0, 'offset': 0}
+			# }
+			if k == 'bed':
+				threshold_low = self._settings.get_int(['bed_low'])
+			else:
+				continue
+
+			# Remember if we are printing and current bed temp is above the low bed threshold
+			if not self._printer_was_printing_above_bed_low and self._printer.is_printing() and threshold_low and temps[k]['actual'] > threshold_low:
+				self._printer_was_printing_above_bed_low = True
+
+			# If we are not printing and we were printing before with bed temp above bed threshold and bed temp is now below bed threshold
+			if self._printer_was_printing_above_bed_low and not self._printer.is_printing() and threshold_low and temps[k]['actual'] < threshold_low:
+				self._logger.debug("Print done and bed temp is now below threshold {0}. Actual {1}.".format(threshold_low, temps[k]['actual']))
+				self._printer_was_printing_above_bed_low = False
+
+				self.send__bed_notification("bed-cooled", threshold_low, None)
+
+
+	##~~ Private functions - Print Job Notifications
+
+	def send__print_job_notification(self, server_url = None, camera_snapshot_url = None, test = False):
 		if server_url:
 			url = server_url
 		else:
@@ -189,35 +236,35 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 		# Gather information about progress completion of the job
 		completion = None
-		currentData = self._printer.get_current_data()
-		if "progress" in currentData and currentData["progress"] is not None \
-				and "completion" in currentData["progress"] and currentData["progress"][
+		current_data = self._printer.get_current_data()
+		if "progress" in current_data and current_data["progress"] is not None \
+				and "completion" in current_data["progress"] and current_data["progress"][
 			"completion"] is not None:
-			completion = currentData["progress"]["completion"]
+			completion = current_data["progress"]["completion"]
 
-		currentPrinterStateId = self._printer.get_state_id()
+		current_printer_state_id = self._printer.get_state_id()
 		if not test:
 			# Ignore other states that are not any of the following
-			if currentPrinterStateId != "OPERATIONAL" and currentPrinterStateId != "PRINTING" and \
-				currentPrinterStateId != "PAUSED" and currentPrinterStateId != "CLOSED" and \
-				currentPrinterStateId != "ERROR" and currentPrinterStateId != "CLOSED_WITH_ERROR" and \
-				currentPrinterStateId != "OFFLINE":
+			if current_printer_state_id != "OPERATIONAL" and current_printer_state_id != "PRINTING" and \
+				current_printer_state_id != "PAUSED" and current_printer_state_id != "CLOSED" and \
+				current_printer_state_id != "ERROR" and current_printer_state_id != "CLOSED_WITH_ERROR" and \
+				current_printer_state_id != "OFFLINE":
 				return -3
 
-			currentPrinterState = self._printer.get_state_string()
-			if currentPrinterState == self._lastPrinterState:
+			current_printer_state = self._printer.get_state_string()
+			if current_printer_state == self._lastPrinterState:
 				# OctoPrint may report the same state more than once so ignore dups
 				return -4
 
-			self._lastPrinterState = currentPrinterState
+			self._lastPrinterState = current_printer_state
 		else:
-			currentPrinterStateId = "OPERATIONAL"
-			currentPrinterState = "Operational"
+			current_printer_state_id = "OPERATIONAL"
+			current_printer_state = "Operational"
 			completion = 100
 
 		# Get a snapshot of the camera
 		image = None
-		if completion == 100 and currentPrinterStateId == "OPERATIONAL":
+		if completion == 100 and current_printer_state_id == "OPERATIONAL":
 			# Only include image when print is complete. This is an optimization to avoid sending
 			# images that won't be rendered by the app
 			try:
@@ -235,7 +282,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		# iOS app can properly render local notification with
 		# proper printer name
 		usedTokens = []
-		lastResult = None
+		last_result = None
 		for token in tokens:
 			apnsToken = token["apnsToken"]
 			printerID = token["printerID"]
@@ -248,13 +295,14 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			# Keep track of tokens that received a notification
 			usedTokens.append(apnsToken)
 
-			lastResult = self.send_request(apnsToken, image, printerID, currentPrinterState, completion, url, test)
+			last_result = self.send_job_request(apnsToken, image, printerID, current_printer_state, completion, url, test)
 
-		return lastResult
+		return last_result
 
 
-	def send_request(self, apnsToken, image, printerID, printerState, completion, url, test = False):
-		data = {"tokens": [apnsToken], "printerID": printerID, "printerState": printerState, "silent": True}
+	def send_job_request(self, apnsToken, image, printerID, printerState, completion, url, test = False):
+		data = {"tokens": [apnsToken], "printerID": printerID, "printerState": printerState, "silent": True,
+				"useDev": True}
 
 		if completion:
 			data["printerCompletion"] = completion
@@ -314,6 +362,62 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			image = output.getvalue()
 			output.close()
 		return image
+
+	##~~ Private functions - Bed Notifications
+
+	def send__bed_notification(self, event_code, temperature, minutes):
+		url = self._settings.get(["server_url"])
+		if not url or not url.strip():
+			# No APNS server has been defined so do nothing
+			return -1
+
+		tokens = self._settings.get(["tokens"])
+		if len(tokens) == 0:
+			# No iOS devices were registered so skip notification
+			return -2
+
+		url = url + '/v1/push_printer/bed_events'
+
+		# For each registered token we will send a push notification
+		# We do it individually since 'printerID' is included so that
+		# iOS app can properly render local notification with
+		# proper printer name
+		usedTokens = []
+		last_result = None
+		for token in tokens:
+			apnsToken = token["apnsToken"]
+			printerID = token["printerID"]
+
+			# Ignore tokens that already received the notification
+			# This is the case when the same OctoPrint instance is added twice
+			# on the iOS app. Usually one for local address and one for public address
+			if apnsToken in usedTokens:
+				continue
+			# Keep track of tokens that received a notification
+			usedTokens.append(apnsToken)
+
+			last_result = self.send_bed_request(url, apnsToken, printerID, event_code, temperature, minutes)
+
+		return last_result
+
+	def send_bed_request(self, url, apnsToken, printerID, event_code, temperature, minutes):
+		data = {"tokens": [apnsToken], "printerID": printerID, "eventCode": event_code, "temperature": temperature,
+				"silent": True, "useDev": True}
+
+		if minutes:
+			data["minutes"] = minutes
+
+		try:
+			r = requests.post(url, json=data)
+
+			if r.status_code >= 400:
+				self._logger.info("Bed Notification Response: %s" % str(r.content))
+			else:
+				self._logger.debug("Bed Notification Response: %s" % str(r.content))
+			return r.status_code
+		except Exception as e:
+			self._logger.info("Could not send Bed Notification: %s" % str(e))
+			return -500
 
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py

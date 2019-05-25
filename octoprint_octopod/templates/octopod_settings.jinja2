@@ -1,11 +1,12 @@
-<h4>OctoPod Notifications Settings</h4>
-
 <form class="form-horizontal">
+    <h3>Server and Camera Settings</h3>
+    <p>Complete URLs below so that OctoPrint can send notifications to OctoPod once print is finished.</p>
+
     <div class="control-group">
         <label class="control-label">{{ _('Notification Server URL') }}</label>
         <div class="controls">
             <input type="text" class="input-block-level" id="server_url" data-bind="value: settings.plugins.octopod.server_url">
-            <span class="help-inline">{{ _('Enter the URL address to the server that sends Apple Push Notifications') }}</span>
+            <span class="help-inline">{{ _('Enter URL address to the OctoPod server that sends Apple Push Notifications') }}</span>
         </div>
     </div>
 
@@ -14,7 +15,23 @@
         <label class="control-label">Snapshot URL</label>
         <div class="controls">
             <input type="text" class="input-block-level" id="camera_snapshot_url" data-bind="value: settings.plugins.octopod.camera_snapshot_url">
-            <span class="help-inline">{{ _('Enter the URL address that provides an image snapshot that will be included in the notification') }}</span>
+            <span class="help-inline">{{ _('Enter URL address that provides an image snapshot that will be included in the notification') }}</span>
+        </div>
+    </div>
+
+    <div class="control-group">
+        <div class="controls">
+            <button class="btn" data-bind="click: function() { testNotification() }"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Send test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
+        </div>
+    </div>
+
+    <h3>Bed Threshold</h3>
+    <p>When bed temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below</p>
+
+    <label class="control-label">{{ _('Temperature') }}</label>
+    <div class="controls">
+        <div class="input-append">
+            <input type="number" class="input-mini text-right" id="bed_low" data-bind="value: settings.plugins.octopod.bed_low" min="0" max="100" step="1" value="28"><span class="add-on">&deg;C</span>
         </div>
     </div>
 
@@ -26,11 +43,6 @@
         </div>
     </div>
 
-    <div class="control-group">
-        <div class="controls">
-            <button class="btn" data-bind="click: function() { testNotification() }"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Sending test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
-        </div>
-    </div>
 </form>
 
 
