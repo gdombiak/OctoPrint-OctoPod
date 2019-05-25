@@ -10,6 +10,7 @@ import flask
 import requests, StringIO
 import datetime
 import json
+import time
 
 # Plugin that stores APNS tokens reported from iOS devices to know which iOS devices to alert
 # when print is done or other relevant events
@@ -28,7 +29,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	def __init__(self):
 		self._logger = logging.getLogger("octoprint.plugins.octopod")
 		self._checkTempTimer = None
-		self._printer_was_printing_above_bed_low = False
+		self._printer_was_printing_above_bed_low = False # Variable used for bed cooling alerts
+		self._printer_not_printing_reached_target_temp_start_time = None # Variable used for bed warming alerts
 
 	##~~ StartupPlugin mixin
 
@@ -48,7 +50,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			tokens = [],
 			bed_temp_notification = None,
 			temp_interval=5,
-			bed_low=0
+			bed_low=0,
+			bed_target_temp_hold=0
 		)
 
 	def on_settings_save(self, data):
@@ -64,13 +67,16 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 2
+		return 3
 
 	def on_settings_migrate(self, target, current):
 		if current == 1:
 			# add the 2 new values included
 			self._settings.set(['temp_interval'], self.get_settings_defaults()["temp_interval"])
 			self._settings.set(['bed_low'], self.get_settings_defaults()["bed_low"])
+
+		if current <= 2:
+			self._settings.set(['bed_target_temp_hold'], self.get_settings_defaults()["bed_target_temp_hold"])
 
 	##~~ AssetPlugin mixin
 
@@ -169,7 +175,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			)
 		)
 
-	##~~ Timer functions
+	##~~ Temp Timer functions
 
 	def _restartTimer(self):
 		# stop the timer
@@ -201,9 +207,11 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			# }
 			if k == 'bed':
 				threshold_low = self._settings.get_int(['bed_low'])
+				target_temp_minutes_hold = self._settings.get_int(['bed_target_temp_hold'])
 			else:
 				continue
 
+			# Check if bed has cooled down to specified temperature once print is finished
 			# Remember if we are printing and current bed temp is above the low bed threshold
 			if not self._printer_was_printing_above_bed_low and self._printer.is_printing() and threshold_low and temps[k]['actual'] > threshold_low:
 				self._printer_was_printing_above_bed_low = True
@@ -215,6 +223,27 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 				self.send__bed_notification("bed-cooled", threshold_low, None)
 
+
+
+			# Check if bed has warmed to target temperature for the desired time before print starts
+			if temps[k]['target'] > 0:
+				bed_fluctuation = 1   # Temperatures fluctuate so accept this margin of error
+				# Mark time when bed reached target temp
+				if not self._printer_not_printing_reached_target_temp_start_time and not self._printer.is_printing() and temps[k]['actual'] > (temps[k]['target'] - bed_fluctuation):
+					self._printer_not_printing_reached_target_temp_start_time = time.time()
+
+				# Reset time if printing or bed is below target temp and we were tracking time
+				if self._printer.is_printing() or (self._printer_not_printing_reached_target_temp_start_time and temps[k]['actual'] < (temps[k]['target'] - bed_fluctuation)):
+					self._printer_not_printing_reached_target_temp_start_time = None
+
+				if target_temp_minutes_hold and self._printer_not_printing_reached_target_temp_start_time:
+					warmed_time_seconds = time.time() - self._printer_not_printing_reached_target_temp_start_time
+					warmed_time_minutes = warmed_time_seconds / 60
+					if warmed_time_minutes > target_temp_minutes_hold:
+						self._logger.debug("Bed reached target temp for {0} minutes".format(warmed_time_minutes))
+						self._printer_not_printing_reached_target_temp_start_time = None
+
+						self.send__bed_notification("bed-warmed", temps[k]['target'], int(warmed_time_minutes))
 
 	##~~ Private functions - Print Job Notifications
 
@@ -301,8 +330,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 
 	def send_job_request(self, apnsToken, image, printerID, printerState, completion, url, test = False):
-		data = {"tokens": [apnsToken], "printerID": printerID, "printerState": printerState, "silent": True,
-				"useDev": True}
+		data = {"tokens": [apnsToken], "printerID": printerID, "printerState": printerState, "silent": True}
 
 		if completion:
 			data["printerCompletion"] = completion
@@ -321,9 +349,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				r = requests.post(url, json=data)
 
 			if r.status_code >= 400:
-				self._logger.info("Response: %s" % str(r.content))
+				self._logger.info("Print Job Notification Response: %s" % str(r.content))
 			else:
-				self._logger.debug("Response: %s" % str(r.content))
+				self._logger.debug("Print Job Notification Response code: %d" % r.status_code)
 			return r.status_code
 		except Exception as e:
 			self._logger.info("Could not send message: %s" % str(e))
@@ -402,7 +430,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	def send_bed_request(self, url, apnsToken, printerID, event_code, temperature, minutes):
 		data = {"tokens": [apnsToken], "printerID": printerID, "eventCode": event_code, "temperature": temperature,
-				"silent": True, "useDev": True}
+				"silent": True}
 
 		if minutes:
 			data["minutes"] = minutes
@@ -413,7 +441,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			if r.status_code >= 400:
 				self._logger.info("Bed Notification Response: %s" % str(r.content))
 			else:
-				self._logger.debug("Bed Notification Response: %s" % str(r.content))
+				self._logger.debug("Bed Notification Response code: %d" % r.status_code)
 			return r.status_code
 		except Exception as e:
 			self._logger.info("Could not send Bed Notification: %s" % str(e))

@@ -19,19 +19,30 @@
         </div>
     </div>
 
+    <br>
+    <p>Open OctoPod on your iOS device before testing notification that you would receive when print is finished</p>
     <div class="control-group">
         <div class="controls">
             <button class="btn" data-bind="click: function() { testNotification() }"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Send test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
         </div>
     </div>
 
-    <h3>Bed Threshold</h3>
-    <p>When bed temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below</p>
+    <h3>Bed Notifications</h3>
 
+    <p>When bed temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below</p>
     <label class="control-label">{{ _('Temperature') }}</label>
     <div class="controls">
         <div class="input-append">
             <input type="number" class="input-mini text-right" id="bed_low" data-bind="value: settings.plugins.octopod.bed_low" min="0" max="100" step="1" value="28"><span class="add-on">&deg;C</span>
+        </div>
+    </div>
+
+    <br>
+    <p>When bed warms up to target temperature for specified duration before print starts, OctoPrint will send notification. A value of 0 will disable the notifications below</p>
+    <label class="control-label">{{ _('Minutes') }}</label>
+    <div class="controls">
+        <div class="input-append">
+            <input type="number" class="input-mini text-right" id="bed_target_temp_hold" data-bind="value: settings.plugins.octopod.bed_target_temp_hold" min="0" max="15" step="1" value="0">
         </div>
     </div>
 
