@@ -44,7 +44,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging = False,
-			server_url = '',
+			server_url = 'http://www.octopodprint.com/',
 			camera_snapshot_url = 'http://localhost:8080/?action=snapshot',
 			api_key = None,
 			tokens = [],
