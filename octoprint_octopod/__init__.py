@@ -44,14 +44,14 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging = False,
-			server_url = 'http://www.octopodprint.com/',
+			server_url = 'http://octopodprint.com/',
 			camera_snapshot_url = 'http://localhost:8080/?action=snapshot',
 			api_key = None,
 			tokens = [],
 			bed_temp_notification = None,
 			temp_interval=5,
-			bed_low=0,
-			bed_target_temp_hold=0
+			bed_low=30,
+			bed_target_temp_hold=10
 		)
 
 	def on_settings_save(self, data):
