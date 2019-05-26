@@ -48,7 +48,6 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			camera_snapshot_url = 'http://localhost:8080/?action=snapshot',
 			api_key = None,
 			tokens = [],
-			bed_temp_notification = None,
 			temp_interval=5,
 			bed_low=30,
 			bed_target_temp_hold=10
