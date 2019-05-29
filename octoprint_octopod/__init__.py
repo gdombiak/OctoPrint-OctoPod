@@ -31,6 +31,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		self._checkTempTimer = None
 		self._printer_was_printing_above_bed_low = False # Variable used for bed cooling alerts
 		self._printer_not_printing_reached_target_temp_start_time = None # Variable used for bed warming alerts
+		self._mmu_lines_skiped = None
 
 	##~~ StartupPlugin mixin
 
@@ -242,6 +243,30 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 						self._printer_not_printing_reached_target_temp_start_time = None
 
 						self.send__bed_notification("bed-warmed", temps[k]['target'], int(warmed_time_minutes))
+
+	##~~ GCODE hook
+	def processGCODE(self, comm, line, *args, **kwargs):
+		# MMU user assistance detection
+		# Firmware will use 2 different lines to indicate the there is an MMU issue
+		# and user assistance is required. There could be other lines present in the
+		# terminal between the 2 relevant lines
+		if line == "mmu_get_response() returning: 1":
+			self._mmu_lines_skiped = 0
+		else:
+			if self._mmu_lines_skiped is not None:
+				if self._mmu_lines_skiped > 5:
+					# We give up waiting for the second line to be detected. False alert.
+					# Reset counter
+					self._mmu_lines_skiped = None
+				elif line == "echo:busy: paused for user":
+					self._logger.info("*** MMU Requires User Assistance ***" )
+					# Second line found, reset counter now
+					self._mmu_lines_skiped = None
+				else:
+					self._mmu_lines_skiped += 1
+
+		# Always return what we parsed
+		return line
 
 	##~~ Private functions - Print Job Notifications
 
@@ -457,6 +482,7 @@ def __plugin_load__():
 
 	global __plugin_hooks__
 	__plugin_hooks__ = {
-		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
+		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
+		"octoprint.comm.protocol.gcode.received": __plugin_implementation__.processGCODE
 	}
 
