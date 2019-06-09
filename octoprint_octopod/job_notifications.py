@@ -96,8 +96,7 @@ class JobNotifications:
 	# Private functions - Print Job Notifications
 
 	def send_job_request(self, apns_token, image, printer_id, printer_state, completion, url, test = False):
-		data = {"tokens": [apns_token], "printerID": printer_id, "printerState": printer_state, "silent": True,
-				"useDev": True}
+		data = {"tokens": [apns_token], "printerID": printer_id, "printerState": printer_state, "silent": True}
 
 		if completion:
 			data["printerCompletion"] = completion

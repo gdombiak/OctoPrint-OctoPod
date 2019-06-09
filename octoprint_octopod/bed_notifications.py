@@ -106,7 +106,7 @@ class BedNotifications:
 		return last_result
 
 	def send_bed_request(self, url, apns_token, printer_id, event_code, temperature, minutes):
-		data = {"tokens": [apns_token], "printerID": printer_id, "eventCode": event_code, "temperature": temperature, "silent": True, "useDev": True}
+		data = {"tokens": [apns_token], "printerID": printer_id, "eventCode": event_code, "temperature": temperature, "silent": True}
 
 		if minutes:
 			data["minutes"] = minutes
