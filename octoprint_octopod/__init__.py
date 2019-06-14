@@ -199,7 +199,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	# GCODE hook
 
 	def process_gcode(self, comm, line, *args, **kwargs):
-		return self._mmu_assitance.process_gcode(line)
+		return self._mmu_assitance.process_gcode(self._settings, line)
 
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
