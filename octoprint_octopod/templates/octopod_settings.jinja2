@@ -46,6 +46,19 @@
         </div>
     </div>
 
+    <h3>MMU Notifications</h3>
+
+    <p>When Prusa MMU (Multi Material Upgrade) requires user assistance, OctoPrint will send notification. The following
+    setting controls the frequency notifications will be sent. A low number might end up spamming user. A value of 0
+    will disable MMU notifications</p>
+    <label class="control-label">{{ _('Minutes') }}</label>
+    <div class="controls">
+        <div class="input-append">
+            <input type="number" class="input-mini text-right" id="mmu_interval" data-bind="value: settings.plugins.octopod.mmu_interval" min="0" max="100" step="1" value="5">
+        </div>
+    </div>
+
+
     <div class="control-group">
         <div class="controls">
             <label class="checkbox">

@@ -27,12 +27,15 @@ class MMUAssistance:
 				# elif line.startswith("wait"):
 				elif line.startswith("mmu_get_response() returning: 0"):
 					# Check if we never alerted or 5 minutes have passed since last alert
-					if self._last_notification is None or (time.time() - self._last_notification) / 60 > 5:
+					mmu_interval = settings.get_int(['mmu_interval'])
+					if self._last_notification is None or (time.time() - self._last_notification) / 60 > mmu_interval:
 						self._logger.info("*** MMU Requires User Assistance ***")
 						# Record last time we sent notification
 						self._last_notification = time.time()
-						# Send APNS Notification
-						self.send__mmu_notification(settings)
+						# Send APNS Notification only if interval is not zero (user requested to
+						# shutdown this notification)
+						if mmu_interval > 0:
+							self.send__mmu_notification(settings)
 					# Second line found, reset counter now
 					self._mmu_lines_skipped = None
 				else:

@@ -50,7 +50,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			tokens=[],
 			temp_interval=5,
 			bed_low=30,
-			bed_target_temp_hold=10
+			bed_target_temp_hold=10,
+			mmu_interval=5
 		)
 
 	def on_settings_save(self, data):
@@ -66,7 +67,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 3
+		return 4
 
 	def on_settings_migrate(self, target, current):
 		if current == 1:
@@ -76,6 +77,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 		if current <= 2:
 			self._settings.set(['bed_target_temp_hold'], self.get_settings_defaults()["bed_target_temp_hold"])
+
+		if current <= 3:
+			self._settings.set(['mmu_interval'], self.get_settings_defaults()["mmu_interval"])
 
 	# AssetPlugin mixin
 
