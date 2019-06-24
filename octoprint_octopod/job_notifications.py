@@ -101,9 +101,10 @@ class JobNotifications:
 						"Sending notification for error message: %s (%s)" % (current_printer_state, printer_name))
 					last_result = self._alerts.send_alert(apns_token, url, printer_name, current_printer_state, None)
 				elif (current_printer_state_id == "FINISHING" and completion == 100) or test:
-					self._logger.debug("Sending notification for print finished (%s)" % printer_name)
 					last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name,
 															   "Print complete", image)
+					# Skip the silent notification for finishing at 100%. One for operational at 100% will be sent later
+					continue
 
 				# Send silent notification so that OctoPod app can update complications of Apple Watch app
 				self._alerts.send_job_request(apns_token, image, printer_id, current_printer_state, completion, url,

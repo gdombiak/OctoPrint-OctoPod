@@ -69,6 +69,8 @@ class Alerts:
 			self._logger.error("Missing translation for code %s in language %s" % (event_code, language_code))
 			message = "Unknown code"
 
+		self._logger.debug("Sending notification for event '%s' (%s)" % (event_code, printer_name))
+
 		# Now send APNS notification using proper locale
 		self.send_alert(apns_token, url, printer_name, message, image)
 
@@ -86,9 +88,9 @@ class Alerts:
 				r = requests.post(url, json=data)
 
 			if r.status_code >= 400:
-				self._logger.info("Print Job Notification Response: %s" % str(r.content))
+				self._logger.info("Notification Response: %s" % str(r.content))
 			else:
-				self._logger.debug("Print Job Notification Response code: %d" % r.status_code)
+				self._logger.debug("Notification Response code: %d" % r.status_code)
 			return r.status_code
 		except Exception as e:
 			self._logger.warn("Could not send message: %s" % str(e))
@@ -117,12 +119,12 @@ class Alerts:
 				r = requests.post(url, json=data)
 
 			if r.status_code >= 400:
-				self._logger.info("Print Job Notification Response: %s" % str(r.content))
+				self._logger.info("Silent Print Job Notification Response: %s" % str(r.content))
 			else:
-				self._logger.debug("Print Job Notification Response code: %d" % r.status_code)
+				self._logger.debug("Silent Print Job Notification Response code: %d" % r.status_code)
 			return r.status_code
 		except Exception as e:
-			self._logger.info("Could not send message: %s" % str(e))
+			self._logger.info("Could not send Silent job message: %s" % str(e))
 			return -500
 
 	def send_bed_request(self, url, apns_token, printer_id, event_code, temperature, minutes):
@@ -136,12 +138,12 @@ class Alerts:
 			r = requests.post(url, json=data)
 
 			if r.status_code >= 400:
-				self._logger.info("Bed Notification Response: %s" % str(r.content))
+				self._logger.info("Silent Bed Notification Response: %s" % str(r.content))
 			else:
-				self._logger.debug("Bed Notification Response code: %d" % r.status_code)
+				self._logger.debug("Silent Bed Notification Response code: %d" % r.status_code)
 			return r.status_code
 		except Exception as e:
-			self._logger.info("Could not send Bed Notification: %s" % str(e))
+			self._logger.info("Could not send Silent Bed Notification: %s" % str(e))
 			return -500
 
 	def send_mmu_request(self, url, apns_token, printer_id):
@@ -152,10 +154,10 @@ class Alerts:
 			r = requests.post(url, json=data)
 
 			if r.status_code >= 400:
-				self._logger.info("MMU Notification Response: %s" % str(r.content))
+				self._logger.info("Silent MMU Notification Response: %s" % str(r.content))
 			else:
-				self._logger.debug("MMU Notification Response code: %d" % r.status_code)
+				self._logger.debug("Silent MMU Notification Response code: %d" % r.status_code)
 			return r.status_code
 		except Exception as e:
-			self._logger.info("Could not send MMU Notification: %s" % str(e))
+			self._logger.info("Could not send Silent MMU Notification: %s" % str(e))
 			return -500
