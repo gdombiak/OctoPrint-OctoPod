@@ -1,11 +1,13 @@
 import time
 import requests
+from .alerts import Alerts
 
 
 class MMUAssistance:
 
 	def __init__(self, logger):
 		self._logger = logger
+		self._alerts = Alerts(self._logger)
 		self._mmu_lines_skipped = None
 		self._last_notification = None  # Keep track of when was user alerted last time. Helps avoid spamming
 
@@ -77,21 +79,16 @@ class MMUAssistance:
 			# Keep track of tokens that received a notification
 			used_tokens.append(apns_token)
 
-			last_result = self.send_mmu_request(url, apns_token, printerID)
+			if 'printerName' in token:
+				# We can send non-silent notifications (the new way) so notifications are rendered even if user
+				# killed the app
+				printer_name = token["printerName"]
+				language_code = token["languageCode"]
+				last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name, "mmu-event",
+														   None)
+			else:
+				# Legacy mode that uses silent notifications. As user update OctoPod app then they will automatically
+				# switch to the new mode
+				last_result = self._alerts.send_mmu_request(url, apns_token, printerID)
 
 		return last_result
-
-	def send_mmu_request(self, url, apns_token, printer_id):
-		data = {"tokens": [apns_token], "printerID": printer_id, "eventCode": "mmu-event", "silent": True}
-
-		try:
-			r = requests.post(url, json=data)
-
-			if r.status_code >= 400:
-				self._logger.info("MMU Notification Response: %s" % str(r.content))
-			else:
-				self._logger.debug("MMU Notification Response code: %d" % r.status_code)
-			return r.status_code
-		except Exception as e:
-			self._logger.info("Could not send MMU Notification: %s" % str(e))
-			return -500

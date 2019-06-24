@@ -95,11 +95,11 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_event(self, event, payload):
 		if event == Events.PRINTER_STATE_CHANGED:
-			self._job_notifications.send__print_job_notification(self._settings, self._printer)
+			self._job_notifications.send__print_job_notification(self._settings, self._printer, payload)
 
 	# SimpleApiPlugin mixin
 
-	def update_token(self, old_token, new_token, device_name, printer_id):
+	def update_token(self, old_token, new_token, device_name, printer_id, printer_name, language_code):
 		self._logger.debug("Received tokens for %s." % device_name)
 
 		existing_tokens = self._settings.get(["tokens"])
@@ -119,13 +119,23 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 					token["apnsToken"] = new_token
 					token["date"] = datetime.datetime.now()
 					updated = True
+				if printer_name is not None and ("printerName" not in token or token["printerName"] != printer_name):
+					# Printer name in OctoPod has been updated
+					token["printerName"] = printer_name
+					token["date"] = datetime.datetime.now()
+					updated = True
+				if language_code is not None and ("languageCode" not in token or token["languageCode"] != language_code):
+					# Language being used by OctoPod has been updated
+					token["languageCode"] = language_code
+					token["date"] = datetime.datetime.now()
+					updated = True
 				found = True
 				break
 		if not found:
 			self._logger.debug("Adding token for %s." % device_name)
 			# Token was not found so we need to add it
 			existing_tokens.append({'apnsToken': new_token, 'deviceName': device_name, 'date': datetime.datetime.now(),
-									'printerID': printer_id})
+									'printerID': printer_id, 'printerName': printer_name, 'languageCode': language_code})
 			updated = True
 		if updated:
 			# Save new settings
@@ -144,10 +154,17 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		if command == 'updateToken':
 			# Convert from ASCII to UTF-8 since somce chars will fail otherwise
 			data["deviceName"] = data["deviceName"].encode("utf-8")
+			printer_name = data["printerName"] if 'printerName' in data else None
+			language_code = data["languageCode"] if 'languageCode' in data else None
+
 			self.update_token("{oldToken}".format(**data), "{newToken}".format(**data), "{deviceName}".format(**data),
-							  "{printerID}".format(**data))
+							  "{printerID}".format(**data), printer_name, language_code)
 		elif command == 'test':
-			code = self._job_notifications.send__print_job_notification(self._settings, self._printer,
+			payload = dict(
+				state_id="OPERATIONAL",
+				state_string="Operational"
+			)
+			code = self._job_notifications.send__print_job_notification(self._settings, self._printer, payload,
 																		data["server_url"], data["camera_snapshot_url"],
 																		True)
 			return flask.jsonify(dict(code=code))

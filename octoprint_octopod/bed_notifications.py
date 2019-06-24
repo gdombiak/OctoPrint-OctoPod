@@ -1,11 +1,13 @@
 import time
-import requests
+
+from .alerts import Alerts
 
 
 class BedNotifications:
 
 	def __init__(self, logger):
 		self._logger = logger
+		self._alerts = Alerts(self._logger)
 		self._printer_was_printing_above_bed_low = False  # Variable used for bed cooling alerts
 		self._printer_not_printing_reached_target_temp_start_time = None  # Variable used for bed warming alerts
 
@@ -35,11 +37,13 @@ class BedNotifications:
 				'actual'] > threshold_low:
 				self._printer_was_printing_above_bed_low = True
 
-			# If we are not printing and we were printing before with bed temp above bed threshold and bed temp is now below bed threshold
+			# If we are not printing and we were printing before with bed temp above bed threshold and bed temp is now
+			# below bed threshold
 			if self._printer_was_printing_above_bed_low and not printer.is_printing() and threshold_low and temps[k][
 				'actual'] < threshold_low:
 				self._logger.debug(
-					"Print done and bed temp is now below threshold {0}. Actual {1}.".format(threshold_low, temps[k]['actual']))
+					"Print done and bed temp is now below threshold {0}. Actual {1}.".format(threshold_low,
+																							 temps[k]['actual']))
 				self._printer_was_printing_above_bed_low = False
 
 				self.send__bed_notification(settings, "bed-cooled", threshold_low, None)
@@ -101,24 +105,17 @@ class BedNotifications:
 			# Keep track of tokens that received a notification
 			used_tokens.append(apns_token)
 
-			last_result = self.send_bed_request(url, apns_token, printerID, event_code, temperature, minutes)
+			if 'printerName' in token:
+				# We can send non-silent notifications (the new way) so notifications are rendered even if user
+				# killed the app
+				printer_name = token["printerName"]
+				language_code = token["languageCode"]
+				last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name, event_code,
+														   None)
+			else:
+				# Legacy mode that uses silent notifications. As user update OctoPod app then they will automatically
+				# switch to the new mode
+				last_result = self._alerts.send_bed_request(url, apns_token, printerID, event_code, temperature,
+															minutes)
 
 		return last_result
-
-	def send_bed_request(self, url, apns_token, printer_id, event_code, temperature, minutes):
-		data = {"tokens": [apns_token], "printerID": printer_id, "eventCode": event_code, "temperature": temperature, "silent": True}
-
-		if minutes:
-			data["minutes"] = minutes
-
-		try:
-			r = requests.post(url, json=data)
-
-			if r.status_code >= 400:
-				self._logger.info("Bed Notification Response: %s" % str(r.content))
-			else:
-				self._logger.debug("Bed Notification Response code: %d" % r.status_code)
-			return r.status_code
-		except Exception as e:
-			self._logger.info("Could not send Bed Notification: %s" % str(e))
-			return -500
