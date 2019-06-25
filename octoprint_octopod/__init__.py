@@ -145,7 +145,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.debug("Tokens saved")
 
 	def get_api_commands(self):
-		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], test=[])
+		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], test=[],
+					snooze=["eventCode", "minutes"])
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
@@ -168,6 +169,13 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 																		data["server_url"], data["camera_snapshot_url"],
 																		True)
 			return flask.jsonify(dict(code=code))
+		elif command == 'snooze':
+			if data["eventCode"] == 'mmu-event':
+				self._mmu_assitance.snooze(data["minutes"])
+			else:
+				return flask.make_response("Snooze for unknown event", 400)
+		else:
+			return flask.make_response("Unknown command", 400)
 
 	# TemplatePlugin mixin
 

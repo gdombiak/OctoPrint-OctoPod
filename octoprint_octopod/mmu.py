@@ -1,5 +1,5 @@
 import time
-import requests
+
 from .alerts import Alerts
 
 
@@ -10,6 +10,7 @@ class MMUAssistance:
 		self._alerts = Alerts(self._logger)
 		self._mmu_lines_skipped = None
 		self._last_notification = None  # Keep track of when was user alerted last time. Helps avoid spamming
+		self._snooze_end_time = time.time()  # Track when snooze for mmu events ends. Assume snooze already expired
 
 	def process_gcode(self, settings, line):
 		# MMU user assistance detection
@@ -35,8 +36,8 @@ class MMUAssistance:
 						# Record last time we sent notification
 						self._last_notification = time.time()
 						# Send APNS Notification only if interval is not zero (user requested to
-						# shutdown this notification)
-						if mmu_interval > 0:
+						# shutdown this notification) and there is no active snooze for MMU events
+						if mmu_interval > 0 and time.time() > self._snooze_end_time:
 							self.send__mmu_notification(settings)
 					# Second line found, reset counter now
 					self._mmu_lines_skipped = None
@@ -45,6 +46,10 @@ class MMUAssistance:
 
 		# Always return what we parsed
 		return line
+
+	def snooze(self, minutes):
+		"""Snooze MMU events for the specified number of minutes"""
+		self._snooze_end_time = time.time() + (minutes * 60)
 
 	##~~ Private functions - MMU Notifications
 
@@ -58,8 +63,6 @@ class MMUAssistance:
 		if len(tokens) == 0:
 			# No iOS devices were registered so skip notification
 			return -2
-
-		url = url + '/v1/push_printer/code_events'
 
 		# For each registered token we will send a push notification
 		# We do it individually since 'printerID' is included so that
@@ -84,11 +87,15 @@ class MMUAssistance:
 				# killed the app
 				printer_name = token["printerName"]
 				language_code = token["languageCode"]
+				url = url + '/v1/push_printer'
+
 				last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name, "mmu-event",
-														   None)
+														   "mmuSnoozeActions", None)
 			else:
 				# Legacy mode that uses silent notifications. As user update OctoPod app then they will automatically
 				# switch to the new mode
+				url = url + '/v1/push_printer/code_events'
+
 				last_result = self._alerts.send_mmu_request(url, apns_token, printerID)
 
 		return last_result

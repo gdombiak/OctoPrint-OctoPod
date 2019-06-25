@@ -99,10 +99,11 @@ class JobNotifications:
 				if current_printer_state_id == "ERROR":
 					self._logger.debug(
 						"Sending notification for error message: %s (%s)" % (current_printer_state, printer_name))
-					last_result = self._alerts.send_alert(apns_token, url, printer_name, current_printer_state, None)
+					last_result = self._alerts.send_alert(apns_token, url, printer_name, current_printer_state, None,
+														  None)
 				elif (current_printer_state_id == "FINISHING" and completion == 100) or test:
 					last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name,
-															   "Print complete", image)
+															   "Print complete", None, image)
 					# Skip the silent notification for finishing at 100%. One for operational at 100% will be sent later
 					continue
 

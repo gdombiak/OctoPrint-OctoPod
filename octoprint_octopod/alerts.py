@@ -55,7 +55,7 @@ class Alerts:
 				"mmu-event": 'MMU krever tilsyn'
 			}}
 
-	def send_alert_code(self, language_code, apns_token, url, printer_name, event_code, image):
+	def send_alert_code(self, language_code, apns_token, url, printer_name, event_code, category, image):
 		message = None
 		if language_code == 'es-419':
 			# Default to Spanish instead of Latin American Spanish
@@ -72,11 +72,14 @@ class Alerts:
 		self._logger.debug("Sending notification for event '%s' (%s)" % (event_code, printer_name))
 
 		# Now send APNS notification using proper locale
-		self.send_alert(apns_token, url, printer_name, message, image)
+		self.send_alert(apns_token, url, printer_name, message, category, image)
 
-	def send_alert(self, apns_token, url, printer_name, message, image):
+	def send_alert(self, apns_token, url, printer_name, message, category, image):
 		data = {"tokens": [apns_token], "title": printer_name, "message": message, "sound": "default",
-				"useDev": self._use_dev}
+				"printerName": printer_name, "useDev": self._use_dev}
+
+		if category is not None:
+			data['category'] = category
 
 		try:
 			if image:
