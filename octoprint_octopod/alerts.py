@@ -72,7 +72,7 @@ class Alerts:
 		self._logger.debug("Sending notification for event '%s' (%s)" % (event_code, printer_name))
 
 		# Now send APNS notification using proper locale
-		self.send_alert(apns_token, url, printer_name, message, category, image)
+		return self.send_alert(apns_token, url, printer_name, message, category, image)
 
 	def send_alert(self, apns_token, url, printer_name, message, category, image):
 		data = {"tokens": [apns_token], "title": printer_name, "message": message, "sound": "default",
