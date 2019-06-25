@@ -37,6 +37,12 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_after_startup(self):
 		self._logger.info("OctoPod loaded!")
+		# Set logging level to what we have in the settings
+		if self._settings.get_boolean(["debug_logging"]):
+			self._logger.setLevel(logging.DEBUG)
+		else:
+			self._logger.setLevel(logging.INFO)
+
 		# Start timer that will check bed temperature and send notifications if needed
 		self._restart_timer()
 
