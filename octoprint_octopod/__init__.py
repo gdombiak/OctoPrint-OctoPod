@@ -125,7 +125,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 					token["apnsToken"] = new_token
 					token["date"] = datetime.datetime.now()
 					updated = True
-					found = True
+				found = True
 			elif token["apnsToken"] == new_token and token["printerID"] == printer_id:
 				found = True
 
