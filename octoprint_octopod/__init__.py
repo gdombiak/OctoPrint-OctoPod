@@ -125,6 +125,11 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 					token["apnsToken"] = new_token
 					token["date"] = datetime.datetime.now()
 					updated = True
+					found = True
+			elif token["apnsToken"] == new_token and token["printerID"] == printer_id:
+				found = True
+
+			if found:
 				if printer_name is not None and ("printerName" not in token or token["printerName"] != printer_name):
 					# Printer name in OctoPod has been updated
 					token["printerName"] = printer_name
@@ -135,8 +140,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 					token["languageCode"] = language_code
 					token["date"] = datetime.datetime.now()
 					updated = True
-				found = True
 				break
+
 		if not found:
 			self._logger.debug("Adding token for %s." % device_name)
 			# Token was not found so we need to add it
