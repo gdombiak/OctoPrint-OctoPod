@@ -54,8 +54,8 @@ class MMUAssistance:
 	##~~ Private functions - MMU Notifications
 
 	def send__mmu_notification(self, settings):
-		url = settings.get(["server_url"])
-		if not url or not url.strip():
+		server_url = settings.get(["server_url"])
+		if not server_url or not server_url.strip():
 			# No APNS server has been defined so do nothing
 			return -1
 
@@ -87,14 +87,14 @@ class MMUAssistance:
 				# killed the app
 				printer_name = token["printerName"]
 				language_code = token["languageCode"]
-				url = url + '/v1/push_printer'
+				url = server_url + '/v1/push_printer'
 
 				last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name, "mmu-event",
 														   "mmuSnoozeActions", None)
 			else:
 				# Legacy mode that uses silent notifications. As user update OctoPod app then they will automatically
 				# switch to the new mode
-				url = url + '/v1/push_printer/code_events'
+				url = server_url + '/v1/push_printer/code_events'
 
 				last_result = self._alerts.send_mmu_request(url, apns_token, printerID)
 

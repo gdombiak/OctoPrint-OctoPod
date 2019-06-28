@@ -75,8 +75,8 @@ class BedNotifications:
 	##~~ Private functions - Bed Notifications
 
 	def send__bed_notification(self, settings, event_code, temperature, minutes):
-		url = settings.get(["server_url"])
-		if not url or not url.strip():
+		server_url = settings.get(["server_url"])
+		if not server_url or not server_url.strip():
 			# No APNS server has been defined so do nothing
 			return -1
 
@@ -108,14 +108,14 @@ class BedNotifications:
 				# killed the app
 				printer_name = token["printerName"]
 				language_code = token["languageCode"]
-				url = url + '/v1/push_printer'
+				url = server_url + '/v1/push_printer'
 
 				last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name, event_code,
 														   None, None)
 			else:
 				# Legacy mode that uses silent notifications. As user update OctoPod app then they will automatically
 				# switch to the new mode
-				url = url + '/v1/push_printer/bed_events'
+				url = server_url + '/v1/push_printer/bed_events'
 
 				last_result = self._alerts.send_bed_request(url, apns_token, printerID, event_code, temperature,
 															minutes)
