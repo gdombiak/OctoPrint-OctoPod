@@ -17,7 +17,7 @@ class PausedForUser:
 		if line.startswith("echo:busy: paused for user"):
 			# Check if this type of notification is disabled
 			pause_interval = settings.get_int(['pause_interval'])
-			if pause_interval > 0:
+			if pause_interval == 0:
 				return line
 
 			# Gather information about progress completion of the job
@@ -79,7 +79,7 @@ class PausedForUser:
 			# Keep track of tokens that received a notification
 			used_tokens.append(apns_token)
 
-			if 'printerName' in token:
+			if 'printerName' in token and token["printerName"] is not None:
 				# Send non-silent notifications (the new way) so notifications are rendered even if user
 				# killed the app
 				printer_name = token["printerName"]

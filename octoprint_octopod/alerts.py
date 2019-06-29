@@ -31,7 +31,7 @@ class Alerts:
 				"bed-cooled": 'Teplota podložky pod nastavenou mezí',
 				"bed-warmed": 'Podložka nahřáta na nastavenou teplotu a dobu',
 				"mmu-event": 'MMU vyžaduje asistenci uživatele',
-				"paused-user-event": ''
+				"paused-user-event": 'Tiskárna čeká na uživatele'
 			},
 			'de': {
 				"Print complete": 'Druck vollständig',

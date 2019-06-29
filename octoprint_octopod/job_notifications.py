@@ -94,7 +94,7 @@ class JobNotifications:
 			# Keep track of tokens that received a notification
 			used_tokens.append(apns_token)
 
-			if 'printerName' in token:
+			if 'printerName' in token and token["printerName"] is not None:
 				# We can send non-silent notifications (the new way) so notifications are rendered even if user
 				# killed the app
 				printer_name = token["printerName"]
