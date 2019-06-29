@@ -13,9 +13,9 @@ class BedNotifications:
 
 	def check_temps(self, settings, printer):
 		temps = printer.get_current_temperatures()
-		self._logger.debug(u"CheckTemps(): %r" % (temps,))
+		# self._logger.debug(u"CheckTemps(): %r" % (temps,))
 		if not temps:
-			self._logger.debug(u"No Temperature Data")
+			# self._logger.debug(u"No Temperature Data")
 			return
 
 		for k in temps.keys():
