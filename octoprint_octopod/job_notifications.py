@@ -115,6 +115,22 @@ class JobNotifications:
 											  test)
 
 			else:
+				if current_printer_state_id == "FINISHING":
+					# Legacy mode was not sending a notification for this state
+					continue
+
+				if image is None and completion == 100 and current_printer_state_id == "OPERATIONAL":
+					# Legacy used to include an image only under this state
+					try:
+						if camera_snapshot_url:
+							camera_url = camera_snapshot_url
+						else:
+							camera_url = settings.get(["camera_snapshot_url"])
+						if camera_url and camera_url.strip():
+							image = self.image(settings)
+					except:
+						self._logger.info("Could not load image from url")
+
 				# Legacy mode that uses silent notifications. As user update OctoPod app then they will automatically
 				# switch to the new mode
 				last_result = self._alerts.send_job_request(apns_token, image, printer_id, current_printer_state,
