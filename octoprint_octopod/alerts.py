@@ -122,12 +122,14 @@ class Alerts:
 				r = requests.post(url, json=data)
 
 			if r.status_code >= 400:
-				self._logger.info("Silent Print Job Notification Response: %s" % str(r.content))
+				self._logger.info(
+					"Silent Print Job Notification Response: %s. State: %s" % (str(r.content), printer_state))
 			else:
-				self._logger.debug("Silent Print Job Notification Response code: %d" % r.status_code)
+				self._logger.debug(
+					"Silent Print Job Notification Response code: %d. State: %s" % (r.status_code, printer_state))
 			return r.status_code
 		except Exception as e:
-			self._logger.info("Could not send Silent job message: %s" % str(e))
+			self._logger.info("Could not send Silent job message: %s State: %s" % (str(e), printer_state))
 			return -500
 
 	def send_bed_request(self, url, apns_token, printer_id, event_code, temperature, minutes):
