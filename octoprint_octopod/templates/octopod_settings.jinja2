@@ -1,6 +1,6 @@
 <form class="form-horizontal">
-    <h3>Server and Camera Settings</h3>
-    <p>Complete URLs below so that OctoPrint can send notifications to OctoPod once print is finished.</p>
+    <h4>{{ _('Server and Camera Settings') }}</h4>
+    <p>{{ _('Complete URLs below so that OctoPrint can send notifications to OctoPod once print is finished') }}</p>
 
     <div class="control-group">
         <label class="control-label">{{ _('Notification Server URL') }}</label>
@@ -20,16 +20,16 @@
     </div>
 
     <br>
-    <p>Open OctoPod on your iOS device before testing notification that you would receive when print is finished</p>
+    <p>{{ _('Open OctoPod on your iOS device and select this printer before testing notification that you would receive when print is finished') }}</p>
     <div class="control-group">
         <div class="controls">
             <button class="btn" data-bind="click: function() { testNotification() }"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Send test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
         </div>
     </div>
 
-    <h3>Bed Notifications</h3>
+    <h4>{{ _('Bed Notifications') }}</h4>
 
-    <p>When bed temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below</p>
+    <p>{{ _('When bed temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
     <label class="control-label">{{ _('Temperature') }}</label>
     <div class="controls">
         <div class="input-append">
@@ -38,7 +38,7 @@
     </div>
 
     <br>
-    <p>When bed warms up to target temperature for specified duration before print starts, OctoPrint will send notification. A value of 0 will disable the notifications below</p>
+    <p>{{ _('When bed warms up to target temperature for specified duration before print starts, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
     <label class="control-label">{{ _('Minutes') }}</label>
     <div class="controls">
         <div class="input-append">
@@ -46,11 +46,23 @@
         </div>
     </div>
 
-    <h3>MMU Notifications</h3>
+    <h4>{{ _('Printer Paused Notifications') }}</h4>
 
-    <p>When Prusa MMU (Multi Material Upgrade) requires user assistance, OctoPrint will send notification. The following
+    <p>{{ _('When current print job was paused waiting for user, OctoPrint will send notification. Useful when running
+    out of filament or need to change color of filament (M600). The following setting controls the frequency notifications
+    will be sent. A low number might end up spamming user. A value of 0 will disable this type of notifications') }}</p>
+    <label class="control-label">{{ _('Minutes') }}</label>
+    <div class="controls">
+        <div class="input-append">
+            <input type="number" class="input-mini text-right" id="pause_interval" data-bind="value: settings.plugins.octopod.pause_interval" min="0" max="100" step="1" value="5">
+        </div>
+    </div>
+
+    <h4>{{ _('MMU Notifications') }}</h4>
+
+    <p>{{ _('When Prusa MMU (Multi Material Upgrade) requires user assistance, OctoPrint will send notification. The following
     setting controls the frequency notifications will be sent. A low number might end up spamming user. A value of 0
-    will disable MMU notifications</p>
+    will disable MMU notifications') }}</p>
     <label class="control-label">{{ _('Minutes') }}</label>
     <div class="controls">
         <div class="input-append">
@@ -62,7 +74,7 @@
     <div class="control-group">
         <div class="controls">
             <label class="checkbox">
-            <input type="checkbox" data-bind="checked: settings.plugins.octopod.debug_logging"> Enable debug logging.
+            <input type="checkbox" data-bind="checked: settings.plugins.octopod.debug_logging">{{ _('Enable debug logging') }}
             </label>
         </div>
     </div>

@@ -13,6 +13,7 @@ from octoprint.util import RepeatedTimer
 from .job_notifications import JobNotifications
 from .bed_notifications import BedNotifications
 from .mmu import MMUAssistance
+from .paused_for_user import PausedForUser
 
 
 # Plugin that stores APNS tokens reported from iOS devices to know which iOS devices to alert
@@ -32,6 +33,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		self._job_notifications = JobNotifications(self._logger)
 		self._bed_notifications = BedNotifications(self._logger)
 		self._mmu_assitance = MMUAssistance(self._logger)
+		self._paused_for_user = PausedForUser(self._logger)
 
 	# StartupPlugin mixin
 
@@ -57,7 +59,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			temp_interval=5,
 			bed_low=30,
 			bed_target_temp_hold=10,
-			mmu_interval=5
+			mmu_interval=5,
+			pause_interval=5
 		)
 
 	def on_settings_save(self, data):
@@ -73,7 +76,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 4
+		return 5
 
 	def on_settings_migrate(self, target, current):
 		if current == 1:
@@ -86,6 +89,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 		if current <= 3:
 			self._settings.set(['mmu_interval'], self.get_settings_defaults()["mmu_interval"])
+
+		if current <= 4:
+			self._settings.set(['pause_interval'], self.get_settings_defaults()["pause_interval"])
 
 	# AssetPlugin mixin
 
@@ -239,6 +245,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	# GCODE hook
 
 	def process_gcode(self, comm, line, *args, **kwargs):
+		line = self._paused_for_user.process_gcode(self._settings, self._printer, line)
 		return self._mmu_assitance.process_gcode(self._settings, line)
 
 
