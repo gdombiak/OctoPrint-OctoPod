@@ -38,7 +38,7 @@ class Alerts:
 				"bed-cooled": 'Druckbett unterhalb der vorgegebenen Temperaturschwelle',
 				"bed-warmed": 'Druckbett auf vorgegebene Temperatur für gewählte Zeit aufgeheizt',
 				"mmu-event": 'MMU fordert Hilfestellung',
-				"paused-user-event": 'Printer paused for user'
+				"paused-user-event": 'Drucker angehalten für Benutzer'
 			},
 			'it': {
 				"Print complete": 'Stampa completata',
@@ -52,7 +52,7 @@ class Alerts:
 				"bed-cooled": 'Paviršius atvėso',
 				"bed-warmed": 'Paviršius pasiekė nustatytą temperatūrą',
 				"mmu-event": 'MMU reikalauja pagalbos',
-				"paused-user-event": 'Printer paused for user'
+				"paused-user-event": 'Spausdintuvas laukia vartotojo'
 			},
 			'nb': {
 				"Print complete": 'Utskrift ferdig',
