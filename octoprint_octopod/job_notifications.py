@@ -32,6 +32,7 @@ class JobNotifications:
 
 		# Gather information about progress completion of the job
 		completion = None
+		was_printing = False
 		current_data = printer.get_current_data()
 		if "progress" in current_data and current_data["progress"] is not None \
 			and "completion" in current_data["progress"] and current_data["progress"][
@@ -52,6 +53,8 @@ class JobNotifications:
 				# OctoPrint may report the same state more than once so ignore dups
 				return -4
 
+			if self._lastPrinterState is not None and self._lastPrinterState.startswith('Printing'):
+				was_printing = True
 			self._lastPrinterState = current_printer_state
 		else:
 			current_printer_state_id = "OPERATIONAL"
@@ -60,7 +63,7 @@ class JobNotifications:
 
 		# Get a snapshot of the camera
 		image = None
-		if (completion == 100 and current_printer_state_id == "FINISHING") or test:
+		if (was_printing and current_printer_state_id == "FINISHING") or test:
 			# Only include image when print is complete. This is an optimization to avoid sending
 			# images that won't be rendered by the app
 			try:
@@ -101,7 +104,7 @@ class JobNotifications:
 						"Sending notification for error message: %s (%s)" % (current_printer_state, printer_name))
 					last_result = self._alerts.send_alert(apns_token, url, printer_name, current_printer_state, None,
 														  None)
-				elif (current_printer_state_id == "FINISHING" and completion == 100) or test:
+				elif (current_printer_state_id == "FINISHING" and was_printing) or test:
 					last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name,
 															   "Print complete", None, image)
 					# Skip the silent notification for finishing at 100%. One for operational at 100% will be sent later
