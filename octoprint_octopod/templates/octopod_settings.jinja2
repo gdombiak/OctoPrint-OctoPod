@@ -20,7 +20,7 @@
     </div>
 
     <br>
-    <p>{{ _('Open OctoPod on your iOS device and select this printer before testing notification that you would receive when print is finished') }}</p>
+    <p>{{ _('Open OctoPod on your iOS device and make sure to have the corresponding printer selected before testing notification that you would receive when print is finished') }}</p>
     <div class="control-group">
         <div class="controls">
             <button class="btn" data-bind="click: function() { testNotification() }"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Send test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
