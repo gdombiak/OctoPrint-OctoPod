@@ -25,6 +25,14 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.2.0]** (06/30/2019)
+- Send notification when printer paused for user
+- Send notification when OctoPrint lost connection to printer
+- Notifications are now displayed even if the iOS app was killed by user
+- (bug fix) Not all iOS devices were receiving bed or MMU events
+- (bug fix) Sometimes Print Finished notification is displayed twice
+- (bug fix) Log level is not restored after a restart
+
 **[0.1.3]** (06/16/2019)
 - Send MMU Notification when user assistance is required. Requires Prusa firmware.
 
