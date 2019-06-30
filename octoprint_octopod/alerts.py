@@ -45,7 +45,7 @@ class Alerts:
 				"bed-cooled": 'Piatto della stampante sotto la soglia di temperatura specificata',
 				"bed-warmed": 'Piatto della stampante riscaldato alla temperatura e per la durata specificate',
 				"mmu-event": 'MMU richiede l\'intervento dell\'utente',
-				"paused-user-event": 'Printer paused for user'
+				"paused-user-event": 'Stampante in pausa, in attesa dell\'utente'
 			},
 			'lt-LT': {
 				"Print complete": 'Baigta',
@@ -59,7 +59,7 @@ class Alerts:
 				"bed-cooled": 'Skriveflate under spesifisert temperaturgrense',
 				"bed-warmed": 'Skriveflate varmet til spesifisert temperatur og varighet',
 				"mmu-event": 'MMU krever tilsyn',
-				"paused-user-event": 'Printer paused for user'
+				"paused-user-event": 'Skriver venter på bruker'
 			}}
 
 	def send_alert_code(self, language_code, apns_token, url, printer_name, event_code, category, image):
