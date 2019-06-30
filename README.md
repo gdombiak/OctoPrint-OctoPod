@@ -27,6 +27,7 @@ You can test the configuration before saving it by using the _Send test notifica
 
 **[0.2.0]** (06/30/2019)
 - Send notification when printer paused for user
+- Send notification for firmware errors (e.g. runaway temp, min temp error, max temp error, probing failed, etc.)
 - Send notification when OctoPrint lost connection to printer
 - Notifications are now displayed even if the iOS app was killed by user
 - (bug fix) Not all iOS devices were receiving bed or MMU events
