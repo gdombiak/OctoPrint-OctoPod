@@ -1,19 +1,21 @@
 import time
-import requests
+
+from .alerts import Alerts
 
 
 class BedNotifications:
 
 	def __init__(self, logger):
 		self._logger = logger
+		self._alerts = Alerts(self._logger)
 		self._printer_was_printing_above_bed_low = False  # Variable used for bed cooling alerts
 		self._printer_not_printing_reached_target_temp_start_time = None  # Variable used for bed warming alerts
 
 	def check_temps(self, settings, printer):
 		temps = printer.get_current_temperatures()
-		self._logger.debug(u"CheckTemps(): %r" % (temps,))
+		# self._logger.debug(u"CheckTemps(): %r" % (temps,))
 		if not temps:
-			self._logger.debug(u"No Temperature Data")
+			# self._logger.debug(u"No Temperature Data")
 			return
 
 		for k in temps.keys():
@@ -35,11 +37,13 @@ class BedNotifications:
 				'actual'] > threshold_low:
 				self._printer_was_printing_above_bed_low = True
 
-			# If we are not printing and we were printing before with bed temp above bed threshold and bed temp is now below bed threshold
+			# If we are not printing and we were printing before with bed temp above bed threshold and bed temp is now
+			# below bed threshold
 			if self._printer_was_printing_above_bed_low and not printer.is_printing() and threshold_low and temps[k][
 				'actual'] < threshold_low:
 				self._logger.debug(
-					"Print done and bed temp is now below threshold {0}. Actual {1}.".format(threshold_low, temps[k]['actual']))
+					"Print done and bed temp is now below threshold {0}. Actual {1}.".format(threshold_low,
+																							 temps[k]['actual']))
 				self._printer_was_printing_above_bed_low = False
 
 				self.send__bed_notification(settings, "bed-cooled", threshold_low, None)
@@ -71,8 +75,8 @@ class BedNotifications:
 	##~~ Private functions - Bed Notifications
 
 	def send__bed_notification(self, settings, event_code, temperature, minutes):
-		url = settings.get(["server_url"])
-		if not url or not url.strip():
+		server_url = settings.get(["server_url"])
+		if not server_url or not server_url.strip():
 			# No APNS server has been defined so do nothing
 			return -1
 
@@ -80,8 +84,6 @@ class BedNotifications:
 		if len(tokens) == 0:
 			# No iOS devices were registered so skip notification
 			return -2
-
-		url = url + '/v1/push_printer/bed_events'
 
 		# For each registered token we will send a push notification
 		# We do it individually since 'printerID' is included so that
@@ -101,24 +103,21 @@ class BedNotifications:
 			# Keep track of tokens that received a notification
 			used_tokens.append(apns_token)
 
-			last_result = self.send_bed_request(url, apns_token, printerID, event_code, temperature, minutes)
+			if 'printerName' in token and token["printerName"] is not None:
+				# We can send non-silent notifications (the new way) so notifications are rendered even if user
+				# killed the app
+				printer_name = token["printerName"]
+				language_code = token["languageCode"]
+				url = server_url + '/v1/push_printer'
+
+				last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name, event_code,
+														   None, None)
+			else:
+				# Legacy mode that uses silent notifications. As user update OctoPod app then they will automatically
+				# switch to the new mode
+				url = server_url + '/v1/push_printer/bed_events'
+
+				last_result = self._alerts.send_bed_request(url, apns_token, printerID, event_code, temperature,
+															minutes)
 
 		return last_result
-
-	def send_bed_request(self, url, apns_token, printer_id, event_code, temperature, minutes):
-		data = {"tokens": [apns_token], "printerID": printer_id, "eventCode": event_code, "temperature": temperature, "silent": True}
-
-		if minutes:
-			data["minutes"] = minutes
-
-		try:
-			r = requests.post(url, json=data)
-
-			if r.status_code >= 400:
-				self._logger.info("Bed Notification Response: %s" % str(r.content))
-			else:
-				self._logger.debug("Bed Notification Response code: %d" % r.status_code)
-			return r.status_code
-		except Exception as e:
-			self._logger.info("Could not send Bed Notification: %s" % str(e))
-			return -500

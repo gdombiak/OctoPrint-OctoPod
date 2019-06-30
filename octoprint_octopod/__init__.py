@@ -13,6 +13,7 @@ from octoprint.util import RepeatedTimer
 from .job_notifications import JobNotifications
 from .bed_notifications import BedNotifications
 from .mmu import MMUAssistance
+from .paused_for_user import PausedForUser
 
 
 # Plugin that stores APNS tokens reported from iOS devices to know which iOS devices to alert
@@ -32,11 +33,18 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		self._job_notifications = JobNotifications(self._logger)
 		self._bed_notifications = BedNotifications(self._logger)
 		self._mmu_assitance = MMUAssistance(self._logger)
+		self._paused_for_user = PausedForUser(self._logger)
 
 	# StartupPlugin mixin
 
 	def on_after_startup(self):
 		self._logger.info("OctoPod loaded!")
+		# Set logging level to what we have in the settings
+		if self._settings.get_boolean(["debug_logging"]):
+			self._logger.setLevel(logging.DEBUG)
+		else:
+			self._logger.setLevel(logging.INFO)
+
 		# Start timer that will check bed temperature and send notifications if needed
 		self._restart_timer()
 
@@ -51,7 +59,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			temp_interval=5,
 			bed_low=30,
 			bed_target_temp_hold=10,
-			mmu_interval=5
+			mmu_interval=5,
+			pause_interval=5
 		)
 
 	def on_settings_save(self, data):
@@ -67,7 +76,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 4
+		return 5
 
 	def on_settings_migrate(self, target, current):
 		if current == 1:
@@ -80,6 +89,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 		if current <= 3:
 			self._settings.set(['mmu_interval'], self.get_settings_defaults()["mmu_interval"])
+
+		if current <= 4:
+			self._settings.set(['pause_interval'], self.get_settings_defaults()["pause_interval"])
 
 	# AssetPlugin mixin
 
@@ -95,11 +107,11 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_event(self, event, payload):
 		if event == Events.PRINTER_STATE_CHANGED:
-			self._job_notifications.send__print_job_notification(self._settings, self._printer)
+			self._job_notifications.send__print_job_notification(self._settings, self._printer, payload)
 
 	# SimpleApiPlugin mixin
 
-	def update_token(self, old_token, new_token, device_name, printer_id):
+	def update_token(self, old_token, new_token, device_name, printer_id, printer_name, language_code):
 		self._logger.debug("Received tokens for %s." % device_name)
 
 		existing_tokens = self._settings.get(["tokens"])
@@ -120,12 +132,27 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 					token["date"] = datetime.datetime.now()
 					updated = True
 				found = True
+			elif token["apnsToken"] == new_token and token["printerID"] == printer_id:
+				found = True
+
+			if found:
+				if printer_name is not None and ("printerName" not in token or token["printerName"] != printer_name):
+					# Printer name in OctoPod has been updated
+					token["printerName"] = printer_name
+					token["date"] = datetime.datetime.now()
+					updated = True
+				if language_code is not None and ("languageCode" not in token or token["languageCode"] != language_code):
+					# Language being used by OctoPod has been updated
+					token["languageCode"] = language_code
+					token["date"] = datetime.datetime.now()
+					updated = True
 				break
+
 		if not found:
 			self._logger.debug("Adding token for %s." % device_name)
 			# Token was not found so we need to add it
 			existing_tokens.append({'apnsToken': new_token, 'deviceName': device_name, 'date': datetime.datetime.now(),
-									'printerID': printer_id})
+									'printerID': printer_id, 'printerName': printer_name, 'languageCode': language_code})
 			updated = True
 		if updated:
 			# Save new settings
@@ -135,7 +162,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.debug("Tokens saved")
 
 	def get_api_commands(self):
-		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], test=[])
+		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], test=[],
+					snooze=["eventCode", "minutes"])
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
@@ -144,13 +172,27 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		if command == 'updateToken':
 			# Convert from ASCII to UTF-8 since somce chars will fail otherwise
 			data["deviceName"] = data["deviceName"].encode("utf-8")
+			printer_name = data["printerName"] if 'printerName' in data else None
+			language_code = data["languageCode"] if 'languageCode' in data else None
+
 			self.update_token("{oldToken}".format(**data), "{newToken}".format(**data), "{deviceName}".format(**data),
-							  "{printerID}".format(**data))
+							  "{printerID}".format(**data), printer_name, language_code)
 		elif command == 'test':
-			code = self._job_notifications.send__print_job_notification(self._settings, self._printer,
+			payload = dict(
+				state_id="OPERATIONAL",
+				state_string="Operational"
+			)
+			code = self._job_notifications.send__print_job_notification(self._settings, self._printer, payload,
 																		data["server_url"], data["camera_snapshot_url"],
 																		True)
 			return flask.jsonify(dict(code=code))
+		elif command == 'snooze':
+			if data["eventCode"] == 'mmu-event':
+				self._mmu_assitance.snooze(data["minutes"])
+			else:
+				return flask.make_response("Snooze for unknown event", 400)
+		else:
+			return flask.make_response("Unknown command", 400)
 
 	# TemplatePlugin mixin
 
@@ -203,6 +245,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	# GCODE hook
 
 	def process_gcode(self, comm, line, *args, **kwargs):
+		line = self._paused_for_user.process_gcode(self._settings, self._printer, line)
 		return self._mmu_assitance.process_gcode(self._settings, line)
 
 

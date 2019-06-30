@@ -1,18 +1,20 @@
 import StringIO
-import json
 
 import requests
 from PIL import Image
 
+from .alerts import Alerts
+
 
 class JobNotifications:
-
 	_lastPrinterState = None
 
 	def __init__(self, logger):
 		self._logger = logger
+		self._alerts = Alerts(self._logger)
 
-	def send__print_job_notification(self, settings, printer, server_url = None, camera_snapshot_url = None, test = False):
+	def send__print_job_notification(self, settings, printer, event_payload, server_url=None, camera_snapshot_url=None,
+									 test=False):
 		if server_url:
 			url = server_url
 		else:
@@ -30,26 +32,29 @@ class JobNotifications:
 
 		# Gather information about progress completion of the job
 		completion = None
+		was_printing = False
 		current_data = printer.get_current_data()
 		if "progress" in current_data and current_data["progress"] is not None \
-				and "completion" in current_data["progress"] and current_data["progress"][
+			and "completion" in current_data["progress"] and current_data["progress"][
 			"completion"] is not None:
 			completion = current_data["progress"]["completion"]
 
-		current_printer_state_id = printer.get_state_id()
+		current_printer_state_id = event_payload["state_id"]
 		if not test:
 			# Ignore other states that are not any of the following
 			if current_printer_state_id != "OPERATIONAL" and current_printer_state_id != "PRINTING" and \
 				current_printer_state_id != "PAUSED" and current_printer_state_id != "CLOSED" and \
 				current_printer_state_id != "ERROR" and current_printer_state_id != "CLOSED_WITH_ERROR" and \
-				current_printer_state_id != "OFFLINE":
+				current_printer_state_id != "OFFLINE" and current_printer_state_id != "FINISHING":
 				return -3
 
-			current_printer_state = printer.get_state_string()
+			current_printer_state = event_payload["state_string"]
 			if current_printer_state == self._lastPrinterState:
 				# OctoPrint may report the same state more than once so ignore dups
 				return -4
 
+			if self._lastPrinterState is not None and self._lastPrinterState.startswith('Printing'):
+				was_printing = True
 			self._lastPrinterState = current_printer_state
 		else:
 			current_printer_state_id = "OPERATIONAL"
@@ -58,7 +63,7 @@ class JobNotifications:
 
 		# Get a snapshot of the camera
 		image = None
-		if completion == 100 and current_printer_state_id == "OPERATIONAL":
+		if (was_printing and current_printer_state_id == "FINISHING") or test:
 			# Only include image when print is complete. This is an optimization to avoid sending
 			# images that won't be rendered by the app
 			try:
@@ -89,39 +94,51 @@ class JobNotifications:
 			# Keep track of tokens that received a notification
 			used_tokens.append(apns_token)
 
-			last_result = self.send_job_request(apns_token, image, printer_id, current_printer_state, completion, url, test)
+			if 'printerName' in token and token["printerName"] is not None:
+				# We can send non-silent notifications (the new way) so notifications are rendered even if user
+				# killed the app
+				printer_name = token["printerName"]
+				language_code = token["languageCode"]
+				if current_printer_state_id == "ERROR":
+					self._logger.debug(
+						"Sending notification for error message: %s (%s)" % (current_printer_state, printer_name))
+					last_result = self._alerts.send_alert(apns_token, url, printer_name, current_printer_state, None,
+														  None)
+				elif (current_printer_state_id == "FINISHING" and was_printing) or test:
+					last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name,
+															   "Print complete", None, image)
+					# Skip the silent notification for finishing at 100%. One for operational at 100% will be sent later
+					continue
+
+				# Send silent notification so that OctoPod app can update complications of Apple Watch app
+				self._alerts.send_job_request(apns_token, image, printer_id, current_printer_state, completion, url,
+											  test)
+
+			else:
+				if current_printer_state_id == "FINISHING":
+					# Legacy mode was not sending a notification for this state
+					continue
+
+				if image is None and completion == 100 and current_printer_state_id == "OPERATIONAL":
+					# Legacy used to include an image only under this state
+					try:
+						if camera_snapshot_url:
+							camera_url = camera_snapshot_url
+						else:
+							camera_url = settings.get(["camera_snapshot_url"])
+						if camera_url and camera_url.strip():
+							image = self.image(settings)
+					except:
+						self._logger.info("Could not load image from url")
+
+				# Legacy mode that uses silent notifications. As user update OctoPod app then they will automatically
+				# switch to the new mode
+				last_result = self._alerts.send_job_request(apns_token, image, printer_id, current_printer_state,
+															completion, url, test)
 
 		return last_result
 
 	# Private functions - Print Job Notifications
-
-	def send_job_request(self, apns_token, image, printer_id, printer_state, completion, url, test = False):
-		data = {"tokens": [apns_token], "printerID": printer_id, "printerState": printer_state, "silent": True}
-
-		if completion:
-			data["printerCompletion"] = completion
-
-		if test:
-			data["test"] = True
-
-		try:
-			if image:
-				files = {}
-				files['image'] = ("image.jpg", image, "image/jpeg")
-				files['json'] = (None, json.dumps(data), "application/json")
-
-				r = requests.post(url, files=files)
-			else:
-				r = requests.post(url, json=data)
-
-			if r.status_code >= 400:
-				self._logger.info("Print Job Notification Response: %s" % str(r.content))
-			else:
-				self._logger.debug("Print Job Notification Response code: %d" % r.status_code)
-			return r.status_code
-		except Exception as e:
-			self._logger.info("Could not send message: %s" % str(e))
-			return -500
 
 	def image(self, settings):
 		"""

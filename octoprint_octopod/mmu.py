@@ -1,13 +1,16 @@
 import time
-import requests
+
+from .alerts import Alerts
 
 
 class MMUAssistance:
 
 	def __init__(self, logger):
 		self._logger = logger
+		self._alerts = Alerts(self._logger)
 		self._mmu_lines_skipped = None
 		self._last_notification = None  # Keep track of when was user alerted last time. Helps avoid spamming
+		self._snooze_end_time = time.time()  # Track when snooze for mmu events ends. Assume snooze already expired
 
 	def process_gcode(self, settings, line):
 		# MMU user assistance detection
@@ -33,8 +36,8 @@ class MMUAssistance:
 						# Record last time we sent notification
 						self._last_notification = time.time()
 						# Send APNS Notification only if interval is not zero (user requested to
-						# shutdown this notification)
-						if mmu_interval > 0:
+						# shutdown this notification) and there is no active snooze for MMU events
+						if mmu_interval > 0 and time.time() > self._snooze_end_time:
 							self.send__mmu_notification(settings)
 					# Second line found, reset counter now
 					self._mmu_lines_skipped = None
@@ -44,11 +47,15 @@ class MMUAssistance:
 		# Always return what we parsed
 		return line
 
+	def snooze(self, minutes):
+		"""Snooze MMU events for the specified number of minutes"""
+		self._snooze_end_time = time.time() + (minutes * 60)
+
 	##~~ Private functions - MMU Notifications
 
 	def send__mmu_notification(self, settings):
-		url = settings.get(["server_url"])
-		if not url or not url.strip():
+		server_url = settings.get(["server_url"])
+		if not server_url or not server_url.strip():
 			# No APNS server has been defined so do nothing
 			return -1
 
@@ -56,8 +63,6 @@ class MMUAssistance:
 		if len(tokens) == 0:
 			# No iOS devices were registered so skip notification
 			return -2
-
-		url = url + '/v1/push_printer/code_events'
 
 		# For each registered token we will send a push notification
 		# We do it individually since 'printerID' is included so that
@@ -77,21 +82,20 @@ class MMUAssistance:
 			# Keep track of tokens that received a notification
 			used_tokens.append(apns_token)
 
-			last_result = self.send_mmu_request(url, apns_token, printerID)
+			if 'printerName' in token and token["printerName"] is not None:
+				# We can send non-silent notifications (the new way) so notifications are rendered even if user
+				# killed the app
+				printer_name = token["printerName"]
+				language_code = token["languageCode"]
+				url = server_url + '/v1/push_printer'
+
+				last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name, "mmu-event",
+														   "mmuSnoozeActions", None)
+			else:
+				# Legacy mode that uses silent notifications. As user update OctoPod app then they will automatically
+				# switch to the new mode
+				url = server_url + '/v1/push_printer/code_events'
+
+				last_result = self._alerts.send_mmu_request(url, apns_token, printerID)
 
 		return last_result
-
-	def send_mmu_request(self, url, apns_token, printer_id):
-		data = {"tokens": [apns_token], "printerID": printer_id, "eventCode": "mmu-event", "silent": True}
-
-		try:
-			r = requests.post(url, json=data)
-
-			if r.status_code >= 400:
-				self._logger.info("MMU Notification Response: %s" % str(r.content))
-			else:
-				self._logger.debug("MMU Notification Response code: %d" % r.status_code)
-			return r.status_code
-		except Exception as e:
-			self._logger.info("Could not send MMU Notification: %s" % str(e))
-			return -500
