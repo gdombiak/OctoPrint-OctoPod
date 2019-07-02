@@ -1,5 +1,8 @@
 # OctoPrint-OctoPod
 
+[![Version](https://img.shields.io/badge/dynamic/json.svg?color=brightgreen&label=version&url=https://api.github.com/repos/gdombiak/OctoPrint-OctoPod/releases&query=$[0].name)]()
+[![Released](https://img.shields.io/badge/dynamic/json.svg?color=brightgreen&label=released&url=https://api.github.com/repos/gdombiak/OctoPrint-OctoPod/releases&query=$[0].published_at)]()
+
 This plugin sends immediate push notifications to your iOS devices running 
 [OctoPod](https://itunes.apple.com/us/app/octopod-for-octoprint/id1412557625?mt=8) once a 
 print has finished, bed reached target temp, bed cooled down or MMU requires user assistance. 
