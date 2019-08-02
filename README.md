@@ -47,6 +47,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.2.1]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.1
 [0.2.0]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.0
 [0.1.3]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.1.3
 [0.1.2]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.1.2
