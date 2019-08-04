@@ -58,7 +58,7 @@ class Alerts:
 				"bed-warmed": 'Paviršius pasiekė nustatytą temperatūrą',
 				"mmu-event": 'MMU reikalauja pagalbos',
 				"paused-user-event": 'Spausdintuvas laukia vartotojo',
-				"tool0-cooled": 'Extruder below specified temperature threshold'
+				"tool0-cooled": 'Ekstruderis žemiau nurodytos temperatūros slenksčio'
 			},
 			'nb': {
 				"Print complete": 'Utskrift ferdig',
@@ -66,7 +66,7 @@ class Alerts:
 				"bed-warmed": 'Skriveflate varmet til spesifisert temperatur og varighet',
 				"mmu-event": 'MMU krever tilsyn',
 				"paused-user-event": 'Skriver venter på bruker',
-				"tool0-cooled": 'Extruder below specified temperature threshold'
+				"tool0-cooled": 'Ekstruder under spesifisert temperaturgrense'
 			},
 			'sv': {
 				"Print complete": 'Utskrift klar',
