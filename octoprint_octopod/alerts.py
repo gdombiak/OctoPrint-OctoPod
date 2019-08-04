@@ -58,7 +58,7 @@ class Alerts:
 				"bed-warmed": 'Paviršius pasiekė nustatytą temperatūrą',
 				"mmu-event": 'MMU reikalauja pagalbos',
 				"paused-user-event": 'Spausdintuvas laukia vartotojo',
-				"tool0-cooled": 'Ekstruderis žemiau nurodytos temperatūros slenksčio'
+				"tool0-cooled": 'Ekstruderis žemiau nurodytos temperatūros ribos'
 			},
 			'nb': {
 				"Print complete": 'Utskrift ferdig',
