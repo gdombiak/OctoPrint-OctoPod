@@ -17,50 +17,66 @@ class Alerts:
 				"bed-cooled": 'Printer bed below specified temperature threshold',
 				"bed-warmed": 'Printer bed warmed to specified temperature and duration',
 				"mmu-event": 'MMU Requires User Assistance',
-				"paused-user-event": 'Printer paused for user'
+				"paused-user-event": 'Printer paused for user',
+				"tool0-cooled": 'Extruder below specified temperature threshold'
 			},
 			'es': {
 				"Print complete": 'Impresión completa',
 				"bed-cooled": 'Cama de la impresora por debajo del umbral de temperatura especificado',
 				"bed-warmed": 'Cama de la impresora calentada a la temperatura y duración especificadas',
 				"mmu-event": 'MMU requiere asistencia del usuario',
-				"paused-user-event": 'Impresora en pausa esperando al usuario'
+				"paused-user-event": 'Impresora en pausa esperando al usuario',
+				"tool0-cooled": 'Extrusora por debajo del umbral de temperatura especificado'
 			},
 			'cs': {
 				"Print complete": 'Tisk dokončen',
 				"bed-cooled": 'Teplota podložky pod nastavenou mezí',
 				"bed-warmed": 'Podložka nahřáta na nastavenou teplotu a dobu',
 				"mmu-event": 'MMU vyžaduje asistenci uživatele',
-				"paused-user-event": 'Tiskárna čeká na uživatele'
+				"paused-user-event": 'Tiskárna čeká na uživatele',
+				"tool0-cooled": 'Tryska nedosáhla požadované teploty'
 			},
 			'de': {
 				"Print complete": 'Druck vollständig',
 				"bed-cooled": 'Druckbett unterhalb der vorgegebenen Temperaturschwelle',
 				"bed-warmed": 'Druckbett auf vorgegebene Temperatur für gewählte Zeit aufgeheizt',
 				"mmu-event": 'MMU fordert Hilfestellung',
-				"paused-user-event": 'Drucker angehalten für Benutzer'
+				"paused-user-event": 'Drucker angehalten für Benutzer',
+				"tool0-cooled": 'Extruder unterhalb der vorgegebenen Schwelle'
 			},
 			'it': {
 				"Print complete": 'Stampa completata',
 				"bed-cooled": 'Piatto della stampante sotto la soglia di temperatura specificata',
 				"bed-warmed": 'Piatto della stampante riscaldato alla temperatura e per la durata specificate',
 				"mmu-event": 'MMU richiede l\'intervento dell\'utente',
-				"paused-user-event": 'Stampante in pausa, in attesa dell\'utente'
+				"paused-user-event": 'Stampante in pausa, in attesa dell\'utente',
+				"tool0-cooled": 'Estensore sotto la soglia di temperatura specificata'
 			},
 			'lt-LT': {
 				"Print complete": 'Baigta',
 				"bed-cooled": 'Paviršius atvėso',
 				"bed-warmed": 'Paviršius pasiekė nustatytą temperatūrą',
 				"mmu-event": 'MMU reikalauja pagalbos',
-				"paused-user-event": 'Spausdintuvas laukia vartotojo'
+				"paused-user-event": 'Spausdintuvas laukia vartotojo',
+				"tool0-cooled": 'Ekstruderis žemiau nurodytos temperatūros ribos'
 			},
 			'nb': {
 				"Print complete": 'Utskrift ferdig',
 				"bed-cooled": 'Skriveflate under spesifisert temperaturgrense',
 				"bed-warmed": 'Skriveflate varmet til spesifisert temperatur og varighet',
 				"mmu-event": 'MMU krever tilsyn',
-				"paused-user-event": 'Skriver venter på bruker'
-			}}
+				"paused-user-event": 'Skriver venter på bruker',
+				"tool0-cooled": 'Ekstruder under spesifisert temperaturgrense'
+			},
+			'sv': {
+				"Print complete": 'Utskrift klar',
+				"bed-cooled": 'Skrivarbädd under angiven temperaturgräns',
+				"bed-warmed": 'Skrivarbädd uppvärmd till angiven temperatur och varaktighet',
+				"mmu-event": 'MMU kräver användarhjälp',
+				"paused-user-event": 'Skrivare pausad för användare',
+				"tool0-cooled": 'Extruder under angiven temperaturgräns'
+			}
+		}
 
 	def send_alert_code(self, language_code, apns_token, url, printer_name, event_code, category, image):
 		message = None

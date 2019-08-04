@@ -12,6 +12,7 @@ from octoprint.server import user_permission
 from octoprint.util import RepeatedTimer
 from .job_notifications import JobNotifications
 from .bed_notifications import BedNotifications
+from .tools_notifications import ToolsNotifications
 from .mmu import MMUAssistance
 from .paused_for_user import PausedForUser
 
@@ -31,6 +32,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		self._logger = logging.getLogger("octoprint.plugins.octopod")
 		self._checkTempTimer = None
 		self._job_notifications = JobNotifications(self._logger)
+		self._tool_notifications = ToolsNotifications(self._logger)
 		self._bed_notifications = BedNotifications(self._logger)
 		self._mmu_assitance = MMUAssistance(self._logger)
 		self._paused_for_user = PausedForUser(self._logger)
@@ -57,6 +59,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			camera_snapshot_url='http://localhost:8080/?action=snapshot',
 			tokens=[],
 			temp_interval=5,
+			tool0_low=0,
 			bed_low=30,
 			bed_target_temp_hold=10,
 			mmu_interval=5,
@@ -76,7 +79,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 5
+		return 6
 
 	def on_settings_migrate(self, target, current):
 		if current == 1:
@@ -92,6 +95,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 		if current <= 4:
 			self._settings.set(['pause_interval'], self.get_settings_defaults()["pause_interval"])
+
+		if current <= 5:
+			self._settings.set(['tool0_low'], self.get_settings_defaults()["tool0_low"])
 
 	# AssetPlugin mixin
 
@@ -241,6 +247,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	def run_timer_job(self):
 		self._bed_notifications.check_temps(self._settings, self._printer)
+		self._tool_notifications.check_temps(self._settings, self._printer)
 
 	# GCODE hook
 
