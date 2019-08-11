@@ -37,7 +37,7 @@ class Alerts:
 				"mmu-event": 'MMU vyžaduje asistenci uživatele',
 				"paused-user-event": 'Tiskárna čeká na uživatele',
 				"tool0-cooled": 'Tryska nedosáhla požadované teploty',
-				"palette2-error-while-printing": 'Error {} occurred on Palette 2. Your print has been paused'
+				"palette2-error-while-printing": 'Nastala chyba {} na Palette 2. Tisk byl pozastaven'
 			},
 			'de': {
 				"Print complete": 'Druck vollständig',
