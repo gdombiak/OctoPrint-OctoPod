@@ -46,7 +46,7 @@ class Alerts:
 				"mmu-event": 'MMU fordert Hilfestellung',
 				"paused-user-event": 'Drucker angehalten für Benutzer',
 				"tool0-cooled": 'Extruder unterhalb der vorgegebenen Schwelle',
-				"palette2-error-while-printing": 'Fehler {} auf Palette aufgetreten. Dein Druck wurde pausiert'
+				"palette2-error-while-printing": 'Fehler {} auf Palette 2 aufgetreten. Dein Druck wurde pausiert'
 			},
 			'it': {
 				"Print complete": 'Stampa completata',
