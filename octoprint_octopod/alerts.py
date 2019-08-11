@@ -55,7 +55,7 @@ class Alerts:
 				"mmu-event": 'MMU richiede l\'intervento dell\'utente',
 				"paused-user-event": 'Stampante in pausa, in attesa dell\'utente',
 				"tool0-cooled": 'Estensore sotto la soglia di temperatura specificata',
-				"palette2-error-while-printing": 'Error {} occurred on Palette 2. Your print has been paused'
+				"palette2-error-while-printing": 'Errore {} su Palette 2. La tua stampa è in pausa'
 			},
 			'lt-LT': {
 				"Print complete": 'Baigta',
@@ -64,7 +64,7 @@ class Alerts:
 				"mmu-event": 'MMU reikalauja pagalbos',
 				"paused-user-event": 'Spausdintuvas laukia vartotojo',
 				"tool0-cooled": 'Ekstruderis žemiau nurodytos temperatūros ribos',
-				"palette2-error-while-printing": 'Error {} occurred on Palette 2. Your print has been paused'
+				"palette2-error-while-printing": 'Klaida {} ištiko Palette 2. Įjungta pauzė'
 			},
 			'nb': {
 				"Print complete": 'Utskrift ferdig',
@@ -73,7 +73,7 @@ class Alerts:
 				"mmu-event": 'MMU krever tilsyn',
 				"paused-user-event": 'Skriver venter på bruker',
 				"tool0-cooled": 'Ekstruder under spesifisert temperaturgrense',
-				"palette2-error-while-printing": 'Error {} occurred on Palette 2. Your print has been paused'
+				"palette2-error-while-printing": 'Feil {} oppstod på Palette 2. Din print er satt på pause'
 			},
 			'sv': {
 				"Print complete": 'Utskrift klar',
