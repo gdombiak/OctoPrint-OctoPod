@@ -7,7 +7,7 @@ import requests
 class Alerts:
 
 	# Flag to indicate if we should use APNS for development or production
-	_use_dev = False
+	_use_dev = True
 
 	def __init__(self, logger):
 		self._logger = logger
@@ -46,7 +46,7 @@ class Alerts:
 				"mmu-event": 'MMU fordert Hilfestellung',
 				"paused-user-event": 'Drucker angehalten für Benutzer',
 				"tool0-cooled": 'Extruder unterhalb der vorgegebenen Schwelle',
-				"palette2-error-while-printing": 'Error {} occurred on Palette 2. Your print has been paused'
+				"palette2-error-while-printing": 'Fehler {} auf Palette aufgetreten. Dein Druck wurde pausiert'
 			},
 			'it': {
 				"Print complete": 'Stampa completata',
@@ -82,7 +82,7 @@ class Alerts:
 				"mmu-event": 'MMU kräver användarhjälp',
 				"paused-user-event": 'Skrivare pausad för användare',
 				"tool0-cooled": 'Extruder under angiven temperaturgräns',
-				"palette2-error-while-printing": 'Error {} occurred on Palette 2. Your print has been paused'
+				"palette2-error-while-printing": 'Fel {} inträffade på Palette 2. Din utskrift har pausats'
 			}
 		}
 
