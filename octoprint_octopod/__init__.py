@@ -15,6 +15,7 @@ from .bed_notifications import BedNotifications
 from .tools_notifications import ToolsNotifications
 from .mmu import MMUAssistance
 from .paused_for_user import PausedForUser
+from .palette2 import Palette2Notifications
 
 
 # Plugin that stores APNS tokens reported from iOS devices to know which iOS devices to alert
@@ -36,6 +37,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		self._bed_notifications = BedNotifications(self._logger)
 		self._mmu_assitance = MMUAssistance(self._logger)
 		self._paused_for_user = PausedForUser(self._logger)
+		self._palette2 = Palette2Notifications(self._logger)
 
 	# StartupPlugin mixin
 
@@ -46,6 +48,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.setLevel(logging.DEBUG)
 		else:
 			self._logger.setLevel(logging.INFO)
+
+		# Register to listen for messages from other plugins
+		self._plugin_manager.register_message_receiver(self.on_plugin_message)
 
 		# Start timer that will check bed temperature and send notifications if needed
 		self._restart_timer()
@@ -63,7 +68,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			bed_low=30,
 			bed_target_temp_hold=10,
 			mmu_interval=5,
-			pause_interval=5
+			pause_interval=5,
+			palette2_printing_error_codes=[103, 104, 111, 121]
 		)
 
 	def on_settings_save(self, data):
@@ -79,7 +85,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 6
+		return 7
 
 	def on_settings_migrate(self, target, current):
 		if current == 1:
@@ -98,6 +104,10 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 		if current <= 5:
 			self._settings.set(['tool0_low'], self.get_settings_defaults()["tool0_low"])
+
+		if current <= 6:
+			self._settings.set(['palette2_printing_error_codes'],
+							   self.get_settings_defaults()["palette2_printing_error_codes"])
 
 	# AssetPlugin mixin
 
@@ -228,6 +238,11 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				pip="https://github.com/gdombiak/OctoPrint-OctoPod/archive/{target_version}.zip"
 			)
 		)
+
+	# Plugin messages
+
+	def on_plugin_message(self, plugin, data):
+		self._palette2.check_plugin_message(self._settings, plugin, data)
 
 	# Timer functions
 
