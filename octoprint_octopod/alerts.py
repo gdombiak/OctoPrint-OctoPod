@@ -7,7 +7,7 @@ import requests
 class Alerts:
 
 	# Flag to indicate if we should use APNS for development or production
-	_use_dev = True
+	_use_dev = False
 
 	def __init__(self, logger):
 		self._logger = logger

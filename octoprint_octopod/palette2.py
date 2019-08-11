@@ -11,8 +11,10 @@ class Palette2Notifications:
 		if plugin == "palette2" and 'command' in data and data["command"] == "error":
 			# Only send notifications for error codes that may happen while printing
 			p2_printing_error_codes = settings.get(["palette2_printing_error_codes"])
-			if data["data"] in p2_printing_error_codes:
-				self.send_palette_notification(settings, "palette2-error-while-printing", data["data"])
+			error_code = data["data"]
+			if error_code in p2_printing_error_codes:
+				self._logger.info("*** P2/P encountered error {} while printing ***".format(error_code))
+				self.send_palette_notification(settings, "palette2-error-while-printing", error_code)
 
 	# Private functions - Notifications
 
