@@ -16,7 +16,8 @@ This is the complete list of supported notifications:
 1. Bed cooled down below specified threshold. Ideal to easily remove prints from bed
 1. Extruder cooled down below specified threshold. Ideal to know when to turn printer off
 1. Printer paused for user. This may happen when running out of filament or when doing manual multi color printing (M600) 
-1. MMU requires user assistance (requires Prusa firmware)
+1. [Palette 2 / Pro](https://www.mosaicmfg.com/products/palette-2) encountered a problem while printing
+1. [MMU](https://shop.prusa3d.com/en/upgrades/183-original-prusa-i3-mk25smk3s-multi-material-2s-upgrade-kit-mmu2s.html#) requires user assistance (requires Prusa firmware)
 1. Firmware errors. Get security alerts like thermal runaway, probing failed, min temp error, max temp error, etc.
 
 ## Setup
@@ -37,6 +38,10 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.2.2]** (08/23/2019)
+- Send notification when Palette 2 encountered a problem while printing
+- (bug fix) Fixed HTML warning since 2 elements share the same id
+
 **[0.2.1]** (08/03/2019)
 - Send notification when extruder (tool0) cooled down below threshold once print finished
 - Added Swedish translation. Thanks Jonas Bohdén
@@ -56,6 +61,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.2.2]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.2
 [0.2.1]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.1
 [0.2.0]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.0
 [0.1.3]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.1.3
