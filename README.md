@@ -38,7 +38,7 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
-**[0.2.2]** (08/21/2019)
+**[0.2.2]** (08/23/2019)
 - Send notification when Palette 2 encountered a problem while printing
 - (bug fix) Fixed HTML warning since 2 elements share the same id
 
