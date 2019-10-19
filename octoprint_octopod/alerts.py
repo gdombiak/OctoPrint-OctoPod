@@ -83,6 +83,15 @@ class Alerts:
 				"paused-user-event": 'Skrivare pausad för användare',
 				"tool0-cooled": 'Extruder under angiven temperaturgräns',
 				"palette2-error-while-printing": 'Fel {} inträffade på Palette 2. Din utskrift har pausats'
+			},
+			'fr': {
+				"Print complete": 'Impression terminée',
+				"bed-cooled": 'Température du plateau en dessous du seuil spécifié',
+				"bed-warmed": 'Plateau chauffé à la température et durée spécifiées',
+				"mmu-event": 'Le MMU demande une assistance',
+				"paused-user-event": 'Imprimante en pause pour l’utilisateur',
+				"tool0-cooled": 'Extrudeur en dessous du seuil spécifié',
+				"palette2-error-while-printing": 'Erreur {} sur Palette 2. Impression en pause'
 			}
 		}
 
