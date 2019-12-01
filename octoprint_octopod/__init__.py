@@ -241,7 +241,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	# Plugin messages
 
-	def on_plugin_message(self, plugin, data):
+	def on_plugin_message(self, plugin, data, permissions=None):
 		self._palette2.check_plugin_message(self._settings, plugin, data)
 
 	# Timer functions
