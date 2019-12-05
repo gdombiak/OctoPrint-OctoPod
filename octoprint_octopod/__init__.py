@@ -241,7 +241,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	# Plugin messages
 
-	def on_plugin_message(self, plugin, data):
+	def on_plugin_message(self, plugin, data, permissions=None):
 		self._palette2.check_plugin_message(self._settings, plugin, data)
 
 	# Timer functions
@@ -275,7 +275,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 # ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
 # can be overwritten via __plugin_xyz__ control properties. See the documentation for that.
 __plugin_name__ = "OctoPod Plugin"
-
+__plugin_pythoncompat__ = ">=2.7,<4"
 
 def __plugin_load__():
 	global __plugin_implementation__
