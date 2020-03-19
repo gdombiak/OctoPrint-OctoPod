@@ -92,6 +92,15 @@ class Alerts:
 				"paused-user-event": 'Imprimante en pause pour l’utilisateur',
 				"tool0-cooled": 'Extrudeur en dessous du seuil spécifié',
 				"palette2-error-while-printing": 'Erreur {} sur Palette 2. Impression en pause'
+			},
+			'ru': {
+				"Print complete": 'Печать завершена',
+				"bed-cooled": 'Температурный порог стола принтера ниже заданного',
+				"bed-warmed": 'Стол принтера нагревается до заданной температуры',
+				"mmu-event": 'MMU требуется помощь пользователя',
+				"paused-user-event": 'Принтер приостановлен для пользователя',
+				"tool0-cooled": 'Температурный порог экструдера ниже заданного',
+				"palette2-error-while-printing": 'Произошла ошибка {} в Palette 2. Печать была приостановлена'
 			}
 		}
 
