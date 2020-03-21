@@ -14,6 +14,7 @@ class Alerts:
 		self._languages = {
 			'en': {
 				"Print complete": 'Print complete',
+				"Print progress": "Progress {}%",
 				"bed-cooled": 'Printer bed below specified temperature threshold',
 				"bed-warmed": 'Printer bed warmed to specified temperature and duration',
 				"mmu-event": 'MMU Requires User Assistance',
@@ -23,6 +24,7 @@ class Alerts:
 			},
 			'es': {
 				"Print complete": 'Impresión completa',
+				"Print progress": "Progreso {}%",
 				"bed-cooled": 'Cama de la impresora por debajo del umbral de temperatura especificado',
 				"bed-warmed": 'Cama de la impresora calentada a la temperatura y duración especificadas',
 				"mmu-event": 'MMU requiere asistencia del usuario',
@@ -32,6 +34,7 @@ class Alerts:
 			},
 			'cs': {
 				"Print complete": 'Tisk dokončen',
+				"Print progress": "Vytištěno {}%",
 				"bed-cooled": 'Teplota podložky pod nastavenou mezí',
 				"bed-warmed": 'Podložka nahřáta na nastavenou teplotu a dobu',
 				"mmu-event": 'MMU vyžaduje asistenci uživatele',
@@ -41,6 +44,7 @@ class Alerts:
 			},
 			'de': {
 				"Print complete": 'Druck vollständig',
+				"Print progress": "Fortschritt {}%",
 				"bed-cooled": 'Druckbett unterhalb der vorgegebenen Temperaturschwelle',
 				"bed-warmed": 'Druckbett auf vorgegebene Temperatur für gewählte Zeit aufgeheizt',
 				"mmu-event": 'MMU fordert Hilfestellung',
@@ -50,6 +54,7 @@ class Alerts:
 			},
 			'it': {
 				"Print complete": 'Stampa completata',
+				"Print progress": "Avanzamento {}%",
 				"bed-cooled": 'Piatto della stampante sotto la soglia di temperatura specificata',
 				"bed-warmed": 'Piatto della stampante riscaldato alla temperatura e per la durata specificate',
 				"mmu-event": 'MMU richiede l\'intervento dell\'utente',
@@ -59,6 +64,7 @@ class Alerts:
 			},
 			'lt-LT': {
 				"Print complete": 'Baigta',
+				"Print progress": "Progresas {}%",
 				"bed-cooled": 'Paviršius atvėso',
 				"bed-warmed": 'Paviršius pasiekė nustatytą temperatūrą',
 				"mmu-event": 'MMU reikalauja pagalbos',
@@ -68,6 +74,7 @@ class Alerts:
 			},
 			'nb': {
 				"Print complete": 'Utskrift ferdig',
+				"Print progress": "Framgang {}%",
 				"bed-cooled": 'Skriveflate under spesifisert temperaturgrense',
 				"bed-warmed": 'Skriveflate varmet til spesifisert temperatur og varighet',
 				"mmu-event": 'MMU krever tilsyn',
@@ -77,6 +84,7 @@ class Alerts:
 			},
 			'sv': {
 				"Print complete": 'Utskrift klar',
+				"Print progress": "Framsteg {}%",
 				"bed-cooled": 'Skrivarbädd under angiven temperaturgräns',
 				"bed-warmed": 'Skrivarbädd uppvärmd till angiven temperatur och varaktighet',
 				"mmu-event": 'MMU kräver användarhjälp',
@@ -86,6 +94,7 @@ class Alerts:
 			},
 			'fr': {
 				"Print complete": 'Impression terminée',
+				"Print progress": "Progression {}%",
 				"bed-cooled": 'Température du plateau en dessous du seuil spécifié',
 				"bed-warmed": 'Plateau chauffé à la température et durée spécifiées',
 				"mmu-event": 'Le MMU demande une assistance',
@@ -95,6 +104,7 @@ class Alerts:
 			},
 			'ru': {
 				"Print complete": 'Печать завершена',
+				"Print progress": "Прогресс {}%",
 				"bed-cooled": 'Температурный порог стола принтера ниже заданного',
 				"bed-warmed": 'Стол принтера нагревается до заданной температуры',
 				"mmu-event": 'MMU требуется помощь пользователя',

@@ -13,8 +13,88 @@ class JobNotifications:
 		self._logger = logger
 		self._alerts = Alerts(self._logger)
 
+	def on_print_progress(self, settings, progress):
+		progress_type = settings.get(["progress_type"])
+		if progress_type == '0':
+			# Print notification disabled
+			return
+		elif progress_type == '25':
+			# Print notifications at 25%, 50%, 75% and 100%
+			# 100% is sent via #send__print_job_notification
+			if progress == 25 or progress == 50 or progress == 75:
+				self.send__print_job_progress(settings, progress)
+			return
+		elif progress_type == '50':
+			# Print notifications at 50% and 100%
+			# 100% is sent via #send__print_job_notification
+			if progress == 50:
+				self.send__print_job_progress(settings, progress)
+			return
+		else:
+			# Assume print notification only at 100% (once done printing)
+			# 100% is sent via #send__print_job_notification
+			return
+
+
+	def send__print_job_progress(self, settings, progress):
+		url = settings.get(["server_url"])
+		if not url or not url.strip():
+			# No APNS server has been defined so do nothing
+			return -1
+
+		tokens = settings.get(["tokens"])
+		if len(tokens) == 0:
+			# No iOS devices were registered so skip notification
+			return -2
+
+		url = url + '/v1/push_printer'
+
+		# Get a snapshot of the camera
+		image = None
+		try:
+			camera_url = settings.get(["camera_snapshot_url"])
+			if camera_url and camera_url.strip():
+				image = self.image(settings)
+		except:
+			self._logger.info("Could not load image from url")
+
+		# For each registered token we will send a push notification
+		# We do it individually since 'printerID' is included so that
+		# iOS app can properly render local notification with
+		# proper printer name
+		used_tokens = []
+		last_result = None
+		for token in tokens:
+			apns_token = token["apnsToken"]
+			printer_id = token["printerID"]
+
+			# Ignore tokens that already received the notification
+			# This is the case when the same OctoPrint instance is added twice
+			# on the iOS app. Usually one for local address and one for public address
+			if apns_token in used_tokens:
+				continue
+			# Keep track of tokens that received a notification
+			used_tokens.append(apns_token)
+
+			if 'printerName' in token and token["printerName"] is not None:
+				# We can send non-silent notifications (the new way) so notifications are rendered even if user
+				# killed the app
+				printer_name = token["printerName"]
+				language_code = token["languageCode"]
+				last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name,
+														   "Print progress", None, image, progress)
+
+			# Send silent notification to refresh Apple Watch complication
+			self._alerts.send_job_request(apns_token, None, printer_id, "Printing", progress, url)
+
+		return last_result
+
 	def send__print_job_notification(self, settings, printer, event_payload, server_url=None, camera_snapshot_url=None,
 									 test=False):
+		progress_type = settings.get(["progress_type"])
+		if progress_type == '0' and not test:
+			# Print notification disabled
+			return
 		if server_url:
 			url = server_url
 		else:

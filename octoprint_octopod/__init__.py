@@ -26,7 +26,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 					octoprint.plugin.TemplatePlugin,
 					octoprint.plugin.StartupPlugin,
 					octoprint.plugin.SimpleApiPlugin,
-					octoprint.plugin.EventHandlerPlugin):
+					octoprint.plugin.EventHandlerPlugin,
+					octoprint.plugin.ProgressPlugin):
 
 	def __init__(self):
 		super(OctopodPlugin, self).__init__()
@@ -69,7 +70,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			bed_target_temp_hold=10,
 			mmu_interval=5,
 			pause_interval=5,
-			palette2_printing_error_codes=[103, 104, 111, 121]
+			palette2_printing_error_codes=[103, 104, 111, 121],
+			progress_type='50'      # 0=disabled, 25=every 25%, 50=every 50%, 100=only when finished
 		)
 
 	def on_settings_save(self, data):
@@ -85,7 +87,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 7
+		return 8
 
 	def on_settings_migrate(self, target, current):
 		if current == 1:
@@ -109,6 +111,10 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			self._settings.set(['palette2_printing_error_codes'],
 							   self.get_settings_defaults()["palette2_printing_error_codes"])
 
+		if current <= 7:
+			self._settings.set(['progress_type'],
+							   self.get_settings_defaults()["progress_type"])
+
 	# AssetPlugin mixin
 
 	def get_assets(self):
@@ -118,6 +124,13 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			js=["js/octopod.js"],
 			css=["css/octopod.css"],
 		)
+
+	# ProgressPlugin
+
+	# progress-hook
+	def on_print_progress(self, storage, path, progress):
+		# progress 0 - 100
+		self._job_notifications.on_print_progress(self._settings, progress)
 
 	# EventHandlerPlugin mixin
 
