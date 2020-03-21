@@ -40,7 +40,7 @@ You can test the configuration before saving it by using the _Send test notifica
 
 **[0.2.5]** (03/21/2020)
 - Print notifications can be configured to be sent at different progress percentages
-- Add Russian translation. Thanks Alexey Tsykov
+- Added Russian translation. Thanks Alexey Tsykov
 
 **[0.2.4]** (12/05/2019)
 - Plugin is now compatible with upcoming OctoPrint 1.4.0 and Python 3
