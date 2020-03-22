@@ -5,13 +5,15 @@
 
 This plugin sends immediate push notifications to your iOS devices running
 [OctoPod](https://itunes.apple.com/us/app/octopod-for-octoprint/id1412557625?mt=8) once a
-print has finished, bed reached target temp, bed cooled down or MMU requires user assistance.
-Push notifications when print is finished include a snapshot of the configured camera. If
-you have multiple cameras then you can include a snapshot of any of them. Even if the
-cameras are not connected to OctoPrint you can still include a snapshot of the camera.
+print has finished, made certain print progress, reached specified layers, bed reached target temp,
+bed cooled down or MMU requires user assistance. Push notifications when print is finished
+include a snapshot of the configured camera. If you have multiple cameras then you can include
+a snapshot of any of them. Even if the cameras are not connected to OctoPrint you can still
+include a snapshot of the camera.
 
 This is the complete list of supported notifications:
 1. Print finished (includes camera snapshot) or at specific progress percentages
+1. Print reached specified layers (requires [DisplayLayerProgress plugin](https://plugins.octoprint.org/plugins/DisplayLayerProgress/))
 1. Bed warmed up to target temp for a period of time. Helps get smooth first layers
 1. Bed cooled down below specified threshold. Ideal to easily remove prints from bed
 1. Extruder cooled down below specified threshold. Ideal to know when to turn printer off
@@ -40,6 +42,7 @@ You can test the configuration before saving it by using the _Send test notifica
 
 **[0.2.5]** (03/21/2020)
 - Print notifications can be configured to be sent at different progress percentages
+- Added new notification when print reaches specified layers (requires [DisplayLayerProgress plugin](https://plugins.octoprint.org/plugins/DisplayLayerProgress/) and OctoPod 3.2 or later)
 - Added Russian translation. Thanks Alexey Tsykov
 
 **[0.2.4]** (12/05/2019)

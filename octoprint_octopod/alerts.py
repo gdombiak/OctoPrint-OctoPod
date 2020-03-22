@@ -20,7 +20,8 @@ class Alerts:
 				"mmu-event": 'MMU Requires User Assistance',
 				"paused-user-event": 'Printer paused for user',
 				"tool0-cooled": 'Extruder below specified temperature threshold',
-				"palette2-error-while-printing": 'Error {} occurred on Palette 2. Your print has been paused'
+				"palette2-error-while-printing": 'Error {} occurred on Palette 2. Your print has been paused',
+				"layer_changed": 'Layer {}'
 			},
 			'es': {
 				"Print complete": 'Impresión completa',
@@ -30,7 +31,8 @@ class Alerts:
 				"mmu-event": 'MMU requiere asistencia del usuario',
 				"paused-user-event": 'Impresora en pausa esperando al usuario',
 				"tool0-cooled": 'Extrusora por debajo del umbral de temperatura especificado',
-				"palette2-error-while-printing": 'Error {} en Palette 2. Su impresión ha sido suspendida'
+				"palette2-error-while-printing": 'Error {} en Palette 2. Su impresión ha sido suspendida',
+				"layer_changed": 'Capa {}'
 			},
 			'cs': {
 				"Print complete": 'Tisk dokončen',
@@ -40,7 +42,8 @@ class Alerts:
 				"mmu-event": 'MMU vyžaduje asistenci uživatele',
 				"paused-user-event": 'Tiskárna čeká na uživatele',
 				"tool0-cooled": 'Tryska nedosáhla požadované teploty',
-				"palette2-error-while-printing": 'Nastala chyba {} na Palette 2. Tisk byl pozastaven'
+				"palette2-error-while-printing": 'Nastala chyba {} na Palette 2. Tisk byl pozastaven',
+				"layer_changed": 'Vrstva {}'
 			},
 			'de': {
 				"Print complete": 'Druck vollständig',
@@ -50,7 +53,8 @@ class Alerts:
 				"mmu-event": 'MMU fordert Hilfestellung',
 				"paused-user-event": 'Drucker angehalten für Benutzer',
 				"tool0-cooled": 'Extruder unterhalb der vorgegebenen Schwelle',
-				"palette2-error-while-printing": 'Fehler {} auf Palette 2 aufgetreten. Dein Druck wurde pausiert'
+				"palette2-error-while-printing": 'Fehler {} auf Palette 2 aufgetreten. Dein Druck wurde pausiert',
+				"layer_changed": 'Schicht {}'
 			},
 			'it': {
 				"Print complete": 'Stampa completata',
@@ -60,7 +64,8 @@ class Alerts:
 				"mmu-event": 'MMU richiede l\'intervento dell\'utente',
 				"paused-user-event": 'Stampante in pausa, in attesa dell\'utente',
 				"tool0-cooled": 'Estensore sotto la soglia di temperatura specificata',
-				"palette2-error-while-printing": 'Errore {} su Palette 2. La tua stampa è in pausa'
+				"palette2-error-while-printing": 'Errore {} su Palette 2. La tua stampa è in pausa',
+				"layer_changed": 'Layer {}'
 			},
 			'lt-LT': {
 				"Print complete": 'Baigta',
@@ -70,7 +75,8 @@ class Alerts:
 				"mmu-event": 'MMU reikalauja pagalbos',
 				"paused-user-event": 'Spausdintuvas laukia vartotojo',
 				"tool0-cooled": 'Ekstruderis žemiau nurodytos temperatūros ribos',
-				"palette2-error-while-printing": 'Klaida {} ištiko Palette 2. Įjungta pauzė'
+				"palette2-error-while-printing": 'Klaida {} ištiko Palette 2. Įjungta pauzė',
+				"layer_changed": 'Sluoksnis {}'
 			},
 			'nb': {
 				"Print complete": 'Utskrift ferdig',
@@ -80,7 +86,8 @@ class Alerts:
 				"mmu-event": 'MMU krever tilsyn',
 				"paused-user-event": 'Skriver venter på bruker',
 				"tool0-cooled": 'Ekstruder under spesifisert temperaturgrense',
-				"palette2-error-while-printing": 'Feil {} oppstod på Palette 2. Din print er satt på pause'
+				"palette2-error-while-printing": 'Feil {} oppstod på Palette 2. Din print er satt på pause',
+				"layer_changed": 'Lag {}'
 			},
 			'sv': {
 				"Print complete": 'Utskrift klar',
@@ -90,7 +97,8 @@ class Alerts:
 				"mmu-event": 'MMU kräver användarhjälp',
 				"paused-user-event": 'Skrivare pausad för användare',
 				"tool0-cooled": 'Extruder under angiven temperaturgräns',
-				"palette2-error-while-printing": 'Fel {} inträffade på Palette 2. Din utskrift har pausats'
+				"palette2-error-while-printing": 'Fel {} inträffade på Palette 2. Din utskrift har pausats',
+				"layer_changed": 'Lager {}'
 			},
 			'fr': {
 				"Print complete": 'Impression terminée',
@@ -100,7 +108,8 @@ class Alerts:
 				"mmu-event": 'Le MMU demande une assistance',
 				"paused-user-event": 'Imprimante en pause pour l’utilisateur',
 				"tool0-cooled": 'Extrudeur en dessous du seuil spécifié',
-				"palette2-error-while-printing": 'Erreur {} sur Palette 2. Impression en pause'
+				"palette2-error-while-printing": 'Erreur {} sur Palette 2. Impression en pause',
+				"layer_changed": 'Layer {}'
 			},
 			'ru': {
 				"Print complete": 'Печать завершена',
@@ -110,7 +119,8 @@ class Alerts:
 				"mmu-event": 'MMU требуется помощь пользователя',
 				"paused-user-event": 'Принтер приостановлен для пользователя',
 				"tool0-cooled": 'Температурный порог экструдера ниже заданного',
-				"palette2-error-while-printing": 'Произошла ошибка {} в Palette 2. Печать была приостановлена'
+				"palette2-error-while-printing": 'Произошла ошибка {} в Palette 2. Печать была приостановлена',
+				"layer_changed": 'Слой {}'
 			}
 		}
 

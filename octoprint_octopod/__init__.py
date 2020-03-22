@@ -16,6 +16,7 @@ from .tools_notifications import ToolsNotifications
 from .mmu import MMUAssistance
 from .paused_for_user import PausedForUser
 from .palette2 import Palette2Notifications
+from .layer_notifications import LayerNotifications
 
 
 # Plugin that stores APNS tokens reported from iOS devices to know which iOS devices to alert
@@ -39,6 +40,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		self._mmu_assitance = MMUAssistance(self._logger)
 		self._paused_for_user = PausedForUser(self._logger)
 		self._palette2 = Palette2Notifications(self._logger)
+		self._layerNotifications = LayerNotifications(self._logger)
 
 	# StartupPlugin mixin
 
@@ -137,6 +139,13 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	def on_event(self, event, payload):
 		if event == Events.PRINTER_STATE_CHANGED:
 			self._job_notifications.send__print_job_notification(self._settings, self._printer, payload)
+		elif event == "DisplayLayerProgress_layerChanged":
+			# Event sent from DisplayLayerProgress plugin when there was a detected layer changed
+			self._layerNotifications.layer_changed(self._settings, payload["currentLayer"])
+		elif event == Events.PRINT_STARTED or event == Events.PRINT_DONE or event == Events.PRINT_CANCELLED \
+				or event == Events.PRINT_FAILED:
+			# Reset layers for which we need to send a notification. Each new print job has its own
+			self._layerNotifications.reset_layers()
 
 	# SimpleApiPlugin mixin
 
@@ -192,7 +201,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_api_commands(self):
 		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], test=[],
-					snooze=["eventCode", "minutes"])
+					snooze=["eventCode", "minutes"], addLayer=["layer"], removeLayer=["layer"], getLayers=[])
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
@@ -220,6 +229,12 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._mmu_assitance.snooze(data["minutes"])
 			else:
 				return flask.make_response("Snooze for unknown event", 400)
+		elif command == 'addLayer':
+			self._layerNotifications.add_layer(data["layer"])
+		elif command == 'removeLayer':
+			self._layerNotifications.remove_layer(data["layer"])
+		elif command == 'getLayers':
+			return flask.jsonify(dict(layers=self._layerNotifications.get_layers()))
 		else:
 			return flask.make_response("Unknown command", 400)
 
