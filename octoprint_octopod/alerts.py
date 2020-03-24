@@ -80,7 +80,7 @@ class Alerts:
 			},
 			'nb': {
 				"Print complete": 'Utskrift ferdig',
-				"Print progress": "Framgang {}%",
+				"Print progress": "Fremdrift {}%",
 				"bed-cooled": 'Skriveflate under spesifisert temperaturgrense',
 				"bed-warmed": 'Skriveflate varmet til spesifisert temperatur og varighet',
 				"mmu-event": 'MMU krever tilsyn',
