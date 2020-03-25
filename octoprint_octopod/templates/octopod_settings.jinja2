@@ -19,6 +19,16 @@
         </div>
     </div>
 
+     <div class="control-group">
+        <label class="control-label">{{ _('Progress Notification') }}</label>
+        <div class="controls">
+            <input type="radio" id="progress_type1" data-bind="checked: settings.plugins.octopod.progress_type" value="0">&nbsp;{{ _('Disabled') }}<br>
+            <input type="radio" id="progress_type2" data-bind="checked: settings.plugins.octopod.progress_type" value="25">&nbsp;25% - 50% - 75% - 100%<br>
+            <input type="radio" id="progress_type3" data-bind="checked: settings.plugins.octopod.progress_type" value="50">&nbsp;50% - 100%<br>
+            <input type="radio" id="progress_type4" data-bind="checked: settings.plugins.octopod.progress_type" value="100">&nbsp;100%<br>
+        </div>
+    </div>
+
     <br>
     <p>{{ _('Open OctoPod on your iOS device and make sure to have the corresponding printer selected before testing notification that you would receive when print is finished') }}</p>
     <div class="control-group">

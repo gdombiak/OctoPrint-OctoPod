@@ -16,6 +16,7 @@ from .tools_notifications import ToolsNotifications
 from .mmu import MMUAssistance
 from .paused_for_user import PausedForUser
 from .palette2 import Palette2Notifications
+from .layer_notifications import LayerNotifications
 
 
 # Plugin that stores APNS tokens reported from iOS devices to know which iOS devices to alert
@@ -26,7 +27,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 					octoprint.plugin.TemplatePlugin,
 					octoprint.plugin.StartupPlugin,
 					octoprint.plugin.SimpleApiPlugin,
-					octoprint.plugin.EventHandlerPlugin):
+					octoprint.plugin.EventHandlerPlugin,
+					octoprint.plugin.ProgressPlugin):
 
 	def __init__(self):
 		super(OctopodPlugin, self).__init__()
@@ -38,6 +40,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		self._mmu_assitance = MMUAssistance(self._logger)
 		self._paused_for_user = PausedForUser(self._logger)
 		self._palette2 = Palette2Notifications(self._logger)
+		self._layerNotifications = LayerNotifications(self._logger)
 
 	# StartupPlugin mixin
 
@@ -69,7 +72,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			bed_target_temp_hold=10,
 			mmu_interval=5,
 			pause_interval=5,
-			palette2_printing_error_codes=[103, 104, 111, 121]
+			palette2_printing_error_codes=[103, 104, 111, 121],
+			progress_type='50'      # 0=disabled, 25=every 25%, 50=every 50%, 100=only when finished
 		)
 
 	def on_settings_save(self, data):
@@ -85,7 +89,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 7
+		return 8
 
 	def on_settings_migrate(self, target, current):
 		if current == 1:
@@ -109,6 +113,10 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			self._settings.set(['palette2_printing_error_codes'],
 							   self.get_settings_defaults()["palette2_printing_error_codes"])
 
+		if current <= 7:
+			self._settings.set(['progress_type'],
+							   self.get_settings_defaults()["progress_type"])
+
 	# AssetPlugin mixin
 
 	def get_assets(self):
@@ -119,11 +127,25 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			css=["css/octopod.css"],
 		)
 
+	# ProgressPlugin
+
+	# progress-hook
+	def on_print_progress(self, storage, path, progress):
+		# progress 0 - 100
+		self._job_notifications.on_print_progress(self._settings, progress)
+
 	# EventHandlerPlugin mixin
 
 	def on_event(self, event, payload):
 		if event == Events.PRINTER_STATE_CHANGED:
 			self._job_notifications.send__print_job_notification(self._settings, self._printer, payload)
+		elif event == "DisplayLayerProgress_layerChanged":
+			# Event sent from DisplayLayerProgress plugin when there was a detected layer changed
+			self._layerNotifications.layer_changed(self._settings, payload["currentLayer"])
+		elif event == Events.PRINT_STARTED or event == Events.PRINT_DONE or event == Events.PRINT_CANCELLED \
+				or event == Events.PRINT_FAILED:
+			# Reset layers for which we need to send a notification. Each new print job has its own
+			self._layerNotifications.reset_layers()
 
 	# SimpleApiPlugin mixin
 
@@ -179,7 +201,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_api_commands(self):
 		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], test=[],
-					snooze=["eventCode", "minutes"])
+					snooze=["eventCode", "minutes"], addLayer=["layer"], removeLayer=["layer"], getLayers=[])
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
@@ -207,6 +229,12 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._mmu_assitance.snooze(data["minutes"])
 			else:
 				return flask.make_response("Snooze for unknown event", 400)
+		elif command == 'addLayer':
+			self._layerNotifications.add_layer(data["layer"])
+		elif command == 'removeLayer':
+			self._layerNotifications.remove_layer(data["layer"])
+		elif command == 'getLayers':
+			return flask.jsonify(dict(layers=self._layerNotifications.get_layers()))
 		else:
 			return flask.make_response("Unknown command", 400)
 
