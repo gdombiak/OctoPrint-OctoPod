@@ -1,12 +1,12 @@
 <form class="form-horizontal">
     <h4>{{ _('Server and Camera Settings') }}</h4>
-    <p>{{ _('Complete URLs below so that OctoPrint can send notifications to OctoPod once print is finished') }}</p>
+    <p>{{ _('Complete URLs below so that OctoPrint can send notifications to Printoid once print is finished') }}</p>
 
     <div class="control-group">
         <label class="control-label">{{ _('Notification Server URL') }}</label>
         <div class="controls">
-            <input type="text" class="input-block-level" id="server_url" data-bind="value: settings.plugins.octopod.server_url">
-            <span class="help-inline">{{ _('Enter URL address to the OctoPod server that sends Apple Push Notifications') }}</span>
+            <input type="text" class="input-block-level" id="server_url" data-bind="value: settings.plugins.printoid.server_url">
+            <span class="help-inline">{{ _('Enter URL address to the Printoid server that sends Push Notifications') }}</span>
         </div>
     </div>
 
@@ -14,7 +14,7 @@
         <!-- <label class="control-label">{{ _('Snapshot URL') }}</label> -->
         <label class="control-label">Snapshot URL</label>
         <div class="controls">
-            <input type="text" class="input-block-level" id="camera_snapshot_url" data-bind="value: settings.plugins.octopod.camera_snapshot_url">
+            <input type="text" class="input-block-level" id="camera_snapshot_url" data-bind="value: settings.plugins.printoid.camera_snapshot_url">
             <span class="help-inline">{{ _('Enter URL address that provides an image snapshot that will be included in the notification') }}</span>
         </div>
     </div>
@@ -22,15 +22,15 @@
      <div class="control-group">
         <label class="control-label">{{ _('Progress Notification') }}</label>
         <div class="controls">
-            <input type="radio" id="progress_type1" data-bind="checked: settings.plugins.octopod.progress_type" value="0">&nbsp;{{ _('Disabled') }}<br>
-            <input type="radio" id="progress_type2" data-bind="checked: settings.plugins.octopod.progress_type" value="25">&nbsp;25% - 50% - 75% - 100%<br>
-            <input type="radio" id="progress_type3" data-bind="checked: settings.plugins.octopod.progress_type" value="50">&nbsp;50% - 100%<br>
-            <input type="radio" id="progress_type4" data-bind="checked: settings.plugins.octopod.progress_type" value="100">&nbsp;100%<br>
+            <input type="radio" id="progress_type1" data-bind="checked: settings.plugins.printoid.progress_type" value="0">&nbsp;{{ _('Disabled') }}<br>
+            <input type="radio" id="progress_type2" data-bind="checked: settings.plugins.printoid.progress_type" value="25">&nbsp;25% - 50% - 75% - 100%<br>
+            <input type="radio" id="progress_type3" data-bind="checked: settings.plugins.printoid.progress_type" value="50">&nbsp;50% - 100%<br>
+            <input type="radio" id="progress_type4" data-bind="checked: settings.plugins.printoid.progress_type" value="100">&nbsp;100%<br>
         </div>
     </div>
 
     <br>
-    <p>{{ _('Open OctoPod on your iOS device and make sure to have the corresponding printer selected before testing notification that you would receive when print is finished') }}</p>
+    <p>{{ _('Open Printoid on your Android device and make sure to have the corresponding printer selected before testing notification that you would receive when print is finished') }}</p>
     <div class="control-group">
         <div class="controls">
             <button class="btn" data-bind="click: function() { testNotification() }"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Send test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
@@ -43,7 +43,7 @@
     <label class="control-label">{{ _('Temperature') }}</label>
     <div class="controls">
         <div class="input-append">
-            <input type="number" class="input-mini text-right" id="tool0_low" data-bind="value: settings.plugins.octopod.tool0_low" min="0" max="100" step="1" value="0"><span class="add-on">&deg;C</span>
+            <input type="number" class="input-mini text-right" id="tool0_low" data-bind="value: settings.plugins.printoid.tool0_low" min="0" max="100" step="1" value="0"><span class="add-on">&deg;C</span>
         </div>
     </div>
 
@@ -53,7 +53,7 @@
     <label class="control-label">{{ _('Temperature') }}</label>
     <div class="controls">
         <div class="input-append">
-            <input type="number" class="input-mini text-right" id="bed_low" data-bind="value: settings.plugins.octopod.bed_low" min="0" max="100" step="1" value="28"><span class="add-on">&deg;C</span>
+            <input type="number" class="input-mini text-right" id="bed_low" data-bind="value: settings.plugins.printoid.bed_low" min="0" max="100" step="1" value="28"><span class="add-on">&deg;C</span>
         </div>
     </div>
 
@@ -62,7 +62,7 @@
     <label class="control-label">{{ _('Minutes') }}</label>
     <div class="controls">
         <div class="input-append">
-            <input type="number" class="input-mini text-right" id="bed_target_temp_hold" data-bind="value: settings.plugins.octopod.bed_target_temp_hold" min="0" max="15" step="1" value="0">
+            <input type="number" class="input-mini text-right" id="bed_target_temp_hold" data-bind="value: settings.plugins.printoid.bed_target_temp_hold" min="0" max="15" step="1" value="0">
         </div>
     </div>
 
@@ -74,7 +74,7 @@
     <label class="control-label">{{ _('Minutes') }}</label>
     <div class="controls">
         <div class="input-append">
-            <input type="number" class="input-mini text-right" id="pause_interval" data-bind="value: settings.plugins.octopod.pause_interval" min="0" max="100" step="1" value="5">
+            <input type="number" class="input-mini text-right" id="pause_interval" data-bind="value: settings.plugins.printoid.pause_interval" min="0" max="100" step="1" value="5">
         </div>
     </div>
 
@@ -86,7 +86,7 @@
     <label class="control-label">{{ _('Minutes') }}</label>
     <div class="controls">
         <div class="input-append">
-            <input type="number" class="input-mini text-right" id="mmu_interval" data-bind="value: settings.plugins.octopod.mmu_interval" min="0" max="100" step="1" value="5">
+            <input type="number" class="input-mini text-right" id="mmu_interval" data-bind="value: settings.plugins.printoid.mmu_interval" min="0" max="100" step="1" value="5">
         </div>
     </div>
 
@@ -94,7 +94,7 @@
     <div class="control-group">
         <div class="controls">
             <label class="checkbox">
-            <input type="checkbox" data-bind="checked: settings.plugins.octopod.debug_logging">{{ _('Enable debug logging') }}
+            <input type="checkbox" data-bind="checked: settings.plugins.printoid.debug_logging">{{ _('Enable debug logging') }}
             </label>
         </div>
     </div>

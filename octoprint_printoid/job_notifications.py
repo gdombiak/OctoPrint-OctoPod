@@ -44,7 +44,7 @@ class JobNotifications:
 
 		tokens = settings.get(["tokens"])
 		if len(tokens) == 0:
-			# No iOS devices were registered so skip notification
+			# No Android devices were registered so skip notification
 			return -2
 
 		url = url + '/v1/push_printer'
@@ -60,7 +60,7 @@ class JobNotifications:
 
 		# For each registered token we will send a push notification
 		# We do it individually since 'printerID' is included so that
-		# iOS app can properly render local notification with
+		# Android app can properly render local notification with
 		# proper printer name
 		used_tokens = []
 		last_result = None
@@ -70,7 +70,7 @@ class JobNotifications:
 
 			# Ignore tokens that already received the notification
 			# This is the case when the same OctoPrint instance is added twice
-			# on the iOS app. Usually one for local address and one for public address
+			# on the Android app. Usually one for local address and one for public address
 			if apns_token in used_tokens:
 				continue
 			# Keep track of tokens that received a notification
@@ -105,7 +105,7 @@ class JobNotifications:
 
 		tokens = settings.get(["tokens"])
 		if len(tokens) == 0:
-			# No iOS devices were registered so skip notification
+			# No Android devices were registered so skip notification
 			return -2
 
 		url = url + '/v1/push_printer'
@@ -158,7 +158,7 @@ class JobNotifications:
 
 		# For each registered token we will send a push notification
 		# We do it individually since 'printerID' is included so that
-		# iOS app can properly render local notification with
+		# Android app can properly render local notification with
 		# proper printer name
 		used_tokens = []
 		last_result = None
@@ -168,7 +168,7 @@ class JobNotifications:
 
 			# Ignore tokens that already received the notification
 			# This is the case when the same OctoPrint instance is added twice
-			# on the iOS app. Usually one for local address and one for public address
+			# on the Android app. Usually one for local address and one for public address
 			if apns_token in used_tokens:
 				continue
 			# Keep track of tokens that received a notification
@@ -190,7 +190,7 @@ class JobNotifications:
 					# Skip the silent notification for finishing at 100%. One for operational at 100% will be sent later
 					continue
 
-				# Send silent notification so that OctoPod app can update complications of Apple Watch app
+				# Send silent notification so that Printoid app can update complications of WearOS app
 				self._alerts.send_job_request(apns_token, image, printer_id, current_printer_state, completion, url,
 											  test)
 
@@ -211,7 +211,7 @@ class JobNotifications:
 					except:
 						self._logger.info("Could not load image from url")
 
-				# Legacy mode that uses silent notifications. As user update OctoPod app then they will automatically
+				# Legacy mode that uses silent notifications. As user update Printoid app then they will automatically
 				# switch to the new mode
 				last_result = self._alerts.send_job_request(apns_token, image, printer_id, current_printer_state,
 															completion, url, test)

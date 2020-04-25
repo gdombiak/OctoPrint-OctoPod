@@ -173,9 +173,6 @@ class Alerts:
 			self._logger.warn("Could not send message: %s" % str(e))
 			return -500
 
-	# Silent notifications. Legacy mode uses them and also to ask OctoPod app to update
-	# complications of Apple Watch
-
 	def send_job_request(self, apns_token, image, printer_id, printer_state, completion, url, test=False):
 		data = {"tokens": [apns_token], "printerID": printer_id, "printerState": printer_state, "silent": True,
 				"useDev": self._use_dev}

@@ -82,7 +82,7 @@ class BedNotifications:
 
 		tokens = settings.get(["tokens"])
 		if len(tokens) == 0:
-			# No iOS devices were registered so skip notification
+			# No Android devices were registered so skip notification
 			return -2
 
 		# For each registered token we will send a push notification
@@ -112,12 +112,5 @@ class BedNotifications:
 
 				last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name, event_code,
 														   None, None)
-			else:
-				# Legacy mode that uses silent notifications. As user update OctoPod app then they will automatically
-				# switch to the new mode
-				url = server_url + '/v1/push_printer/bed_events'
-
-				last_result = self._alerts.send_bed_request(url, apns_token, printerID, event_code, temperature,
-															minutes)
 
 		return last_result

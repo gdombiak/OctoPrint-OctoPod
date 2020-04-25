@@ -1,11 +1,11 @@
 /*
- * View model for OctoPrint-OctoPod
+ * View model for OctoPrint-Printoid
  *
- * Author: Gaston Dombiak
+ * Author: Anthony Stéphan (original author: Gaston Dombiak)
  * License: Apache-2.0
  */
 $(function() {
-    function OctopodViewModel(parameters) {
+    function PrintoidViewModel(parameters) {
         var self = this;
 
         // assign the injected parameters, e.g.:
@@ -32,7 +32,7 @@ $(function() {
             };
 
             $.ajax({
-                url: API_BASEURL + "plugin/octopod",
+                url: API_BASEURL + "plugin/printoid",
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify(payload),
@@ -43,7 +43,7 @@ $(function() {
                     if (response.code == -1) {
                         self.testMessage("Complete 'Notification Server URL'");
                     } else if (response.code == -2) {
-                        self.testMessage("No iOS devices registered yet. Open OctoPod app on your iOS device");
+                        self.testMessage("No Android devices registered yet. Open Printoid app on your Android device");
                     } else if (response.code == 404) {
                         self.testMessage("404 - Notification Server URL was not found");
                     } else if (response.code == 500) {
@@ -70,10 +70,10 @@ $(function() {
      * and a full list of the available options.
      */
     OCTOPRINT_VIEWMODELS.push({
-        construct: OctopodViewModel,
+        construct: PrintoidViewModel,
         // ViewModels your plugin depends on, e.g. loginStateViewModel, settingsViewModel, ...
         dependencies: [ "settingsViewModel" ],
-        // Elements to bind to, e.g. #settings_plugin_octopod, #tab_plugin_octopod, ...
-        elements: [ "#settings_plugin_octopod" ]
+        // Elements to bind to, e.g. #settings_plugin_printoid, #tab_plugin_printoid, ...
+        elements: [ "#settings_plugin_printoid" ]
     });
 });
