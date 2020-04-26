@@ -19,10 +19,10 @@ from .palette2 import Palette2Notifications
 from .layer_notifications import LayerNotifications
 
 
-# Plugin that stores APNS tokens reported from iOS devices to know which iOS devices to alert
+# Plugin that stores APNS tokens reported from Android devices to know which Android devices to alert
 # when print is done or other relevant events
 
-class OctopodPlugin(octoprint.plugin.SettingsPlugin,
+class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 					octoprint.plugin.AssetPlugin,
 					octoprint.plugin.TemplatePlugin,
 					octoprint.plugin.StartupPlugin,
@@ -31,8 +31,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 					octoprint.plugin.ProgressPlugin):
 
 	def __init__(self):
-		super(OctopodPlugin, self).__init__()
-		self._logger = logging.getLogger("octoprint.plugins.octopod")
+		super(PrintoidPlugin, self).__init__()
+		self._logger = logging.getLogger("octoprint.plugins.printoid")
 		self._checkTempTimer = None
 		self._job_notifications = JobNotifications(self._logger)
 		self._tool_notifications = ToolsNotifications(self._logger)
@@ -45,7 +45,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	# StartupPlugin mixin
 
 	def on_after_startup(self):
-		self._logger.info("OctoPod loaded!")
+		self._logger.info("Printoid loaded!")
 		# Set logging level to what we have in the settings
 		if self._settings.get_boolean(["debug_logging"]):
 			self._logger.setLevel(logging.DEBUG)
@@ -63,7 +63,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging=False,
-			server_url='http://octopodprint.com/',
+			server_url='https://fcm.googleapis.com/fcm/send',
 			camera_snapshot_url='http://localhost:8080/?action=snapshot',
 			tokens=[],
 			temp_interval=5,
@@ -123,8 +123,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		# Define your plugin's asset files to automatically include in the
 		# core UI here.
 		return dict(
-			js=["js/octopod.js"],
-			css=["css/octopod.css"],
+			js=["js/printoid.js"],
+			css=["css/printoid.css"],
 		)
 
 	# ProgressPlugin
@@ -175,12 +175,12 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 			if found:
 				if printer_name is not None and ("printerName" not in token or token["printerName"] != printer_name):
-					# Printer name in OctoPod has been updated
+					# Printer name in Printoid has been updated
 					token["printerName"] = printer_name
 					token["date"] = datetime.datetime.now()
 					updated = True
 				if language_code is not None and ("languageCode" not in token or token["languageCode"] != language_code):
-					# Language being used by OctoPod has been updated
+					# Language being used by Printoid has been updated
 					token["languageCode"] = language_code
 					token["date"] = datetime.datetime.now()
 					updated = True
@@ -242,7 +242,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_template_configs(self):
 		return [
-			dict(type="settings", name="OctoPod Notifications", custom_bindings=True)
+			dict(type="settings", name="Printoid Notifications", custom_bindings=True)
 		]
 
 	# Softwareupdate hook
@@ -252,18 +252,18 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		# Plugin here. See https://github.com/foosel/OctoPrint/wiki/Plugin:-Software-Update
 		# for details.
 		return dict(
-			octopod=dict(
-				displayName="OctoPod Plugin",
+			printoid=dict(
+				displayName="Printoid Plugin",
 				displayVersion=self._plugin_version,
 
 				# version check: github repository
 				type="github_release",
-				user="gdombiak",
-				repo="OctoPrint-OctoPod",
+				user="anthonyst91",
+				repo="OctoPrint-Printoid",
 				current=self._plugin_version,
 
 				# update method: pip
-				pip="https://github.com/gdombiak/OctoPrint-OctoPod/archive/{target_version}.zip"
+				pip="https://github.com/anthonyst91/OctoPrint-Printoid/archive/{target_version}.zip"
 			)
 		)
 
@@ -302,12 +302,12 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
 # ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
 # can be overwritten via __plugin_xyz__ control properties. See the documentation for that.
-__plugin_name__ = "OctoPod Plugin"
+__plugin_name__ = "Printoid Plugin"
 __plugin_pythoncompat__ = ">=2.7,<4"
 
 def __plugin_load__():
 	global __plugin_implementation__
-	__plugin_implementation__ = OctopodPlugin()
+	__plugin_implementation__ = PrintoidPlugin()
 
 	global __plugin_hooks__
 	__plugin_hooks__ = {

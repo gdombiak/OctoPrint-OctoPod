@@ -36,12 +36,12 @@ class LayerNotifications:
 
 		tokens = settings.get(["tokens"])
 		if len(tokens) == 0:
-			# No iOS devices were registered so skip notification
+			# No Android devices were registered so skip notification
 			return -2
 
 		# For each registered token we will send a push notification
 		# We do it individually since 'printerID' is included so that
-		# iOS app can properly render local notification with
+		# Android app can properly render local notification with
 		# proper printer name
 		used_tokens = []
 		last_result = None
@@ -51,7 +51,7 @@ class LayerNotifications:
 
 			# Ignore tokens that already received the notification
 			# This is the case when the same OctoPrint instance is added twice
-			# on the iOS app. Usually one for local address and one for public address
+			# on the Android app. Usually one for local address and one for public address
 			if apns_token in used_tokens:
 				continue
 			# Keep track of tokens that received a notification

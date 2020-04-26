@@ -91,11 +91,5 @@ class MMUAssistance:
 
 				last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name, "mmu-event",
 														   "mmuSnoozeActions", None)
-			else:
-				# Legacy mode that uses silent notifications. As user update OctoPod app then they will automatically
-				# switch to the new mode
-				url = server_url + '/v1/push_printer/code_events'
-
-				last_result = self._alerts.send_mmu_request(url, apns_token, printerID)
 
 		return last_result

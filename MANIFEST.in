@@ -1,4 +1,4 @@
 include README.md
-recursive-include octoprint_octopod/templates *
-recursive-include octoprint_octopod/translations *
-recursive-include octoprint_octopod/static *
+recursive-include octoprint_printoid/templates *
+recursive-include octoprint_printoid/translations *
+recursive-include octoprint_printoid/static *
