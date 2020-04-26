@@ -12,7 +12,9 @@ a snapshot of any of them. Even if the cameras are not connected to OctoPrint yo
 include a snapshot of the camera.
 
 It is based on the great plugin made by the developer of OctoPod of iOS:
+
 [OctoPod](https://itunes.apple.com/us/app/octopod-for-octoprint/id1412557625?mt=8)
+
 [OctoPrint-OctopPod plugin](https://github.com/gdombiak/OctoPrint-OctoPod)
 
 This is the complete list of supported notifications:
