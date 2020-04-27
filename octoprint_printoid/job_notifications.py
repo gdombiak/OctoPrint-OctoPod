@@ -39,15 +39,13 @@ class JobNotifications:
 	def send__print_job_progress(self, settings, progress):
 		url = settings.get(["server_url"])
 		if not url or not url.strip():
-			# No APNS server has been defined so do nothing
+			# No FCM server has been defined so do nothing
 			return -1
 
 		tokens = settings.get(["tokens"])
 		if len(tokens) == 0:
 			# No Android devices were registered so skip notification
 			return -2
-
-		url = url + '/v1/push_printer'
 
 		# Get a snapshot of the camera
 		image = None
@@ -65,27 +63,27 @@ class JobNotifications:
 		used_tokens = []
 		last_result = None
 		for token in tokens:
-			apns_token = token["apnsToken"]
+			fcm_token = token["fcmToken"]
 			printer_id = token["printerID"]
 
 			# Ignore tokens that already received the notification
 			# This is the case when the same OctoPrint instance is added twice
 			# on the Android app. Usually one for local address and one for public address
-			if apns_token in used_tokens:
+			if fcm_token in used_tokens:
 				continue
 			# Keep track of tokens that received a notification
-			used_tokens.append(apns_token)
+			used_tokens.append(fcm_token)
 
 			if 'printerName' in token and token["printerName"] is not None:
 				# We can send non-silent notifications (the new way) so notifications are rendered even if user
 				# killed the app
 				printer_name = token["printerName"]
 				language_code = token["languageCode"]
-				last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name,
+				last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printer_name,
 														   "Print progress", None, image, progress)
 
 			# Send silent notification to refresh Apple Watch complication
-			self._alerts.send_job_request(apns_token, None, printer_id, "Printing", progress, url)
+			self._alerts.send_job_request(fcm_token, None, printer_id, "Printing", progress, url)
 
 		return last_result
 
@@ -100,15 +98,13 @@ class JobNotifications:
 		else:
 			url = settings.get(["server_url"])
 		if not url or not url.strip():
-			# No APNS server has been defined so do nothing
+			# No FCM server has been defined so do nothing
 			return -1
 
 		tokens = settings.get(["tokens"])
 		if len(tokens) == 0:
 			# No Android devices were registered so skip notification
 			return -2
-
-		url = url + '/v1/push_printer'
 
 		# Gather information about progress completion of the job
 		completion = None
@@ -163,16 +159,16 @@ class JobNotifications:
 		used_tokens = []
 		last_result = None
 		for token in tokens:
-			apns_token = token["apnsToken"]
+			fcm_token = token["fcmToken"]
 			printer_id = token["printerID"]
 
 			# Ignore tokens that already received the notification
 			# This is the case when the same OctoPrint instance is added twice
 			# on the Android app. Usually one for local address and one for public address
-			if apns_token in used_tokens:
+			if fcm_token in used_tokens:
 				continue
 			# Keep track of tokens that received a notification
-			used_tokens.append(apns_token)
+			used_tokens.append(fcm_token)
 
 			if 'printerName' in token and token["printerName"] is not None:
 				# We can send non-silent notifications (the new way) so notifications are rendered even if user
@@ -182,16 +178,16 @@ class JobNotifications:
 				if current_printer_state_id == "ERROR":
 					self._logger.debug(
 						"Sending notification for error message: %s (%s)" % (current_printer_state, printer_name))
-					last_result = self._alerts.send_alert(apns_token, url, printer_name, current_printer_state, None,
+					last_result = self._alerts.send_alert(fcm_token, url, printer_name, current_printer_state, None,
 														  None)
 				elif (current_printer_state_id == "FINISHING" and was_printing) or test:
-					last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name,
+					last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printer_name,
 															   "Print complete", None, image)
 					# Skip the silent notification for finishing at 100%. One for operational at 100% will be sent later
 					continue
 
 				# Send silent notification so that Printoid app can update complications of WearOS app
-				self._alerts.send_job_request(apns_token, image, printer_id, current_printer_state, completion, url,
+				self._alerts.send_job_request(fcm_token, image, printer_id, current_printer_state, completion, url,
 											  test)
 
 			else:
@@ -213,7 +209,7 @@ class JobNotifications:
 
 				# Legacy mode that uses silent notifications. As user update Printoid app then they will automatically
 				# switch to the new mode
-				last_result = self._alerts.send_job_request(apns_token, image, printer_id, current_printer_state,
+				last_result = self._alerts.send_job_request(fcm_token, image, printer_id, current_printer_state,
 															completion, url, test)
 
 		return last_result

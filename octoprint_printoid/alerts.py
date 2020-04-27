@@ -6,7 +6,7 @@ import requests
 
 class Alerts:
 
-	# Flag to indicate if we should use APNS for development or production
+	# Flag to indicate if we should use FCM for development or production
 	_use_dev = False
 
 	def __init__(self, logger):
@@ -124,9 +124,10 @@ class Alerts:
 			}
 		}
 
-	def send_alert_code(self, language_code, apns_token, url, printer_name, event_code, category=None, image=None,
+	def send_alert_code(self, language_code, fcm_token, url, printer_name, event_code, category=None, image=None,
 						event_param=None):
 		message = None
+
 		if language_code == 'es-419':
 			# Default to Spanish instead of Latin American Spanish
 			language_code = 'es'
@@ -145,37 +146,40 @@ class Alerts:
 
 		self._logger.debug("Sending notification for event '%s' (%s)" % (event_code, printer_name))
 
-		# Now send APNS notification using proper locale
-		return self.send_alert(apns_token, url, printer_name, message, category, image)
+		# Now send FCM notification using proper locale
+		return self.send_alert(fcm_token, url, printer_name, message, category, image)
 
-	def send_alert(self, apns_token, url, printer_name, message, category, image):
-		data = {"tokens": [apns_token], "title": printer_name, "message": message, "sound": "default",
-				"printerName": printer_name, "useDev": self._use_dev}
+	def send_alert(self, fcm_token, url, printer_name, message, category, image):
+		data = { "name": printer_name, "notification": { "title": printer_name, "message": message }, "to": fcm_token, "topic": "OctoPrint info", "android_channel_id": "push-notifs-channel", "sound": "default" }
 
 		if category is not None:
-			data['category'] = category
+			data["category"] = category
+
+		headers = { "content-type": "application/json", "Authorization": "key=AAAA_15xmfU:APA91bHrfzmtnA4gMooEBDOQKkV_gdRG5AcMNLbQJ-X_JKQCx-GbDoL0jqOmcGYSumzCyieOTnYcHBSNH3PLOeyCDZthRHkEVSRJ3ysy5zAlDIYu7hz0ibxY_EWvFIoKh_AjP-LqIlo3" }
 
 		try:
 			if image:
-				files = {'image': ("image.jpg", image, "image/jpeg"),
-						 'json': (None, json.dumps(data), "application/json")}
-
-				r = requests.post(url, files=files)
+				files = {"image": ("image.jpg", image, "image/jpeg"),
+						 "json": (None, json.dumps(data), "application/json")}
+				r = requests.post(url, files=files, headers=headers)
 			else:
-				r = requests.post(url, json=data)
+				r = requests.post(url, json=data, headers=headers)
 
 			if r.status_code >= 400:
 				self._logger.info("Notification Response: %s" % str(r.content))
+
 			else:
 				self._logger.debug("Notification Response code: %d" % r.status_code)
+
 			return r.status_code
+
 		except Exception as e:
 			self._logger.warn("Could not send message: %s" % str(e))
 			return -500
 
-	def send_job_request(self, apns_token, image, printer_id, printer_state, completion, url, test=False):
-		data = {"tokens": [apns_token], "printerID": printer_id, "printerState": printer_state, "silent": True,
-				"useDev": self._use_dev}
+	def send_job_request(self, fcm_token, image, printer_id, printer_state, completion, url, test=False):
+		data = {
+			"name": printer_id, "notification": { "title": printer_id, "message": printer_state }, "to": fcm_token, "topic": "OctoPrint info", "android_channel_id": "push-notifs-channel", "sound": "default" }
 
 		if completion:
 			data["printerCompletion"] = completion
@@ -183,57 +187,71 @@ class Alerts:
 		if test:
 			data["test"] = True
 
+		headers = { "content-type": "application/json", "Authorization": "key=AAAA_15xmfU:APA91bHrfzmtnA4gMooEBDOQKkV_gdRG5AcMNLbQJ-X_JKQCx-GbDoL0jqOmcGYSumzCyieOTnYcHBSNH3PLOeyCDZthRHkEVSRJ3ysy5zAlDIYu7hz0ibxY_EWvFIoKh_AjP-LqIlo3" }
+
 		try:
 			if image:
-				files = {'image': ("image.jpg", image, "image/jpeg"),
-						 'json': (None, json.dumps(data), "application/json")}
+				files = {"image": ("image.jpg", image, "image/jpeg"),
+						 "json": (None, json.dumps(data), "application/json")}
 
-				r = requests.post(url, files=files)
+				r = requests.post(url, files=files, headers=headers)
 			else:
-				r = requests.post(url, json=data)
+				r = requests.post(url, json=data, headers=headers)
 
 			if r.status_code >= 400:
 				self._logger.info(
 					"Silent Print Job Notification Response: %s. State: %s" % (str(r.content), printer_state))
+
 			else:
 				self._logger.debug(
 					"Silent Print Job Notification Response code: %d. State: %s" % (r.status_code, printer_state))
+
 			return r.status_code
+
 		except Exception as e:
 			self._logger.info("Could not send Silent job message: %s State: %s" % (str(e), printer_state))
 			return -500
 
-	def send_bed_request(self, url, apns_token, printer_id, event_code, temperature, minutes):
-		data = {"tokens": [apns_token], "printerID": printer_id, "eventCode": event_code, "temperature": temperature,
-				"silent": True, "useDev": self._use_dev}
+	def send_bed_request(self, url, fcm_token, printer_id, event_code, temperature, minutes):
+		data = {"name": printer_id, "notification": { "title": printer_id, "message": temperature }, "to": fcm_token, "topic": "OctoPrint info", "android_channel_id": "push-notifs-channel", "sound": "default" }
 
 		if minutes:
 			data["minutes"] = minutes
 
+		headers = { "content-type": "application/json", "Authorization": "key=AAAA_15xmfU:APA91bHrfzmtnA4gMooEBDOQKkV_gdRG5AcMNLbQJ-X_JKQCx-GbDoL0jqOmcGYSumzCyieOTnYcHBSNH3PLOeyCDZthRHkEVSRJ3ysy5zAlDIYu7hz0ibxY_EWvFIoKh_AjP-LqIlo3" }
+
 		try:
-			r = requests.post(url, json=data)
+			r = requests.post(url, json=data, headers=headers)
 
 			if r.status_code >= 400:
 				self._logger.info("Silent Bed Notification Response: %s" % str(r.content))
+
 			else:
 				self._logger.debug("Silent Bed Notification Response code: %d" % r.status_code)
+
 			return r.status_code
+
 		except Exception as e:
 			self._logger.info("Could not send Silent Bed Notification: %s" % str(e))
 			return -500
 
-	def send_mmu_request(self, url, apns_token, printer_id):
-		data = {"tokens": [apns_token], "printerID": printer_id, "eventCode": "mmu-event", "silent": True,
-				"useDev": self._use_dev}
+	def send_mmu_request(self, url, fcm_token, printer_id):
+		data = { "name": printer_id, "notification": { "title": printer_id, "message": "mmu-event" }, "to": fcm_token, "topic": "OctoPrint info", "android_channel_id": "push-notifs-channel", "sound": "default" }
+
+		headers = { "content-type": "application/json", "Authorization": "key=AAAA_15xmfU:APA91bHrfzmtnA4gMooEBDOQKkV_gdRG5AcMNLbQJ-X_JKQCx-GbDoL0jqOmcGYSumzCyieOTnYcHBSNH3PLOeyCDZthRHkEVSRJ3ysy5zAlDIYu7hz0ibxY_EWvFIoKh_AjP-LqIlo3" }
 
 		try:
-			r = requests.post(url, json=data)
+			r = requests.post(url, json=data, headers=headers)
 
 			if r.status_code >= 400:
 				self._logger.info("Silent MMU Notification Response: %s" % str(r.content))
+
 			else:
 				self._logger.debug("Silent MMU Notification Response code: %d" % r.status_code)
+
 			return r.status_code
+
 		except Exception as e:
 			self._logger.info("Could not send Silent MMU Notification: %s" % str(e))
 			return -500
+

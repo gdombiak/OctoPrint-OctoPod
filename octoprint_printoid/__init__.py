@@ -19,7 +19,7 @@ from .palette2 import Palette2Notifications
 from .layer_notifications import LayerNotifications
 
 
-# Plugin that stores APNS tokens reported from Android devices to know which Android devices to alert
+# Plugin that stores FCM tokens reported from Android devices to know which Android devices to alert
 # when print is done or other relevant events
 
 class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
@@ -162,15 +162,15 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 		updated = False
 		for token in existing_tokens:
 			# Check if existing token has been updated
-			if token["apnsToken"] == old_token and token["printerID"] == printer_id:
+			if token["fcmToken"] == old_token and token["printerID"] == printer_id:
 				if old_token != new_token:
 					self._logger.debug("Updating token for %s." % device_name)
 					# Token that exists needs to be updated with new token
-					token["apnsToken"] = new_token
+					token["fcmToken"] = new_token
 					token["date"] = datetime.datetime.now()
 					updated = True
 				found = True
-			elif token["apnsToken"] == new_token and token["printerID"] == printer_id:
+			elif token["fcmToken"] == new_token and token["printerID"] == printer_id:
 				found = True
 
 			if found:
@@ -189,7 +189,7 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 		if not found:
 			self._logger.debug("Adding token for %s." % device_name)
 			# Token was not found so we need to add it
-			existing_tokens.append({'apnsToken': new_token, 'deviceName': device_name, 'date': datetime.datetime.now(),
+			existing_tokens.append({'fcmToken': new_token, 'deviceName': device_name, 'date': datetime.datetime.now(),
 									'printerID': printer_id, 'printerName': printer_name, 'languageCode': language_code})
 			updated = True
 		if updated:
