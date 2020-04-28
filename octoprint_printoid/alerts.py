@@ -58,7 +58,7 @@ class Alerts:
 			self._logger.warn("Could not send message: %s" % str(e))
 			return -500
 
-	def send_job_request(self, fcm_token, image, printer_id, printer_name, printer_state, completion, url, test=False):
+	def send_job_request(self, fcm_token, image, printer_id, printer_name, printer_state, completion, url):
 		self._logger.info("//// Send job request to Printoid")
 		
 		data = {
@@ -67,18 +67,13 @@ class Alerts:
 				"type": "job",
 				"printer_name": printer_name,
 				"printer_id": printer_id,
-				"printer_state": printer_state
+				"printer_state": printer_state,
+				"print_completed": completion
 			},
 			"to": fcm_token, 
 			"android_channel_id": "push-notifs-channel", 
 			"sound": "default"
 		}
-
-		if completion:
-			data["printerCompletion"] = completion
-
-		if test:
-			data["test"] = True
 
 		headers = {
 			"Content-type": "application/json", 

@@ -187,7 +187,7 @@ class JobNotifications:
 					continue
 
 				# Send silent notification so that Printoid app can update complications of WearOS app
-				self._alerts.send_job_request(fcm_token, image, printer_id, printer_name, current_printer_state, completion, url, test)
+				self._alerts.send_job_request(fcm_token, image, printer_id, printer_name, current_printer_state, completion, url)
 
 			else:
 				if current_printer_state_id == "FINISHING":
@@ -208,7 +208,7 @@ class JobNotifications:
 				# Legacy mode that uses silent notifications. As user update Printoid app then they will automatically
 				# switch to the new mode
 				last_result = self._alerts.send_job_request(fcm_token, image, printer_id, printer_name, current_printer_state,
-															completion, url, test)
+															completion, url)
 
 		return last_result
 
