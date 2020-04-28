@@ -89,7 +89,7 @@ class MMUAssistance:
 				language_code = token["languageCode"]
 				url = server_url
 
-				last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printer_name, "mmu-event",
+				last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printerID, printer_name, "mmu-event",
 														   "mmuSnoozeActions", None)
 
 		return last_result

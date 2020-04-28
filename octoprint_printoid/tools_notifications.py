@@ -77,11 +77,12 @@ class ToolsNotifications:
 			if 'printerName' in token and token["printerName"] is not None:
 				# We can send non-silent notifications (the new way) so notifications are rendered even if user
 				# killed the app
+				printerID = token["printerID"]
 				printer_name = token["printerName"]
 				language_code = token["languageCode"]
 				url = server_url
 
-				last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printer_name, event_code,
+				last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printerID, printer_name, event_code,
 														   None, None)
 
 		return last_result

@@ -55,7 +55,7 @@ class TestNotifications:
 				# killed the app
 				printer_name = token["printerName"]
 				language_code = token["languageCode"]
-				last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printer_name,
+				last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printer_id, printer_name,
 														   testMessage, None, image)
 
 		return last_result
