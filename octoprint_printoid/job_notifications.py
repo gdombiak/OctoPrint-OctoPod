@@ -83,7 +83,7 @@ class JobNotifications:
 														   "Print progress", None, image, progress)
 
 			# Send silent notification to refresh Apple Watch complication
-			self._alerts.send_job_request(fcm_token, None, printer_id, "Printing", progress, url)
+			self._alerts.send_job_request(fcm_token, None, printer_name, "Printing", progress, url)
 
 		return last_result
 

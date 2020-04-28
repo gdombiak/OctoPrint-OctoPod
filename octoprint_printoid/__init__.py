@@ -13,6 +13,7 @@ from octoprint.util import RepeatedTimer
 from .job_notifications import JobNotifications
 from .bed_notifications import BedNotifications
 from .tools_notifications import ToolsNotifications
+from .test_notifications import TestNotifications
 from .mmu import MMUAssistance
 from .paused_for_user import PausedForUser
 from .palette2 import Palette2Notifications
@@ -38,6 +39,7 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 		self._tool_notifications = ToolsNotifications(self._logger)
 		self._bed_notifications = BedNotifications(self._logger)
 		self._mmu_assitance = MMUAssistance(self._logger)
+		self._test_notifications = TestNotifications(self._logger)
 		self._paused_for_user = PausedForUser(self._logger)
 		self._palette2 = Palette2Notifications(self._logger)
 		self._layerNotifications = LayerNotifications(self._logger)
@@ -215,24 +217,23 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 
 			self.update_token("{oldToken}".format(**data), "{newToken}".format(**data), "{deviceName}".format(**data),
 							  "{printerID}".format(**data), printer_name, language_code)
+							  
 		elif command == 'test':
-			payload = dict(
-				state_id="OPERATIONAL",
-				state_string="Operational"
-			)
-			code = self._job_notifications.send__print_job_notification(self._settings, self._printer, payload,
-																		data["server_url"], data["camera_snapshot_url"],
-																		True)
+			code = self._test_notifications.send__test(self._settings, "test_message")
 			return flask.jsonify(dict(code=code))
+			
 		elif command == 'snooze':
 			if data["eventCode"] == 'mmu-event':
 				self._mmu_assitance.snooze(data["minutes"])
 			else:
 				return flask.make_response("Snooze for unknown event", 400)
+				
 		elif command == 'addLayer':
 			self._layerNotifications.add_layer(data["layer"])
+			
 		elif command == 'removeLayer':
 			self._layerNotifications.remove_layer(data["layer"])
+			
 		elif command == 'getLayers':
 			return flask.jsonify(dict(layers=self._layerNotifications.get_layers()))
 		else:
