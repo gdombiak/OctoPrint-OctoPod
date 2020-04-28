@@ -139,9 +139,8 @@ class JobNotifications:
 
 		# Get a snapshot of the camera
 		image = None
-		if (was_printing and current_printer_state_id == "FINISHING") or test:
-			# Only include image when print is complete. This is an optimization to avoid sending
-			# images that won't be rendered by the app
+		# if (was_printing and current_printer_state_id == "FINISHING") or test:
+		if was_printing or test:
 			try:
 				if camera_snapshot_url:
 					camera_url = camera_snapshot_url
@@ -195,8 +194,7 @@ class JobNotifications:
 					# Legacy mode was not sending a notification for this state
 					continue
 
-				if image is None and completion == 100 and current_printer_state_id == "OPERATIONAL":
-					# Legacy used to include an image only under this state
+				if image is None:
 					try:
 						if camera_snapshot_url:
 							camera_url = camera_snapshot_url
