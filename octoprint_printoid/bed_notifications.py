@@ -110,7 +110,6 @@ class BedNotifications:
 				language_code = token["languageCode"]
 				url = server_url
 
-				last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printer_name, event_code,
-														   None, None)
+				last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printer_name, event_code, None, None)
 
 		return last_result
