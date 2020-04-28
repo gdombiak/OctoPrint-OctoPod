@@ -164,25 +164,30 @@ class Alerts:
 	def send_alert(self, fcm_token, url, printer_name, message, category, image):
 		self._logger.info("//// Send alert to Printoid")
 
-		data = {"name": printer_name, "notification": { "title": printer_name, "body": message }, "to": fcm_token, "android_channel_id": "push-notifs-channel", "sound": "default"}
+		data = {
+			"name": printer_name, 
+			"notification": { "title": printer_name, "body": message }, 
+			"to": fcm_token, 
+			"android_channel_id": "push-notifs-channel", 
+			"sound": "default"
+		}
 
 		if category is not None:
 			data["category"] = category
 
-		headers = {"Content-Type": "application/json", "Authorization": "key=AAAA_15xmfU:APA91bHrfzmtnA4gMooEBDOQKkV_gdRG5AcMNLbQJ-X_JKQCx-GbDoL0jqOmcGYSumzCyieOTnYcHBSNH3PLOeyCDZthRHkEVSRJ3ysy5zAlDIYu7hz0ibxY_EWvFIoKh_AjP-LqIlo3"}
-
-		dataJson = json.dumps(data)
-		
-		self._logger.info("Payload: %s" % dataJson)
-		self._logger.info("Headers: %s" % json.dumps(headers))
+		headers = {
+			"Content-type": "application/json", 
+			"Authorization": "key=AAAA_15xmfU:APA91bHrfzmtnA4gMooEBDOQKkV_gdRG5AcMNLbQJ-X_JKQCx-GbDoL0jqOmcGYSumzCyieOTnYcHBSNH3PLOeyCDZthRHkEVSRJ3ysy5zAlDIYu7hz0ibxY_EWvFIoKh_AjP-LqIlo3"
+		}
 
 		try:
-			if image:
-				files = {"image": ("image.jpg", image, "image/jpeg"),
-						 "json": (None, dataJson, "application/json")}
-				r = requests.post(url, files=files, headers=headers)
-			else:
-				r = requests.post(url, json=dataJson, headers=headers)
+			#if image:
+			#	files = {"image": ("image.jpg", image, "image/jpeg"),
+			#			 "json": (None, json.dumps(data), "application/json")}
+			#	r = requests.post(url, headers=headers, files=files)
+			#else:
+			#	r = requests.post(url, headers=headers, json=data)
+			r = requests.post(url, headers=headers, json=data)
 
 			if r.status_code >= 400:
 				self._logger.info("Notification Response: %s" % str(r.content))
@@ -199,7 +204,13 @@ class Alerts:
 	def send_job_request(self, fcm_token, image, printer_name, printer_state, completion, url, test=False):
 		self._logger.info("//// Send job request to Printoid")
 		
-		data = {"name": printer_name, "notification": { "title": printer_name, "body": printer_state }, "to": fcm_token, "android_channel_id": "push-notifs-channel", "sound": "default"}
+		data = {
+			"name": printer_name, 
+			"notification": { "title": printer_name, "body": printer_state }, 
+			"to": fcm_token, 
+			"android_channel_id": "push-notifs-channel", 
+			"sound": "default"
+		}
 
 		if completion:
 			data["printerCompletion"] = completion
@@ -207,18 +218,19 @@ class Alerts:
 		if test:
 			data["test"] = True
 
-		headers = {"Content-Type": "application/json", "Authorization": "key=AAAA_15xmfU:APA91bHrfzmtnA4gMooEBDOQKkV_gdRG5AcMNLbQJ-X_JKQCx-GbDoL0jqOmcGYSumzCyieOTnYcHBSNH3PLOeyCDZthRHkEVSRJ3ysy5zAlDIYu7hz0ibxY_EWvFIoKh_AjP-LqIlo3"}
-
-		self._logger.info("Payload: %s" % json.dumps(data))
-		self._logger.info("Headers: %s" % json.dumps(headers))
-		
+		headers = {
+			"Content-type": "application/json", 
+			"Authorization": "key=AAAA_15xmfU:APA91bHrfzmtnA4gMooEBDOQKkV_gdRG5AcMNLbQJ-X_JKQCx-GbDoL0jqOmcGYSumzCyieOTnYcHBSNH3PLOeyCDZthRHkEVSRJ3ysy5zAlDIYu7hz0ibxY_EWvFIoKh_AjP-LqIlo3"
+		}
+				
 		try:
-			if image:
-				files = {"image": ("image.jpg", image, "image/jpeg"),
-						 "json": (None, json.dumps(data), "application/json")}
-				r = requests.post(url, files=files, headers=headers)
-			else:
-				r = requests.post(url, json=data, headers=headers)
+			#if image:
+			#	files = {"image": ("image.jpg", image, "image/jpeg"),
+			#			 "json": (None, json.dumps(data), "application/json")}
+			#	r = requests.post(url, headers=headers, files=files)
+			#else:
+			#	r = requests.post(url, headers=headers, json=data)
+			r = requests.post(url, headers=headers, json=data)
 
 			if r.status_code >= 400:
 				self._logger.info(
@@ -237,15 +249,24 @@ class Alerts:
 	def send_bed_request(self, url, fcm_token, printer_name, event_code, temperature, minutes):
 		self._logger.info("//// Send bed request to Printoid")
 
-		data = {"name": printer_name, "notification": { "title": printer_name, "body": temperature }, "to": fcm_token, "android_channel_id": "push-notifs-channel", "sound": "default"}
+		data = {
+			"name": printer_name, 
+			"notification": { "title": printer_name, "body": temperature }, 
+			"to": fcm_token, 
+			"android_channel_id": "push-notifs-channel", 
+			"sound": "default"
+		}
 
 		if minutes:
 			data["minutes"] = minutes
 
-		headers = {"Content-Type": "application/json", "Authorization": "key=AAAA_15xmfU:APA91bHrfzmtnA4gMooEBDOQKkV_gdRG5AcMNLbQJ-X_JKQCx-GbDoL0jqOmcGYSumzCyieOTnYcHBSNH3PLOeyCDZthRHkEVSRJ3ysy5zAlDIYu7hz0ibxY_EWvFIoKh_AjP-LqIlo3"}
-
+		headers = {
+			"Content-type": "application/json", 
+			"Authorization": "key=AAAA_15xmfU:APA91bHrfzmtnA4gMooEBDOQKkV_gdRG5AcMNLbQJ-X_JKQCx-GbDoL0jqOmcGYSumzCyieOTnYcHBSNH3PLOeyCDZthRHkEVSRJ3ysy5zAlDIYu7hz0ibxY_EWvFIoKh_AjP-LqIlo3"
+		}
+		
 		try:
-			r = requests.post(url, json=data, headers=headers)
+			r = requests.post(url, headers=headers, json=data)
 
 			if r.status_code >= 400:
 				self._logger.info("Silent Bed Notification Response: %s" % str(r.content))
@@ -262,12 +283,21 @@ class Alerts:
 	def send_mmu_request(self, url, fcm_token, printer_name):
 		self._logger.info("//// Send MMU request to Printoid")
 
-		data = {"name": printer_name, "notification": { "title": printer_name, "body": "mmu-event" }, "to": fcm_token, "android_channel_id": "push-notifs-channel", "sound": "default"}
+		data = {
+			"name": printer_name, 
+			"notification": { "title": printer_name, "body": "mmu-event" }, 
+			"to": fcm_token, 
+			"android_channel_id": "push-notifs-channel", 
+			"sound": "default"
+		}
 
-		headers = {"Content-Type": "application/json", "Authorization": "key=AAAA_15xmfU:APA91bHrfzmtnA4gMooEBDOQKkV_gdRG5AcMNLbQJ-X_JKQCx-GbDoL0jqOmcGYSumzCyieOTnYcHBSNH3PLOeyCDZthRHkEVSRJ3ysy5zAlDIYu7hz0ibxY_EWvFIoKh_AjP-LqIlo3"}
-
+		headers = {
+			"Content-type": "application/json", 
+			"Authorization": "key=AAAA_15xmfU:APA91bHrfzmtnA4gMooEBDOQKkV_gdRG5AcMNLbQJ-X_JKQCx-GbDoL0jqOmcGYSumzCyieOTnYcHBSNH3PLOeyCDZthRHkEVSRJ3ysy5zAlDIYu7hz0ibxY_EWvFIoKh_AjP-LqIlo3"
+		}
+		
 		try:
-			r = requests.post(url, json=data, headers=headers)
+			r = requests.post(url, headers=headers, json=data)
 
 			if r.status_code >= 400:
 				self._logger.info("Silent MMU Notification Response: %s" % str(r.content))
