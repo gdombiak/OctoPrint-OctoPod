@@ -65,7 +65,7 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging=False,
-			server_url='https://fcm.googleapis.com/fcm/send',
+			server_url='https://us-central1-firebase-printoid.cloudfunctions.net/printoidPluginGateway',
 			camera_snapshot_url='http://localhost:8080/?action=snapshot',
 			tokens=[],
 			temp_interval=5,

@@ -24,13 +24,11 @@ class Alerts:
 				"event_code": event_code,
 				"event_param": event_param
 			},
-			"to": fcm_token, 
-			"sound": "default"
+			"tokens": [fcm_token]
 		}
 
 		headers = {
-			"Content-type": "application/json", 
-			"Authorization": "key=AAAA_15xmfU:APA91bHrfzmtnA4gMooEBDOQKkV_gdRG5AcMNLbQJ-X_JKQCx-GbDoL0jqOmcGYSumzCyieOTnYcHBSNH3PLOeyCDZthRHkEVSRJ3ysy5zAlDIYu7hz0ibxY_EWvFIoKh_AjP-LqIlo3"
+			"Content-type": "application/json"
 		}
 
 		try:
