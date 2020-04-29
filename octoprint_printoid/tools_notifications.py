@@ -42,7 +42,7 @@ class ToolsNotifications:
 																							 temps[k]['actual']))
 				self._printer_was_printing_above_tool0_low = False
 
-				self.send__tool_notification(settings, "tool0-cooled", tool0_threshold_low)
+				self.send__tool_notification(settings, "tool0-too-cold", tool0_threshold_low)
 
 	##~~ Private functions - Tool Notifications
 

@@ -46,7 +46,7 @@ class BedNotifications:
 																							 temps[k]['actual']))
 				self._printer_was_printing_above_bed_low = False
 
-				self.send__bed_notification(settings, "bed-cooled", threshold_low, None)
+				self.send__bed_notification(settings, "bed-too-cool", threshold_low, None)
 
 			# Check if bed has warmed to target temperature for the desired time before print starts
 			if temps[k]['target'] > 0:
@@ -69,7 +69,7 @@ class BedNotifications:
 						self._logger.debug("Bed reached target temp for {0} minutes".format(warmed_time_minutes))
 						self._printer_not_printing_reached_target_temp_start_time = None
 
-						self.send__bed_notification(settings, "bed-warmed", temps[k]['target'],
+						self.send__bed_notification(settings, "bed-too-warn", temps[k]['target'],
 													int(warmed_time_minutes))
 
 	##~~ Private functions - Bed Notifications

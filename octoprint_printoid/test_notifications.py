@@ -12,7 +12,7 @@ class TestNotifications:
 		self._logger = logger
 		self._alerts = Alerts(self._logger)
 
-	def send__test(self, settings, testMessage):
+	def send__test(self, settings):
 		url = settings.get(["server_url"])
 		if not url or not url.strip():
 			# No FCM server has been defined so do nothing
@@ -56,7 +56,7 @@ class TestNotifications:
 				printer_name = token["printerName"]
 				language_code = token["languageCode"]
 				last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printer_id, printer_name,
-														   testMessage, None, image)
+														   "test-message", None, image)
 
 		return last_result
 

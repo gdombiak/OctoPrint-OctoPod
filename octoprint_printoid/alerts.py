@@ -68,7 +68,7 @@ class Alerts:
 				"printer_name": printer_name,
 				"printer_id": printer_id,
 				"printer_state": printer_state,
-				"print_completed": completion
+				"print_progress": completion
 			},
 			"to": fcm_token, 
 			"android_channel_id": "push-notifs-channel", 

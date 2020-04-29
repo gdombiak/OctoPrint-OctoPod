@@ -88,6 +88,6 @@ class PausedForUser:
 				url = server_url
 
 				last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printerID, printer_name,
-														   "paused-user-event", None, None)
+														   "paused-for-user", None, None)
 
 		return last_result

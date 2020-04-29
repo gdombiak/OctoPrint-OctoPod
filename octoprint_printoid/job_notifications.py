@@ -80,9 +80,9 @@ class JobNotifications:
 				printer_name = token["printerName"]
 				language_code = token["languageCode"]
 				last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printer_id, printer_name,
-														   "Print progress", None, image, progress)
+														   "print-progress", None, image, progress)
 
-			# Send silent notification to refresh Apple Watch complication
+			# Send silent notification to refresh WearOS complication
 			self._alerts.send_job_request(fcm_token, None, printer_id, printer_name, "Printing", progress, url)
 
 		return last_result
@@ -182,7 +182,7 @@ class JobNotifications:
 														  None)
 				elif (current_printer_state_id == "FINISHING" and was_printing) or test:
 					last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printer_id, printer_name,
-															   "Print complete", None, image)
+															   "print-complete", None, image)
 					# Skip the silent notification for finishing at 100%. One for operational at 100% will be sent later
 					continue
 
