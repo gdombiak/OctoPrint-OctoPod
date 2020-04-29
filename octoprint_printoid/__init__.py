@@ -75,7 +75,7 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 			mmu_interval=5,
 			pause_interval=5,
 			palette2_printing_error_codes=[103, 104, 111, 121],
-			progress_type='50'      # 0=disabled, 25=every 25%, 50=every 50%, 100=only when finished
+			progress_type='25'      # 0=disabled, 10=every 10%, 25=every 25%, 50=every 50%, 100=only when finished
 		)
 
 	def on_settings_save(self, data):

@@ -1,6 +1,6 @@
 <form class="form-horizontal">
     <h4>{{ _('Server and Camera Settings') }}</h4>
-    <p>{{ _('Complete URLs below so that OctoPrint can send notifications to Printoid once print is finished') }}</p>
+    <p>{{ _('Complete the settings below so that OctoPrint can send notifications to Printoid even when the app is in background or not connected to the same network (no need for port forwarding nor VPN setup)') }}</p>
 
      <div class="control-group">
         <!-- <label class="control-label">{{ _('Snapshot URL') }}</label> -->
@@ -11,25 +11,31 @@
         </div>
     </div>
 
-     <div class="control-group">
-        <label class="control-label">{{ _('Progress Notification') }}</label>
-        <div class="controls">
-            <input type="radio" id="progress_type1" data-bind="checked: settings.plugins.printoid.progress_type" value="0">&nbsp;{{ _('Disabled') }}<br>
-            <input type="radio" id="progress_type2" data-bind="checked: settings.plugins.printoid.progress_type" value="25">&nbsp;25% - 50% - 75% - 100%<br>
-            <input type="radio" id="progress_type3" data-bind="checked: settings.plugins.printoid.progress_type" value="50">&nbsp;50% - 100%<br>
-            <input type="radio" id="progress_type4" data-bind="checked: settings.plugins.printoid.progress_type" value="100">&nbsp;100%<br>
-        </div>
-    </div>
-
-    <br>
-    <p>{{ _('Open Printoid on your Android device and make sure to have the corresponding printer selected before testing notification that you would receive when print is finished') }}</p>
+    <p>{{ _('Open Printoid on your Android device and make sure to have the corresponding OctoPrint profile selected and connected before testing notification that you would receive push notifications') }}</p>
     <div class="control-group">
         <div class="controls">
             <button class="btn" data-bind="click: function() { testNotification() }"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Send test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully, check your phone!') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
         </div>
     </div>
+    
+	<br>
 
-    <h4>{{ _('Extruder Notifications') }}</h4>
+    <h4>{{ _('Print Progress Notifications') }}</h4>
+
+     <div class="control-group">
+        <label class="control-label">{{ _('Progress Notification') }}</label>
+        <div class="controls">
+            <input type="radio" id="progress_type1" data-bind="checked: settings.plugins.printoid.progress_type" value="0">&nbsp;{{ _('Disabled') }}<br>
+            <input type="radio" id="progress_type2" data-bind="checked: settings.plugins.printoid.progress_type" value="10">&nbsp;Every 10%, and at the  end<br>
+            <input type="radio" id="progress_type3" data-bind="checked: settings.plugins.printoid.progress_type" value="25">&nbsp;At 25%, 50%, 75%, and at the end<br>
+            <input type="radio" id="progress_type4" data-bind="checked: settings.plugins.printoid.progress_type" value="50">&nbsp;At 50%, and at the end<br>
+            <input type="radio" id="progress_type5" data-bind="checked: settings.plugins.printoid.progress_type" value="100">&nbsp;At the end (100%)<br>
+        </div>
+    </div>
+    
+    <br>
+
+    <h4>{{ _('Heated Head Notifications') }}</h4>
 
     <p>{{ _('When extruder temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
     <label class="control-label">{{ _('Temperature') }}</label>
@@ -38,8 +44,10 @@
             <input type="number" class="input-mini text-right" id="tool0_low" data-bind="value: settings.plugins.printoid.tool0_low" min="0" max="100" step="1" value="0"><span class="add-on">&deg;C</span>
         </div>
     </div>
+    
+    <br>
 
-    <h4>{{ _('Bed Notifications') }}</h4>
+    <h4>{{ _('Heated Bed Notifications') }}</h4>
 
     <p>{{ _('When bed temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
     <label class="control-label">{{ _('Temperature') }}</label>
@@ -57,8 +65,10 @@
             <input type="number" class="input-mini text-right" id="bed_target_temp_hold" data-bind="value: settings.plugins.printoid.bed_target_temp_hold" min="0" max="15" step="1" value="0">
         </div>
     </div>
+    
+    <br>
 
-    <h4>{{ _('Printer Paused Notifications') }}</h4>
+    <h4>{{ _('Printer Paused (waiting for user action) Notifications') }}</h4>
 
     <p>{{ _('When current print job was paused waiting for user, OctoPrint will send notification. Useful when running
     out of filament or need to change color of filament (M600). The following setting controls the frequency notifications
@@ -69,6 +79,8 @@
             <input type="number" class="input-mini text-right" id="pause_interval" data-bind="value: settings.plugins.printoid.pause_interval" min="0" max="100" step="1" value="5">
         </div>
     </div>
+
+	<br>
 
     <h4>{{ _('MMU Notifications') }}</h4>
 
@@ -81,7 +93,6 @@
             <input type="number" class="input-mini text-right" id="mmu_interval" data-bind="value: settings.plugins.printoid.mmu_interval" min="0" max="100" step="1" value="5">
         </div>
     </div>
-
 
     <div class="control-group">
         <div class="controls">

@@ -20,10 +20,17 @@ class JobNotifications:
 			# Print notification disabled
 			return
 			
-		elif progress_type == '25':
-			# Print notifications at 25%, 50%, 75% and 100%
+		elif progress_type == '10':
+			# Print notifications every 10%
 			# 100% is sent via #send__printer_state_changed
-			if progress == 25 or progress == 50 or progress == 75:
+			if progress > 0 and progress < 100 and progress % 10 == 0:
+				self.send__print_job_progress_value(settings, progress)
+			return
+			
+		elif progress_type == '25':
+			# Print notifications every 25%
+			# 100% is sent via #send__printer_state_changed
+			if progress > 0 and progress < 100 and progress % 25 == 0:
 				self.send__print_job_progress_value(settings, progress)
 			return
 			
