@@ -78,8 +78,7 @@ class JobNotifications:
 				# We can send non-silent notifications (the new way) so notifications are rendered even if user
 				# killed the app
 				printer_name = token["printerName"]
-				language_code = token["languageCode"]
-				last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printer_id, printer_name,
+				last_result = self._alerts.send_alert_code(fcm_token, url, printer_id, printer_name,
 														   "print-progress", None, image, progress)
 
 			# Send silent notification to refresh WearOS complication
@@ -174,14 +173,13 @@ class JobNotifications:
 			if 'printerName' in token and token["printerName"] is not None:
 				# We can send non-silent notifications (the new way) so notifications are rendered even if user
 				# killed the app
-				language_code = token["languageCode"]
 				if current_printer_state_id == "ERROR":
 					self._logger.debug(
 						"Sending notification for error message: %s (%s)" % (current_printer_state, printer_name))
 					last_result = self._alerts.send_alert(fcm_token, url, printer_name, current_printer_state, None,
 														  None)
 				elif (current_printer_state_id == "FINISHING" and was_printing) or test:
-					last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printer_id, printer_name,
+					last_result = self._alerts.send_alert_code(fcm_token, url, printer_id, printer_name,
 															   "print-complete", None, image)
 					# Skip the silent notification for finishing at 100%. One for operational at 100% will be sent later
 					continue

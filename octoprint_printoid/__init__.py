@@ -151,7 +151,7 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 
 	# SimpleApiPlugin mixin
 
-	def update_token(self, old_token, new_token, device_name, printer_id, printer_name, language_code):
+	def update_token(self, old_token, new_token, device_name, printer_id, printer_name):
 		self._logger.debug("Received tokens for %s." % device_name)
 
 		existing_tokens = self._settings.get(["tokens"])
@@ -181,18 +181,13 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 					token["printerName"] = printer_name
 					token["date"] = datetime.datetime.now()
 					updated = True
-				if language_code is not None and ("languageCode" not in token or token["languageCode"] != language_code):
-					# Language being used by Printoid has been updated
-					token["languageCode"] = language_code
-					token["date"] = datetime.datetime.now()
-					updated = True
 				break
 
 		if not found:
 			self._logger.debug("Adding token for %s." % device_name)
 			# Token was not found so we need to add it
 			existing_tokens.append({'fcmToken': new_token, 'deviceName': device_name, 'date': datetime.datetime.now(),
-									'printerID': printer_id, 'printerName': printer_name, 'languageCode': language_code})
+									'printerID': printer_id, 'printerName': printer_name})
 			updated = True
 		if updated:
 			# Save new settings
@@ -213,13 +208,12 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 			# Convert from ASCII to UTF-8 since somce chars will fail otherwise
 			data["deviceName"] = data["deviceName"].encode("utf-8")
 			printer_name = data["printerName"] if 'printerName' in data else None
-			language_code = data["languageCode"] if 'languageCode' in data else None
 
 			self.update_token("{oldToken}".format(**data), "{newToken}".format(**data), "{deviceName}".format(**data),
-							  "{printerID}".format(**data), printer_name, language_code)
+							  "{printerID}".format(**data), printer_name)
 							  
 		elif command == 'test':
-			code = self._test_notifications.send__test(self._settings, "test_message")
+			code = self._test_notifications.send__test(self._settings)
 			return flask.jsonify(dict(code=code))
 			
 		elif command == 'snooze':

@@ -84,10 +84,9 @@ class PausedForUser:
 				# killed the app
 				printerID = token["printerID"]
 				printer_name = token["printerName"]
-				language_code = token["languageCode"]
 				url = server_url
 
-				last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printerID, printer_name,
+				last_result = self._alerts.send_alert_code(fcm_token, url, printerID, printer_name,
 														   "paused-for-user", None, None)
 
 		return last_result

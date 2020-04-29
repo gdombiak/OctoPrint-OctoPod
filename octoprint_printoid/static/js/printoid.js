@@ -39,17 +39,18 @@ $(function() {
                 contentType: "application/json; charset=UTF-8",
                 success: function(response) {
                     self.testResult(true);
-                    self.testSuccessful(response.code == 204);
+                    self.testSuccessful(response.code >= 200 && response.code < 300);
+                    
                     if (response.code == -1) {
-                        self.testMessage("Complete 'Notification Server URL'");
+                        self.testMessage("Please complete 'Notification Server URL'");
                     } else if (response.code == -2) {
-                        self.testMessage("No Android devices registered yet. Open Printoid app on your Android device");
+                        self.testMessage("No Android devices registered yet. Open Printoid app on your Android device and ensure the app is connected to your OctoPrint server, then retry.");
                     } else if (response.code == 404) {
-                        self.testMessage("404 - Notification Server URL was not found");
+                        self.testMessage("404 - Notification server URL not found, please contact the developer");
                     } else if (response.code == 500) {
-                        self.testMessage("500 - Target server had an error");
+                        self.testMessage("500 - Target server had an error, please contact the developer");
                     } else if (response.code == -500) {
-                        self.testMessage("There was an error sending message. Check logs");
+                        self.testMessage("There was an error sending message. Please check the OctoPrint logs and contact the developer.");
                     } else {
                         self.testMessage(undefined);
                     }

@@ -61,10 +61,9 @@ class LayerNotifications:
 				# We can send non-silent notifications (the new way) so notifications are rendered even if user
 				# killed the app
 				printer_name = token["printerName"]
-				language_code = token["languageCode"]
 				url = server_url
 
-				last_result = self._alerts.send_alert_code(language_code, fcm_token, url, printerID, printer_name,
+				last_result = self._alerts.send_alert_code(fcm_token, url, printerID, printer_name,
 														   "layer-changed", None, None, current_layer)
 
 		return last_result

@@ -12,7 +12,7 @@ class Alerts:
 	def __init__(self, logger):
 		self._logger = logger
 
-	def send_alert_code(self, language_code, fcm_token, url, printer_id, printer_name, event_code, category=None, image=None, event_param=None):
+	def send_alert_code(self, fcm_token, url, printer_id, printer_name, event_code, category=None, image=None, event_param=None):
 		self._logger.info("//// Send alert to Printoid: '%s' (%s)" % (event_code, printer_name))
 
 		data = {
