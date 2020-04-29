@@ -44,7 +44,7 @@ $(function() {
                     if (response.code == -1) {
                         self.testMessage("Please complete 'Notification Server URL'");
                     } else if (response.code == -2) {
-                        self.testMessage("No Android devices registered yet. Open Printoid app on your Android device and ensure the app is connected to your OctoPrint server, then retry.");
+                        self.testMessage("No Android devices registered yet. Open the Printoid application on your Android device and ensure the app is connected to your OctoPrint server, then retry.");
                     } else if (response.code == 404) {
                         self.testMessage("404 - Notification server URL not found, please contact the developer");
                     } else if (response.code == 500) {

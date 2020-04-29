@@ -1,6 +1,22 @@
 <form class="form-horizontal">
-    <h4>{{ _('Server and Camera Settings') }}</h4>
-    <p>{{ _('Complete the settings below so that OctoPrint can send notifications to Printoid even when the app is in background or not connected to the same network (no need for port forwarding nor VPN setup)') }}</p>
+    <p>{{ _('The Printoid Plugin allows your OctoPrint server to send push notification to the Printoid application, even when the app is in background or not connected to the same network (no need for port forwarding nor VPN setup). This plugin requires Printoid v15.01 minimum. Please check on Google Play if you have the correct version before trying to setup the plugin.') }}</p>
+
+	<br>
+	<br>
+
+    <h4>{{ _('Pairing With Printoid') }}</h4>
+
+    <p>{{ _('Open Printoid on your Android device and make sure to have the corresponding OctoPrint profile selected and connected before testing notification that you would receive push notifications') }}</p>
+    <div class="control-group">
+        <div class="controls">
+            <button class="btn" data-bind="click: function() { testNotification() }"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Send test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully, check your phone!') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
+        </div>
+    </div>
+
+	<br>
+
+    <h4>{{ _('Camera Settings') }}</h4>
+    <p>{{ _('Complete the settings below so that OctoPrint can send notifications to Printoid with a snapshot of your camera if you have one.)') }}</p>
 
      <div class="control-group">
         <!-- <label class="control-label">{{ _('Snapshot URL') }}</label> -->
@@ -8,13 +24,6 @@
         <div class="controls">
             <input type="text" class="input-block-level" id="camera_snapshot_url" data-bind="value: settings.plugins.printoid.camera_snapshot_url">
             <span class="help-inline">{{ _('Enter URL address that provides an image snapshot that will be included in the notification') }}</span>
-        </div>
-    </div>
-
-    <p>{{ _('Open Printoid on your Android device and make sure to have the corresponding OctoPrint profile selected and connected before testing notification that you would receive push notifications') }}</p>
-    <div class="control-group">
-        <div class="controls">
-            <button class="btn" data-bind="click: function() { testNotification() }"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Send test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully, check your phone!') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
         </div>
     </div>
     
