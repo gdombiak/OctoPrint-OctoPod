@@ -3,22 +3,16 @@ layout: plugin
 
 id: printoid
 title: OctoPrint-Printoid
-description: OctoPrint plugin for Printoid
+description: Notifications plugin for Printoid (Android app for OctoPrint)
 author: Anthony Stéphan
 license: Apache-2.0
 
-date: 2020-04-25
+date: 2020-04-30
 
 homepage: https://github.com/anthonyst91/OctoPrint-Printoid
 source: https://github.com/anthonyst91/OctoPrint-Printoid
 archive: https://github.com/anthonyst91/OctoPrint-Printoid/archive/master.zip
 
-# TODO
-# Set this to true if your plugin uses the dependency_links setup parameter to include
-# library versions not yet published on PyPi. SHOULD ONLY BE USED IF THERE IS NO OTHER OPTION!
-#follow_dependency_links: false
-
-# TODO
 tags:
 - printoid
 - bed temperature
@@ -26,49 +20,77 @@ tags:
 - Android
 - notifications
 
-# TODO
 screenshots:
-- url: /assets/img/plugins/printoid/settings.png
-  alt: Configure Notifications
-  caption: Configure Notifications
-- url: /assets/img/plugins/printoid/print_finished.jpg
-  alt: Print Finished
-  caption: Print Finished
-- url: /assets/img/plugins/printoid/bed_cooled.jpg
-  alt: Bed Cooled Down
-  caption: Bed Cooled Down
-
-# TODO
-featuredimage: /assets/img/plugins/printoid/print_finished.jpg
+- url: /assets/img/plugins/printoid/notif_progress_10.png
+  alt: Notification on print progress
+  caption: Notification on print progress
+- url: /assets/img/plugins/printoid/notif_print_completed.png
+  alt: Notification on print completed
+  caption: Notification on print completed
+- url: /assets/img/plugins/printoid/notif_temperature_alert.png
+  alt: Notification on temperature alert
+  caption: Notification on temperature alert
 
 ---
 
-This plugin sends immediate push notifications to your Android devices when:
-* your print has finished. Notifications include a snapshot of your camera. If you
-have multiple cameras then you can include a snapshot of any of them. Even if the
-cameras are not connected to OctoPrint you can still make use of them
-* bed has cooled down enough so you can remove your print
-* bed has warmed up to target temperature for a specified period so you can start
-printing knowing that bed's material won't expand anymore
+This is the official plugin made for the [Printoid for OctoPrint](https://play.google.com/store/apps/details?id=fr.yochi76.printoid.phones.premium&utm_source=github&utm_medium=plugin) application.
 
-If you are using [Printoid](https://play.google.com/store/apps/details?id=fr.yochi76.printoid.phones.premium)
-to control your printer from any Android device then this plugin is a great addition.
+It aims to send you push notifications to your device(s) on specific events on your OctoPrint server.
+This plugin has been inspired by the great plugin made by the developer of [OctoPod](https://itunes.apple.com/us/app/octopod-for-octoprint/id1412557625?mt=8) for iOS.
+He plugin (the original one) can be found [here](https://github.com/gdombiak/OctoPrint-OctoPod).
+If you like the Printoid Plugin, then please support the developer of the OctoPod plugin, because he did an amazing work!
 
-This plugin is based on the plugin made by the developer of [OctoPod](https://itunes.apple.com/us/app/octopod-for-octoprint/id1412557625?mt=8)
+## Prerequisites
 
+Printoid v15.01 (at least) should be available and installed on your phone
 
-## Installation
+## What CAN this plugin do for you?
 
-Installation is super easy. There is no need to change your router configuration, do
-port forwarding or open holes in your firewall. Just follow these steps and you will
-be up and running in no time.
+This plugin sends immediate push notifications to your Android devices running
+[Printoid for OctoPrint](https://play.google.com/store/apps/details?id=fr.yochi76.printoid.phones.premium&utm_source=github&utm_medium=plugin) when:
 
-1. Download and install this plugin as you would do with any other OctoPrint plugin
-1. Download [Printoid](https://play.google.com/store/apps/details?id=fr.yochi76.printoid.phones.premium) from the App Store
-1. Start [Printoid](https://play.google.com/store/apps/details?id=fr.yochi76.printoid.phones.premium) so
-it can receive notifications. This step is required for testing the plugin
-1. Go to OctoPrint settings and configure this plugin
-  * If needed, update _Snapshot URL_ to point to the camera that will provide an image when your print is finished
-  * Click on _Send test notification_ to confirm setup is operational
-  * Configure _Bed Notifications_ to receive cooled down or warm up bed events
-  * Save settings and enjoy
+- The state of your printer is changing (to PRINTING, to PAUSED, to ERROR, and back to OPERATIONAL, for example)
+- The print job reached a certain progress (every 10%, every 25% or at 50% only)
+- Your print is now complete (progress = 100%)
+- Your print reached specified layers (requires plugin [DisplayLayerProgress plugin](https://plugins.octoprint.org/plugins/DisplayLayerProgress/) to be installed too)
+- Your heated bed reached a specific temperature (useful to know when you can easily remove your prints from the bed, or when you can get smooth first layer)
+- Your extruder cooled down below a specific temperature (useful to be informed when you can safely turn off your printer)
+- Your printer has been paused because it requires a user action (out of filament, or manual multi color printing or M600 detection)
+- [Palette 2 / Pro](https://www.mosaicmfg.com/products/palette-2) encountered a problem while printing
+- [MMU](https://shop.prusa3d.com/en/upgrades/183-original-prusa-i3-mk25smk3s-multi-material-2s-upgrade-kit-mmu2s.html#) requires user assistance (it requires Prusa firmware)
+- Firmware errors (get security alerts like thermal runaway, probing failed, min temp error, max temp error...)
+
+This plugin does not need your phone to be connected to the same network as your OctoPrint server to send the notifications. 
+You will be able to receive the notifications even if you are out of your home and/or connected to the cellular network (3G/4G/5G) for example.
+
+This plugin does not need your network to be opened to the Internet. You do not need to do port forwarding, and you do not need to setup a VPN ;) 
+
+Printoid does not need to be opened on your device to receive the notifications from the plugin. The app can be killed and your phone can be sleeping, you will receive the notifications whatever happens!
+
+## What CAN'T this plugin do for you?
+
+This plugin is not a plugin to control your 3D printer remotely. Please be nice, don't yell at me because this was what you expected...
+May be this will be possible in the future, but for the moment it would require me too much work.
+
+This plugin only sends push to your device in order to show you notifications on your device for specific events.
+This way it will not update the information contained in the app (at least for the moment).
+
+## Setup
+
+Install the plugin via the bundled [Plugin Manager](https://github.com/foosel/OctoPrint/wiki/Plugin:-Plugin-Manager)
+or manually using this URL:
+
+    https://github.com/anthonyst91/OctoPrint-Printoid/archive/master.zip
+
+## Configuration
+
+Once the plugin has been installed:
+
+1. Open the _Settings_ panel of OctoPrint 
+2. Navigate to the _Plugins_ section and select _Printoid Notifications_
+3. Open the Printoid application on your phone, and connect it to your OctoPrint server
+4. Wait few seconds for the app to be fully refreshed
+5. From the OctoPrint interface, click on the _Send test notification_ button
+6. Check on your phone, you should receive your first notification!
+7. The Printoid app is now paired with the Printoid plugin, you will receive notifications! 
+
