@@ -13,30 +13,34 @@ class JobNotifications:
 		self._logger = logger
 		self._alerts = Alerts(self._logger)
 
+
 	def on_print_progress(self, settings, progress):
 		progress_type = settings.get(["progress_type"])
 		if progress_type == '0':
 			# Print notification disabled
 			return
+			
 		elif progress_type == '25':
 			# Print notifications at 25%, 50%, 75% and 100%
-			# 100% is sent via #send__print_job_notification
+			# 100% is sent via #send__printer_state_changed
 			if progress == 25 or progress == 50 or progress == 75:
-				self.send__print_job_progress(settings, progress)
+				self.send__print_job_progress_value(settings, progress)
 			return
+			
 		elif progress_type == '50':
 			# Print notifications at 50% and 100%
-			# 100% is sent via #send__print_job_notification
+			# 100% is sent via #send__printer_state_changed
 			if progress == 50:
-				self.send__print_job_progress(settings, progress)
+				self.send__print_job_progress_value(settings, progress)
 			return
+			
 		else:
 			# Assume print notification only at 100% (once done printing)
-			# 100% is sent via #send__print_job_notification
+			# 100% is sent via #send__printer_state_changed
 			return
 
 
-	def send__print_job_progress(self, settings, progress):
+	def send__print_job_progress_value(self, settings, progress):
 		url = settings.get(["server_url"])
 		if not url or not url.strip():
 			# No FCM server has been defined so do nothing
@@ -79,17 +83,13 @@ class JobNotifications:
 				# killed the app
 				printer_name = token["printerName"]
 				last_result = self._alerts.send_alert_code(fcm_token, url, printer_id, printer_name,
-														   "print-progress", None, image, progress)
-
-			# Send silent notification to refresh WearOS complication
-			self._alerts.send_job_request(fcm_token, None, printer_id, printer_name, "Printing", progress, url)
-
+														   "print-progress", image=image, event_param=progress)
 		return last_result
 
-	def send__print_job_notification(self, settings, printer, event_payload, server_url=None, camera_snapshot_url=None,
-									 test=False):
+
+	def send__printer_state_changed(self, settings, printer, event_payload, server_url=None, camera_snapshot_url=None):
 		progress_type = settings.get(["progress_type"])
-		if progress_type == '0' and not test:
+		if progress_type == '0':
 			# Print notification disabled
 			return
 		if server_url:
@@ -109,37 +109,33 @@ class JobNotifications:
 		completion = None
 		was_printing = False
 		current_data = printer.get_current_data()
+		
 		if "progress" in current_data and current_data["progress"] is not None \
 			and "completion" in current_data["progress"] and current_data["progress"][
 			"completion"] is not None:
 			completion = current_data["progress"]["completion"]
 
 		current_printer_state_id = event_payload["state_id"]
-		if not test:
-			# Ignore other states that are not any of the following
-			if current_printer_state_id != "OPERATIONAL" and current_printer_state_id != "PRINTING" and \
-				current_printer_state_id != "PAUSED" and current_printer_state_id != "CLOSED" and \
-				current_printer_state_id != "ERROR" and current_printer_state_id != "CLOSED_WITH_ERROR" and \
-				current_printer_state_id != "OFFLINE" and current_printer_state_id != "FINISHING":
-				return -3
 
-			current_printer_state = event_payload["state_string"]
-			if current_printer_state == self._lastPrinterState:
-				# OctoPrint may report the same state more than once so ignore dups
-				return -4
+		# Ignore other states that are not any of the following
+		if current_printer_state_id != "OPERATIONAL" and current_printer_state_id != "PRINTING" and \
+			current_printer_state_id != "PAUSED" and current_printer_state_id != "CLOSED" and \
+			current_printer_state_id != "ERROR" and current_printer_state_id != "CLOSED_WITH_ERROR" and \
+			current_printer_state_id != "OFFLINE" and current_printer_state_id != "FINISHING":
+			return -3
 
-			if self._lastPrinterState is not None and self._lastPrinterState.startswith('Printing'):
-				was_printing = True
-			self._lastPrinterState = current_printer_state
-		else:
-			current_printer_state_id = "OPERATIONAL"
-			current_printer_state = "Operational"
-			completion = 100
+		current_printer_state = event_payload["state_string"]
+		if current_printer_state == self._lastPrinterState:
+			# OctoPrint may report the same state more than once so ignore dups
+			return -4
+
+		if self._lastPrinterState is not None and self._lastPrinterState.startswith('Printing'):
+			was_printing = True
+		self._lastPrinterState = current_printer_state
 
 		# Get a snapshot of the camera
 		image = None
-		# if (was_printing and current_printer_state_id == "FINISHING") or test:
-		if was_printing or test:
+		if was_printing:
 			try:
 				if camera_snapshot_url:
 					camera_url = camera_snapshot_url
@@ -171,42 +167,19 @@ class JobNotifications:
 			used_tokens.append(fcm_token)
 
 			if 'printerName' in token and token["printerName"] is not None:
-				# We can send non-silent notifications (the new way) so notifications are rendered even if user
-				# killed the app
 				if current_printer_state_id == "ERROR":
 					self._logger.debug(
 						"Sending notification for error message: %s (%s)" % (current_printer_state, printer_name))
-					last_result = self._alerts.send_alert(fcm_token, url, printer_name, current_printer_state, None,
-														  None)
-				elif (current_printer_state_id == "FINISHING" and was_printing) or test:
 					last_result = self._alerts.send_alert_code(fcm_token, url, printer_id, printer_name,
-															   "print-complete", None, image)
-					# Skip the silent notification for finishing at 100%. One for operational at 100% will be sent later
-					continue
-
-				# Send silent notification so that Printoid app can update complications of WearOS app
-				self._alerts.send_job_request(fcm_token, image, printer_id, printer_name, current_printer_state, completion, url)
-
-			else:
-				if current_printer_state_id == "FINISHING":
-					# Legacy mode was not sending a notification for this state
-					continue
-
-				if image is None:
-					try:
-						if camera_snapshot_url:
-							camera_url = camera_snapshot_url
-						else:
-							camera_url = settings.get(["camera_snapshot_url"])
-						if camera_url and camera_url.strip():
-							image = self.image(settings)
-					except:
-						self._logger.info("Could not load image from url")
-
-				# Legacy mode that uses silent notifications. As user update Printoid app then they will automatically
-				# switch to the new mode
-				last_result = self._alerts.send_job_request(fcm_token, image, printer_id, printer_name, current_printer_state,
-															completion, url)
+															   "printer-error", image=None, event_param=current_printer_state)
+					
+				elif (current_printer_state_id == "FINISHING" and was_printing):
+					last_result = self._alerts.send_alert_code(fcm_token, url, printer_id, printer_name,
+															   "print-complete", image)
+															   
+				else:
+					last_result = self._alerts.send_alert_code(fcm_token, url, printer_id, printer_name,
+															   "printer-state", image=None, event_param=current_printer_state)
 
 		return last_result
 

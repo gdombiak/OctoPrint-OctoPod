@@ -140,7 +140,7 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_event(self, event, payload):
 		if event == Events.PRINTER_STATE_CHANGED:
-			self._job_notifications.send__print_job_notification(self._settings, self._printer, payload)
+			self._job_notifications.send__printer_state_changed(self._settings, self._printer, payload)
 		elif event == "DisplayLayerProgress_layerChanged":
 			# Event sent from DisplayLayerProgress plugin when there was a detected layer changed
 			self._layerNotifications.layer_changed(self._settings, payload["currentLayer"])

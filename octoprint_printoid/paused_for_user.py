@@ -86,7 +86,6 @@ class PausedForUser:
 				printer_name = token["printerName"]
 				url = server_url
 
-				last_result = self._alerts.send_alert_code(fcm_token, url, printerID, printer_name,
-														   "paused-for-user", None, None)
+				last_result = self._alerts.send_alert_code(fcm_token, url, printerID, printer_name, "paused-for-user")
 
 		return last_result

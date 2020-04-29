@@ -64,6 +64,6 @@ class LayerNotifications:
 				url = server_url
 
 				last_result = self._alerts.send_alert_code(fcm_token, url, printerID, printer_name,
-														   "layer-changed", None, None, current_layer)
+														   "layer-changed", None, current_layer)
 
 		return last_result

@@ -54,8 +54,7 @@ class TestNotifications:
 				# We can send non-silent notifications (the new way) so notifications are rendered even if user
 				# killed the app
 				printer_name = token["printerName"]
-				last_result = self._alerts.send_alert_code(fcm_token, url, printer_id, printer_name,
-														   "test-message", None, image)
+				last_result = self._alerts.send_alert_code(fcm_token, url, printer_id, printer_name, "test-message", image)
 
 		return last_result
 
