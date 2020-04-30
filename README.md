@@ -40,6 +40,10 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.2.6]** (04/30/2020)
+- Fixed sending notification when image resolution was too big
+- Send Test notification was ignoring entered unsaved snapshot URL
+
 **[0.2.5]** (03/21/2020)
 - Print notifications can be configured to be sent at different progress percentages
 - Added new notification when print reaches specified layers (requires [DisplayLayerProgress plugin](https://plugins.octoprint.org/plugins/DisplayLayerProgress/) and OctoPod 3.2 or later)
@@ -74,6 +78,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.2.6]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.6
 [0.2.5]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.5
 [0.2.4]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.4
 [0.2.3]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.3
