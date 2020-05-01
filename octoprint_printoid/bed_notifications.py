@@ -11,6 +11,16 @@ class BedNotifications:
 		self._printer_was_printing_above_bed_low = False  # Variable used for bed cooling alerts
 		self._printer_not_printing_reached_target_temp_start_time = None  # Variable used for bed warming alerts
 
+
+	def set_temperature_threshold(self, settings, temperature):
+		if temperature >= 0 and temperature < 200:
+			settings.set(["bed_low"], temperature)
+			settings.save()
+			return True
+		else:
+			return False
+
+
 	def check_temps(self, settings, printer):
 		temps = printer.get_current_temperatures()
 		# self._logger.debug(u"CheckTemps(): %r" % (temps,))
