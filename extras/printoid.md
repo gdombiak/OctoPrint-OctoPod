@@ -40,6 +40,10 @@ This plugin has been inspired by the great plugin made by the developer of [Octo
 He plugin (the original one) can be found [here](https://github.com/gdombiak/OctoPrint-OctoPod).
 If you like the Printoid Plugin, then please support the developer of the OctoPod plugin, because he did an amazing work!
 
+The Printoid Plugin communicates with Firebase Cloud Messaging server over a Google Cloud Function, located at the following URL:
+
+	https://us-central1-firebase-printoid.cloudfunctions.net/printoidPluginGateway
+
 ## Prerequisites
 
 Printoid v15.01 (at least) should be available and installed on your phone
