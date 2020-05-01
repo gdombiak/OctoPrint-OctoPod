@@ -126,6 +126,6 @@ class BedNotifications:
 				printer_name = token["printerName"]
 				url = server_url
 
-				last_result = self._alerts.send_alert_code(fcm_token, url, printer_name, event_code)
+				last_result = self._alerts.send_alert_code(fcm_token, url, printer_name, event_code, image=None, event_param=temperature)
 
 		return last_result
