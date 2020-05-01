@@ -201,7 +201,8 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 					removeLayer=["layer"], 
 					getLayers=[],
 					clearLayers=[],
-					progressMode=["mode"])
+					progressMode=["mode"],
+					headTemperature=["temperature"])
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
@@ -243,7 +244,14 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 			
 		elif command == 'getLayers':
 			return flask.jsonify(dict(layers=self._layerNotifications.get_layers()))
-			
+
+		elif command == 'headTemperature':
+			headTempChanged = self._tool_notifications.set_temperature_threshold(self._settings, data["temperature"])
+			if headTempChanged == True:
+				eventManager().fire(Events.SETTINGS_UPDATED)
+			else:
+				return flask.make_response("changing head temperature trigger failed: wrong temperature value", 400)
+
 		else:
 			return flask.make_response("Unknown command", 400)
 

@@ -7,6 +7,16 @@ class ToolsNotifications:
 		self._logger = logger
 		self._alerts = Alerts(self._logger)
 		self._printer_was_printing_above_tool0_low = False  # Variable used for tool0 cooling alerts
+		
+		
+	def set_temperature_threshold(self, settings, temperature):
+		if temperature >= 0 and temperature < 400:
+			settings.set(["tool0_low"], temperature)
+			settings.save()
+			return True
+		else:
+			return False
+	
 
 	def check_temps(self, settings, printer):
 		temps = printer.get_current_temperatures()
