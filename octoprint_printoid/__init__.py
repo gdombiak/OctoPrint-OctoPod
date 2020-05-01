@@ -203,7 +203,8 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 					clearLayers=[],
 					progressMode=["mode"],
 					headTemperature=["temperature"],
-					bedTemperature=["temperature"])
+					bedTemperature=["temperature"],
+					bedWarmDuration=["minutes"])
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
@@ -259,6 +260,13 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 				eventManager().fire(Events.SETTINGS_UPDATED)
 			else:
 				return flask.make_response("changing bed temperature trigger failed: wrong temperature value", 400)
+
+		elif command == 'bedWarmDuration':
+			bedTimeChanged = self._bed_notifications.set_temperature_duration(self._settings, data["minutes"])
+			if bedTimeChanged == True:
+				eventManager().fire(Events.SETTINGS_UPDATED)
+			else:
+				return flask.make_response("changing bed warm duration failed: wrong temperature value", 400)
 
 		else:
 			return flask.make_response("Unknown command", 400)
