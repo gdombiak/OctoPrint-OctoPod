@@ -14,6 +14,15 @@ class JobNotifications:
 		self._alerts = Alerts(self._logger)
 
 
+	def set_progress_mode(self, settings, mode):
+		if mode == '0' or mode == '10' or mode == '25' or mode == '50' or mode == '100':
+			settings.set(["progress_type"], mode)
+			settings.save()
+			return True
+		else:
+			return False
+
+
 	def on_print_progress(self, settings, progress):
 		progress_type = settings.get(["progress_type"])
 		if progress_type == '0':

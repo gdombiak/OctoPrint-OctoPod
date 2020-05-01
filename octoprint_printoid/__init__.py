@@ -200,7 +200,8 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 					addLayer=["layer"], 
 					removeLayer=["layer"], 
 					getLayers=[],
-					clearLayers=[])
+					clearLayers=[],
+					progressMode=["mode"])
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
@@ -217,12 +218,19 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 		elif command == 'test':
 			code = self._test_notifications.send__test(self._settings)
 			return flask.jsonify(dict(code=code))
+
+		elif command == "progressMode":
+			modeChanged = self._job_notifications.set_progress_mode(self._settings, data["mode"])
+			if modeChanged == True:
+				eventManager().fire(Events.SETTINGS_UPDATED)
+			else:
+				return flask.make_response("changing progress mode failed: unknown mode", 400)
 			
 		elif command == 'snooze':
 			if data["eventCode"] == 'mmu-event':
 				self._mmu_assitance.snooze(data["minutes"])
 			else:
-				return flask.make_response("Snooze for unknown event", 400)
+				return flask.make_response("Snooze command for unknown event", 400)
 				
 		elif command == 'addLayer':
 			self._layerNotifications.add_layer(data["layer"])
