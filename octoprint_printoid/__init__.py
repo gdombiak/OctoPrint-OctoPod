@@ -141,13 +141,10 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 	def on_event(self, event, payload):
 		if event == Events.PRINTER_STATE_CHANGED:
 			self._job_notifications.send__printer_state_changed(self._settings, self._printer, payload)
+			
 		elif event == "DisplayLayerProgress_layerChanged":
 			# Event sent from DisplayLayerProgress plugin when there was a detected layer changed
 			self._layerNotifications.layer_changed(self._settings, payload["currentLayer"])
-		elif event == Events.PRINT_STARTED or event == Events.PRINT_DONE or event == Events.PRINT_CANCELLED \
-				or event == Events.PRINT_FAILED:
-			# Reset layers for which we need to send a notification. Each new print job has its own
-			self._layerNotifications.reset_layers()
 
 	# SimpleApiPlugin mixin
 
@@ -197,8 +194,13 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.debug("Tokens saved")
 
 	def get_api_commands(self):
-		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], test=[],
-					snooze=["eventCode", "minutes"], addLayer=["layer"], removeLayer=["layer"], getLayers=[])
+		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], 
+					test=[],
+					snooze=["eventCode", "minutes"], 
+					addLayer=["layer"], 
+					removeLayer=["layer"], 
+					getLayers=[],
+					clearLayers=[])
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
@@ -228,8 +230,12 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 		elif command == 'removeLayer':
 			self._layerNotifications.remove_layer(data["layer"])
 			
+		elif command == 'clearLayers':
+			self._layerNotifications.reset_layers()
+			
 		elif command == 'getLayers':
 			return flask.jsonify(dict(layers=self._layerNotifications.get_layers()))
+			
 		else:
 			return flask.make_response("Unknown command", 400)
 

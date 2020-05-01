@@ -9,7 +9,7 @@ $(function() {
         var self = this;
 
         // assign the injected parameters, e.g.:
-         self.settingsViewModel = parameters[0];
+        self.settingsViewModel = parameters[0];
 
         self.testActive = ko.observable(false);
         self.testResult = ko.observable(false);

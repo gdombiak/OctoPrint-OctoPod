@@ -6,15 +6,15 @@ class LayerNotifications:
 	def __init__(self, logger):
 		self._logger = logger
 		self._alerts = Alerts(self._logger)
-		self.reset_layers()
+		self._layers = []
 
 	def get_layers(self):
 		""" Returns list of layers for which notifications will be sent """
-		return self._layers
+		return self._layers # Variable used for tracking layer numbers to notify. Values are strings
 
 	def reset_layers(self):
 		""" Reset list of layers for which notifications will be sent """
-		self._layers = []  # Variable used for tracking layer numbers to notify. Values are strings
+		self._layers = []
 
 	def add_layer(self, layer):
 		""" Add a new layer to the list of layers for which notifications will be sent """
