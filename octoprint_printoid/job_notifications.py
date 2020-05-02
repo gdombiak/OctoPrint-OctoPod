@@ -72,7 +72,7 @@ class JobNotifications:
 		try:
 			camera_url = settings.get(["camera_snapshot_url"])
 			if camera_url and camera_url.strip():
-				image = self.image(settings)
+				image = self.image(camera_url, settings)
 		except:
 			self._logger.info("Could not load image from url")
 
@@ -158,7 +158,7 @@ class JobNotifications:
 				else:
 					camera_url = settings.get(["camera_snapshot_url"])
 				if camera_url and camera_url.strip():
-					image = self.image(settings)
+					image = self.image(camera_url, settings)
 			except:
 				self._logger.info("Could not load image from url")
 
@@ -201,18 +201,31 @@ class JobNotifications:
 
 	# Private functions - Print Job Notifications
 
-	def image(self, settings):
+	def image(self, snapshot_url, settings):
 		"""
 		Create an image by getting an image form the setting webcam-snapshot.
 		Transpose this image according the settings and returns it
 		:return:
 		"""
-		snapshot_url = settings.get(["camera_snapshot_url"])
-		if not snapshot_url:
-			return None
 
 		self._logger.debug("Snapshot URL: %s " % str(snapshot_url))
 		image = requests.get(snapshot_url, stream=True).content
+
+		try:
+			# Reduce resolution of image to prevent 400 error when uploading content
+			# Besides this saves network bandwidth and Android device or WearOS
+			# cannot tell the difference in resolution
+			image_obj = Image.open(BytesIO(image))
+			x, y = image_obj.size
+			if x > 1640 or y > 1232:
+				size = 1640, 1232
+				image_obj.thumbnail(size, Image.ANTIALIAS)
+				output = BytesIO()
+				image_obj.save(output, format="JPEG")
+				image = output.getvalue()
+				output.close()
+		except Exception as e:
+			self._logger.debug( "Error reducing resolution of image: %s" % str(e) ) 
 
 		hflip = settings.global_get(["webcam", "flipH"])
 		vflip = settings.global_get(["webcam", "flipV"])
