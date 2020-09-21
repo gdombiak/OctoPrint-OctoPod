@@ -1,101 +1,136 @@
 <form class="form-horizontal">
-    <h4>{{ _('Server and Camera Settings') }}</h4>
-    <p>{{ _('Complete URLs below so that OctoPrint can send notifications to OctoPod once print is finished') }}</p>
+    <div class="tabbable"> <!-- Only required for left/right tabs -->
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#tabGeneral" data-toggle="tab">General</a></li>
+            <li><a href="#tabDevices" data-toggle="tab">Devices</a></li>
+        </ul>
+        <div class="tab-content">
+            <!-- DISPLAY - TAB -->
+            <div class="tab-pane active" id="tabGeneral">
 
-    <div class="control-group">
-        <label class="control-label">{{ _('Notification Server URL') }}</label>
-        <div class="controls">
-            <input type="text" class="input-block-level" id="server_url" data-bind="value: settings.plugins.octopod.server_url">
-            <span class="help-inline">{{ _('Enter URL address to the OctoPod server that sends Apple Push Notifications') }}</span>
-        </div>
-    </div>
+                <h4>{{ _('Server and Camera Settings') }}</h4>
+                <p>{{ _('Complete URLs below so that OctoPrint can send notifications to OctoPod once print is finished') }}</p>
 
-     <div class="control-group">
-        <!-- <label class="control-label">{{ _('Snapshot URL') }}</label> -->
-        <label class="control-label">Snapshot URL</label>
-        <div class="controls">
-            <input type="text" class="input-block-level" id="camera_snapshot_url" data-bind="value: settings.plugins.octopod.camera_snapshot_url">
-            <span class="help-inline">{{ _('Enter URL address that provides an image snapshot that will be included in the notification') }}</span>
-        </div>
-    </div>
+                <div class="control-group">
+                    <label class="control-label">{{ _('Notification Server URL') }}</label>
+                    <div class="controls">
+                        <input type="text" class="input-block-level" id="server_url" data-bind="value: settings.plugins.octopod.server_url">
+                        <span class="help-inline">{{ _('Enter URL address to the OctoPod server that sends Apple Push Notifications') }}</span>
+                    </div>
+                </div>
 
-     <div class="control-group">
-        <label class="control-label">{{ _('Progress Notification') }}</label>
-        <div class="controls">
-            <input type="radio" id="progress_type1" data-bind="checked: settings.plugins.octopod.progress_type" value="0">&nbsp;{{ _('Disabled') }}<br>
-            <input type="radio" id="progress_type2" data-bind="checked: settings.plugins.octopod.progress_type" value="25">&nbsp;25% - 50% - 75% - 100%<br>
-            <input type="radio" id="progress_type3" data-bind="checked: settings.plugins.octopod.progress_type" value="50">&nbsp;50% - 100%<br>
-            <input type="radio" id="progress_type4" data-bind="checked: settings.plugins.octopod.progress_type" value="100">&nbsp;100%<br>
-        </div>
-    </div>
+                 <div class="control-group">
+                    <!-- <label class="control-label">{{ _('Snapshot URL') }}</label> -->
+                    <label class="control-label">Snapshot URL</label>
+                    <div class="controls">
+                        <input type="text" class="input-block-level" id="camera_snapshot_url" data-bind="value: settings.plugins.octopod.camera_snapshot_url">
+                        <span class="help-inline">{{ _('Enter URL address that provides an image snapshot that will be included in the notification') }}</span>
+                    </div>
+                </div>
 
-    <br>
-    <p>{{ _('Open OctoPod on your iOS device and make sure to have the corresponding printer selected before testing notification that you would receive when print is finished') }}</p>
-    <div class="control-group">
-        <div class="controls">
-            <button class="btn" data-bind="click: function() { testNotification() }"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Send test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
-        </div>
-    </div>
+                 <div class="control-group">
+                    <label class="control-label">{{ _('Progress Notification') }}</label>
+                    <div class="controls">
+                        <input type="radio" id="progress_type1" data-bind="checked: settings.plugins.octopod.progress_type" value="0">&nbsp;{{ _('Disabled') }}<br>
+                        <input type="radio" id="progress_type2" data-bind="checked: settings.plugins.octopod.progress_type" value="25">&nbsp;25% - 50% - 75% - 100%<br>
+                        <input type="radio" id="progress_type3" data-bind="checked: settings.plugins.octopod.progress_type" value="50">&nbsp;50% - 100%<br>
+                        <input type="radio" id="progress_type4" data-bind="checked: settings.plugins.octopod.progress_type" value="100">&nbsp;100%<br>
+                    </div>
+                </div>
 
-    <h4>{{ _('Extruder Notifications') }}</h4>
+                <br>
+                <p>{{ _('Open OctoPod on your iOS device and make sure to have the corresponding printer selected before testing notification that you would receive when print is finished') }}</p>
+                <div class="control-group">
+                    <div class="controls">
+                        <button class="btn" data-bind="click: function() { testNotification() }"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Send test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
+                    </div>
+                </div>
 
-    <p>{{ _('When extruder temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
-    <label class="control-label">{{ _('Temperature') }}</label>
-    <div class="controls">
-        <div class="input-append">
-            <input type="number" class="input-mini text-right" id="tool0_low" data-bind="value: settings.plugins.octopod.tool0_low" min="0" max="100" step="1" value="0"><span class="add-on">&deg;C</span>
-        </div>
-    </div>
+                <h4>{{ _('Extruder Notifications') }}</h4>
 
-    <h4>{{ _('Bed Notifications') }}</h4>
+                <p>{{ _('When extruder temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
+                <label class="control-label">{{ _('Temperature') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="tool0_low" data-bind="value: settings.plugins.octopod.tool0_low" min="0" max="100" step="1" value="0"><span class="add-on">&deg;C</span>
+                    </div>
+                </div>
 
-    <p>{{ _('When bed temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
-    <label class="control-label">{{ _('Temperature') }}</label>
-    <div class="controls">
-        <div class="input-append">
-            <input type="number" class="input-mini text-right" id="bed_low" data-bind="value: settings.plugins.octopod.bed_low" min="0" max="100" step="1" value="28"><span class="add-on">&deg;C</span>
-        </div>
-    </div>
+                <h4>{{ _('Bed Notifications') }}</h4>
 
-    <br>
-    <p>{{ _('When bed warms up to target temperature for specified duration before print starts, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
-    <label class="control-label">{{ _('Minutes') }}</label>
-    <div class="controls">
-        <div class="input-append">
-            <input type="number" class="input-mini text-right" id="bed_target_temp_hold" data-bind="value: settings.plugins.octopod.bed_target_temp_hold" min="0" max="15" step="1" value="0">
-        </div>
-    </div>
+                <p>{{ _('When bed temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
+                <label class="control-label">{{ _('Temperature') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="bed_low" data-bind="value: settings.plugins.octopod.bed_low" min="0" max="100" step="1" value="28"><span class="add-on">&deg;C</span>
+                    </div>
+                </div>
 
-    <h4>{{ _('Printer Paused Notifications') }}</h4>
+                <br>
+                <p>{{ _('When bed warms up to target temperature for specified duration before print starts, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
+                <label class="control-label">{{ _('Minutes') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="bed_target_temp_hold" data-bind="value: settings.plugins.octopod.bed_target_temp_hold" min="0" max="15" step="1" value="0">
+                    </div>
+                </div>
 
-    <p>{{ _('When current print job was paused waiting for user, OctoPrint will send notification. Useful when running
-    out of filament or need to change color of filament (M600). The following setting controls the frequency notifications
-    will be sent. A low number might end up spamming user. A value of 0 will disable this type of notifications') }}</p>
-    <label class="control-label">{{ _('Minutes') }}</label>
-    <div class="controls">
-        <div class="input-append">
-            <input type="number" class="input-mini text-right" id="pause_interval" data-bind="value: settings.plugins.octopod.pause_interval" min="0" max="100" step="1" value="5">
-        </div>
-    </div>
+                <h4>{{ _('Printer Paused Notifications') }}</h4>
 
-    <h4>{{ _('MMU Notifications') }}</h4>
+                <p>{{ _('When current print job was paused waiting for user, OctoPrint will send notification. Useful when running
+                out of filament or need to change color of filament (M600). The following setting controls the frequency notifications
+                will be sent. A low number might end up spamming user. A value of 0 will disable this type of notifications') }}</p>
+                <label class="control-label">{{ _('Minutes') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="pause_interval" data-bind="value: settings.plugins.octopod.pause_interval" min="0" max="100" step="1" value="5">
+                    </div>
+                </div>
 
-    <p>{{ _('When Prusa MMU (Multi Material Upgrade) requires user assistance, OctoPrint will send notification. The following
-    setting controls the frequency notifications will be sent. A low number might end up spamming user. A value of 0
-    will disable MMU notifications') }}</p>
-    <label class="control-label">{{ _('Minutes') }}</label>
-    <div class="controls">
-        <div class="input-append">
-            <input type="number" class="input-mini text-right" id="mmu_interval" data-bind="value: settings.plugins.octopod.mmu_interval" min="0" max="100" step="1" value="5">
-        </div>
-    </div>
+                <h4>{{ _('MMU Notifications') }}</h4>
+
+                <p>{{ _('When Prusa MMU (Multi Material Upgrade) requires user assistance, OctoPrint will send notification. The following
+                setting controls the frequency notifications will be sent. A low number might end up spamming user. A value of 0
+                will disable MMU notifications') }}</p>
+                <label class="control-label">{{ _('Minutes') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="mmu_interval" data-bind="value: settings.plugins.octopod.mmu_interval" min="0" max="100" step="1" value="5">
+                    </div>
+                </div>
 
 
-    <div class="control-group">
-        <div class="controls">
-            <label class="checkbox">
-            <input type="checkbox" data-bind="checked: settings.plugins.octopod.debug_logging">{{ _('Enable debug logging') }}
-            </label>
+                <div class="control-group">
+                    <div class="controls">
+                        <label class="checkbox">
+                        <input type="checkbox" data-bind="checked: settings.plugins.octopod.debug_logging">{{ _('Enable debug logging') }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!-- LAYER - TAB -->
+            <div class="tab-pane" id="tabDevices">
+                <table class="table table-striped table-hover table-condensed table-hover" id="log_files">
+                    <thead>
+                    <tr>
+                        <th class="octopod_device_name">{{ _('Device') }}</th>
+                        <th class="octopod_device_registered">{{ _('Registered') }}</th>
+                        <th class="octopod_device_printer">{{ _('Printer') }}</th>
+                        <th class="octopod_device_action">{{ _('Action') }}</th>
+                    </tr>
+                    </thead>
+                    <tbody data-bind="foreach: settings.plugins.octopod.tokens">
+                    <tr data-bind="attr: {title: name}">
+                        <td class="octopod_device_name" data-bind="text: deviceName"></td>
+                        <td class="octopod_device_registered" data-bind="text: date"></td>
+                        <td class="octopod_device_printer" data-bind="text: printerName"></td>
+                        <td class="octopod_device_action">
+                            <a href="#" class="icon-trash" data-bind="click: $parent.removeDevice"></a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

@@ -167,7 +167,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 					self._logger.debug("Updating token for %s." % device_name)
 					# Token that exists needs to be updated with new token
 					token["apnsToken"] = new_token
-					token["date"] = datetime.datetime.now()
+					token["date"] = datetime.datetime.now().strftime("%x %X")
 					updated = True
 				found = True
 			elif token["apnsToken"] == new_token and token["printerID"] == printer_id:
@@ -177,19 +177,19 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				if printer_name is not None and ("printerName" not in token or token["printerName"] != printer_name):
 					# Printer name in OctoPod has been updated
 					token["printerName"] = printer_name
-					token["date"] = datetime.datetime.now()
+					token["date"] = datetime.datetime.now().strftime("%x %X")
 					updated = True
 				if language_code is not None and ("languageCode" not in token or token["languageCode"] != language_code):
 					# Language being used by OctoPod has been updated
 					token["languageCode"] = language_code
-					token["date"] = datetime.datetime.now()
+					token["date"] = datetime.datetime.now().strftime("%x %X")
 					updated = True
 				break
 
 		if not found:
 			self._logger.debug("Adding token for %s." % device_name)
 			# Token was not found so we need to add it
-			existing_tokens.append({'apnsToken': new_token, 'deviceName': device_name, 'date': datetime.datetime.now(),
+			existing_tokens.append({'apnsToken': new_token, 'deviceName': device_name, 'date': datetime.datetime.now().strftime("%x %X"),
 									'printerID': printer_id, 'printerName': printer_name, 'languageCode': language_code})
 			updated = True
 		if updated:
@@ -208,8 +208,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			return flask.make_response("Insufficient rights", 403)
 
 		if command == 'updateToken':
-			# Convert from ASCII to UTF-8 since somce chars will fail otherwise
-			data["deviceName"] = data["deviceName"].encode("utf-8")
+			# Convert from ASCII to UTF-8 since some chars will fail otherwise (e.g. apostrophe)
+			# data["deviceName"] = data["deviceName"].encode("utf-8")
 			printer_name = data["printerName"] if 'printerName' in data else None
 			language_code = data["languageCode"] if 'languageCode' in data else None
 
