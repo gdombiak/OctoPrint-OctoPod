@@ -1,6 +1,7 @@
 # coding=utf-8
 from __future__ import absolute_import
 
+import sys
 import datetime
 import logging
 
@@ -208,8 +209,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			return flask.make_response("Insufficient rights", 403)
 
 		if command == 'updateToken':
-			# Convert from ASCII to UTF-8 since some chars will fail otherwise (e.g. apostrophe)
-			# data["deviceName"] = data["deviceName"].encode("utf-8")
+			# Convert from ASCII to UTF-8 since some chars will fail otherwise (e.g. apostrophe) - Only for Python 2
+			if sys.version_info[0] == 2:
+				data["deviceName"] = data["deviceName"].encode("utf-8")
 			printer_name = data["printerName"] if 'printerName' in data else None
 			language_code = data["languageCode"] if 'languageCode' in data else None
 
