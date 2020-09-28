@@ -11,6 +11,9 @@ include a snapshot of the configured camera. If you have multiple cameras then y
 a snapshot of any of them. Even if the cameras are not connected to OctoPrint you can still
 include a snapshot of the camera.
 
+The plugin also has support for [IFTTT](https://ifttt.com/home). Build your own integration leveraging
+events fired by this plugin. Enter your [IFTTT Key](https://ifttt.com/maker_webhooks) and create your Applets.
+
 This is the complete list of supported notifications:
 1. Print finished (includes camera snapshot) or at specific progress percentages
 1. Print reached specified layers (requires [DisplayLayerProgress plugin](https://plugins.octoprint.org/plugins/DisplayLayerProgress/))
@@ -39,6 +42,9 @@ the notification. Update Bed, MMU and other notifications as needed.
 You can test the configuration before saving it by using the _Send test notification_ button.
 
 ## Changelog
+
+**[0.2.8]** (09/28/2020)
+- Added IFTTT support
 
 **[0.2.7]** (09/20/2020)
 - User can now see and delete any registered device
@@ -81,6 +87,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.2.8]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.8
 [0.2.7]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.7
 [0.2.6]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.6
 [0.2.5]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.5

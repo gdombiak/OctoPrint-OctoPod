@@ -30,5 +30,21 @@ table {
         }
       }
     }
+
+    &.octopod_ifttt_event_name {
+      text-overflow: ellipsis;
+      text-align: left;
+      width: 130px;
+    }
+
+    &.octopod_ifttt_event_value1 {
+      text-align: center;
+      width: 130px;
+    }
+
+    &.octopod_ifttt_event_value2 {
+      text-align: center;
+      width: 130px;
+    }
   }
 }

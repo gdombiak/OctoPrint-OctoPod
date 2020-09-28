@@ -9,8 +9,9 @@ from .alerts import Alerts
 class JobNotifications:
 	_lastPrinterState = None
 
-	def __init__(self, logger):
+	def __init__(self, logger, ifttt_alerts):
 		self._logger = logger
+		self._ifttt_alerts = ifttt_alerts
 		self._alerts = Alerts(self._logger)
 
 	def on_print_progress(self, settings, progress):
@@ -37,6 +38,9 @@ class JobNotifications:
 
 
 	def send__print_job_progress(self, settings, progress):
+		# Send IFTTT Notifications
+		self._ifttt_alerts.fire_event(settings, "print-progress", progress)
+
 		url = settings.get(["server_url"])
 		if not url or not url.strip():
 			# No APNS server has been defined so do nothing
@@ -103,11 +107,6 @@ class JobNotifications:
 			# No APNS server has been defined so do nothing
 			return -1
 
-		tokens = settings.get(["tokens"])
-		if len(tokens) == 0:
-			# No iOS devices were registered so skip notification
-			return -2
-
 		url = url + '/v1/push_printer'
 
 		# Gather information about progress completion of the job
@@ -155,6 +154,17 @@ class JobNotifications:
 					image = self.image(camera_url, settings)
 			except:
 				self._logger.info("Could not load image from url")
+
+		# Send IFTTT Notifications
+		if current_printer_state_id == "ERROR":
+			self._ifttt_alerts.fire_event(settings, "printer-error", current_printer_state)
+		elif (current_printer_state_id == "FINISHING" and was_printing) or test:
+			self._ifttt_alerts.fire_event(settings, "print-complete", "")
+
+		tokens = settings.get(["tokens"])
+		if len(tokens) == 0:
+			# No iOS devices were registered so skip notification
+			return -2
 
 		# For each registered token we will send a push notification
 		# We do it individually since 'printerID' is included so that

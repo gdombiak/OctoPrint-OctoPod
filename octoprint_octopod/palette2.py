@@ -3,8 +3,9 @@ from .alerts import Alerts
 
 class Palette2Notifications:
 
-	def __init__(self, logger):
+	def __init__(self, logger, ifttt_alerts):
 		self._logger = logger
+		self._ifttt_alerts = ifttt_alerts
 		self._alerts = Alerts(self._logger)
 
 	def check_plugin_message(self, settings, plugin, data):
@@ -14,11 +15,14 @@ class Palette2Notifications:
 			error_code = data["data"]
 			if error_code in p2_printing_error_codes:
 				self._logger.info("*** P2/P encountered error {} while printing ***".format(error_code))
-				self.send_palette_notification(settings, "palette2-error-while-printing", error_code)
+				self.__send_palette_notification(settings, "palette2-error-while-printing", error_code)
 
 	# Private functions - Notifications
 
-	def send_palette_notification(self, settings, event_code, error_code):
+	def __send_palette_notification(self, settings, event_code, error_code):
+		# Send IFTTT Notifications
+		self._ifttt_alerts.fire_event(settings, "palette2-error", error_code)
+
 		server_url = settings.get(["server_url"])
 		if not server_url or not server_url.strip():
 			# No APNS server has been defined so do nothing

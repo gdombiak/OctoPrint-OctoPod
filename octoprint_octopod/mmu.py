@@ -5,8 +5,9 @@ from .alerts import Alerts
 
 class MMUAssistance:
 
-	def __init__(self, logger):
+	def __init__(self, logger, ifttt_alerts):
 		self._logger = logger
+		self._ifttt_alerts = ifttt_alerts
 		self._alerts = Alerts(self._logger)
 		self._mmu_lines_skipped = None
 		self._last_notification = None  # Keep track of when was user alerted last time. Helps avoid spamming
@@ -38,7 +39,7 @@ class MMUAssistance:
 						# Send APNS Notification only if interval is not zero (user requested to
 						# shutdown this notification) and there is no active snooze for MMU events
 						if mmu_interval > 0 and time.time() > self._snooze_end_time:
-							self.send__mmu_notification(settings)
+							self.__send__mmu_notification(settings)
 					# Second line found, reset counter now
 					self._mmu_lines_skipped = None
 				else:
@@ -53,7 +54,10 @@ class MMUAssistance:
 
 	##~~ Private functions - MMU Notifications
 
-	def send__mmu_notification(self, settings):
+	def __send__mmu_notification(self, settings):
+		# Send IFTTT Notifications
+		self._ifttt_alerts.fire_event(settings, "mmu-event", "")
+
 		server_url = settings.get(["server_url"])
 		if not server_url or not server_url.strip():
 			# No APNS server has been defined so do nothing

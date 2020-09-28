@@ -18,6 +18,7 @@ from .mmu import MMUAssistance
 from .paused_for_user import PausedForUser
 from .palette2 import Palette2Notifications
 from .layer_notifications import LayerNotifications
+from .ifttt_notifications import IFTTTAlerts
 
 
 # Plugin that stores APNS tokens reported from iOS devices to know which iOS devices to alert
@@ -35,13 +36,14 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		super(OctopodPlugin, self).__init__()
 		self._logger = logging.getLogger("octoprint.plugins.octopod")
 		self._checkTempTimer = None
-		self._job_notifications = JobNotifications(self._logger)
-		self._tool_notifications = ToolsNotifications(self._logger)
-		self._bed_notifications = BedNotifications(self._logger)
-		self._mmu_assitance = MMUAssistance(self._logger)
-		self._paused_for_user = PausedForUser(self._logger)
-		self._palette2 = Palette2Notifications(self._logger)
-		self._layerNotifications = LayerNotifications(self._logger)
+		self._ifttt_alerts = IFTTTAlerts(self._logger)
+		self._job_notifications = JobNotifications(self._logger, self._ifttt_alerts)
+		self._tool_notifications = ToolsNotifications(self._logger, self._ifttt_alerts)
+		self._bed_notifications = BedNotifications(self._logger, self._ifttt_alerts)
+		self._mmu_assitance = MMUAssistance(self._logger, self._ifttt_alerts)
+		self._paused_for_user = PausedForUser(self._logger, self._ifttt_alerts)
+		self._palette2 = Palette2Notifications(self._logger, self._ifttt_alerts)
+		self._layerNotifications = LayerNotifications(self._logger, self._ifttt_alerts)
 
 	# StartupPlugin mixin
 
@@ -74,7 +76,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			mmu_interval=5,
 			pause_interval=5,
 			palette2_printing_error_codes=[103, 104, 111, 121],
-			progress_type='50'      # 0=disabled, 25=every 25%, 50=every 50%, 100=only when finished
+			progress_type='50',      # 0=disabled, 25=every 25%, 50=every 50%, 100=only when finished
+			ifttt_key='',
+			ifttt_name=''
 		)
 
 	def on_settings_save(self, data):
@@ -90,7 +94,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 8
+		return 9
 
 	def on_settings_migrate(self, target, current):
 		if current == 1:
@@ -115,8 +119,11 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 							   self.get_settings_defaults()["palette2_printing_error_codes"])
 
 		if current <= 7:
-			self._settings.set(['progress_type'],
-							   self.get_settings_defaults()["progress_type"])
+			self._settings.set(['progress_type'], self.get_settings_defaults()["progress_type"])
+
+		if current <= 8:
+			self._settings.set(['ifttt_key'], self.get_settings_defaults()["ifttt_key"])
+			self._settings.set(['ifttt_name'], self.get_settings_defaults()["ifttt_name"])
 
 	# AssetPlugin mixin
 
