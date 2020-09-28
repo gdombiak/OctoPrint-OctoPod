@@ -5,8 +5,9 @@ from .alerts import Alerts
 
 class BedNotifications:
 
-	def __init__(self, logger):
+	def __init__(self, logger, ifttt_alerts):
 		self._logger = logger
+		self._ifttt_alerts = ifttt_alerts
 		self._alerts = Alerts(self._logger)
 		self._printer_was_printing_above_bed_low = False  # Variable used for bed cooling alerts
 		self._printer_not_printing_reached_target_temp_start_time = None  # Variable used for bed warming alerts
@@ -46,7 +47,7 @@ class BedNotifications:
 																							 temps[k]['actual']))
 				self._printer_was_printing_above_bed_low = False
 
-				self.send__bed_notification(settings, "bed-cooled", threshold_low, None)
+				self.__send__bed_notification(settings, "bed-cooled", threshold_low, None)
 
 			# Check if bed has warmed to target temperature for the desired time before print starts
 			if temps[k]['target'] > 0:
@@ -69,12 +70,18 @@ class BedNotifications:
 						self._logger.debug("Bed reached target temp for {0} minutes".format(warmed_time_minutes))
 						self._printer_not_printing_reached_target_temp_start_time = None
 
-						self.send__bed_notification(settings, "bed-warmed", temps[k]['target'],
+						self.__send__bed_notification(settings, "bed-warmed", temps[k]['target'],
 													int(warmed_time_minutes))
 
 	##~~ Private functions - Bed Notifications
 
-	def send__bed_notification(self, settings, event_code, temperature, minutes):
+	def __send__bed_notification(self, settings, event_code, temperature, minutes):
+		# Fire IFTTT webhook
+		self._ifttt_alerts.fire_event(settings, event_code, temperature)
+		# Send push notification via OctoPod app
+		self.__send__octopod_notification(settings, event_code, temperature, minutes)
+
+	def __send__octopod_notification(self, settings, event_code, temperature, minutes):
 		server_url = settings.get(["server_url"])
 		if not server_url or not server_url.strip():
 			# No APNS server has been defined so do nothing

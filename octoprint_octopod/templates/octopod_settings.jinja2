@@ -3,6 +3,7 @@
         <ul class="nav nav-tabs">
             <li class="active"><a href="#tabGeneral" data-toggle="tab">General</a></li>
             <li><a href="#tabDevices" data-toggle="tab">Devices</a></li>
+            <li><a href="#tabIFTTT" data-toggle="tab">IFTTT</a></li>
         </ul>
         <div class="tab-content">
             <!-- DISPLAY - TAB -->
@@ -108,9 +109,9 @@
                     </div>
                 </div>
             </div>
-            <!-- LAYER - TAB -->
+            <!-- DEVICES - TAB -->
             <div class="tab-pane" id="tabDevices">
-                <table class="table table-striped table-hover table-condensed table-hover" id="log_files">
+                <table class="table table-striped table-hover table-condensed table-hover" id="devices">
                     <thead>
                     <tr>
                         <th class="octopod_device_name">{{ _('Device') }}</th>
@@ -127,6 +128,92 @@
                         <td class="octopod_device_action">
                             <a href="#" class="icon-trash" data-bind="click: $parent.removeDevice"></a>
                         </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- IFTTT - TAB -->
+            <div class="tab-pane" id="tabIFTTT">
+
+                <h4>{{ _('Configuration') }}</h4>
+                <p>{{ _('Complete the following required fields. You need to use your own IFTTT key. Find your key in the') }} <a href="https://ifttt.com/maker_webhooks" target="_blank" >
+                {{ _('IFTTT documentation page') }}</a>. {{ _('When using multiple printers, it is useful to know which printer originated the event.') }}</p>
+
+                <label class="control-label">{{ _('Key') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="input-block-level" id="ifttt_key" data-bind="value: settings.plugins.octopod.ifttt_key" size="30">
+                    </div>
+                </div>
+
+                <label class="control-label">{{ _('Printer Name') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="input-block-level" id="ifttt_name" data-bind="value: settings.plugins.octopod.ifttt_name" size="30">
+                    </div>
+                </div>
+
+                <h4>{{ _('Available Events') }}</h4>
+                <p>{{ _('The following IFTTT events are available when') }} <a href="https://ifttt.com/create" target="_blank" >{{ _('creating IFTTT Applet') }}</a></p>
+
+                <table class="table table-striped table-hover table-condensed table-hover" id="devices">
+                    <thead>
+                    <tr>
+                        <th class="octopod_ifttt_event_name">{{ _('Event Name') }}</th>
+                        <th class="octopod_ifttt_event_value1">{{ _('Value 1') }}</th>
+                        <th class="octopod_ifttt_event_value2">{{ _('Value 2') }}</th>
+                    </tr>
+                    </thead>
+                    <tbody">
+                    <tr>
+                        <td class="octopod_ifttt_event_name">octopod-print-progress</td>
+                        <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="octopod_ifttt_event_value2">&lt;print progress&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="octopod_ifttt_event_name">octopod-print-complete</td>
+                        <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="octopod_ifttt_event_value2"></td>
+                    </tr>
+                    <tr>
+                        <td class="octopod_ifttt_event_name">octopod-printer-error</td>
+                        <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="octopod_ifttt_event_value2">&lt;printer state&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="octopod_ifttt_event_name">octopod-paused-for-user</td>
+                        <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="octopod_ifttt_event_value2"></td>
+                    </tr>
+                    <tr>
+                        <td class="octopod_ifttt_event_name">octopod-bed-cooled</td>
+                        <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="octopod_ifttt_event_value2">&lt;bed threshold&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="octopod_ifttt_event_name">octopod-bed-warmed</td>
+                        <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="octopod_ifttt_event_value2">&lt;target bed temp&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="octopod_ifttt_event_name">octopod-tool0-cooled</td>
+                        <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="octopod_ifttt_event_value2">&lt;temp threshold&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="octopod_ifttt_event_name">octopod-layer-changed</td>
+                        <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="octopod_ifttt_event_value2">&lt;current layer&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="octopod_ifttt_event_name">octopod-palette2-error</td>
+                        <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="octopod_ifttt_event_value2">&lt;error code&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="octopod_ifttt_event_name">octopod-mmu-event</td>
+                        <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="octopod_ifttt_event_value2"></td>
                     </tr>
                     </tbody>
                 </table>

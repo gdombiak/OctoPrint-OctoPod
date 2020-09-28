@@ -3,8 +3,9 @@ from .alerts import Alerts
 
 class LayerNotifications:
 
-	def __init__(self, logger):
+	def __init__(self, logger, ifttt_alerts):
 		self._logger = logger
+		self._ifttt_alerts = ifttt_alerts
 		self._alerts = Alerts(self._logger)
 		self.reset_layers()
 
@@ -26,9 +27,12 @@ class LayerNotifications:
 
 	def layer_changed(self, settings, current_layer):
 		if current_layer in self._layers:
-			self.send__layer_notification(settings, current_layer)
+			self.__send__layer_notification(settings, current_layer)
 
-	def send__layer_notification(self, settings, current_layer):
+	def __send__layer_notification(self, settings, current_layer):
+		# Send IFTTT Notifications
+		self._ifttt_alerts.fire_event(settings, "layer-changed", current_layer)
+
 		server_url = settings.get(["server_url"])
 		if not server_url or not server_url.strip():
 			# No APNS server has been defined so do nothing

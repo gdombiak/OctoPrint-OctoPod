@@ -5,8 +5,9 @@ from .alerts import Alerts
 
 class PausedForUser:
 
-	def __init__(self, logger):
+	def __init__(self, logger, ifttt_alerts):
 		self._logger = logger
+		self._ifttt_alerts = ifttt_alerts
 		self._alerts = Alerts(self._logger)
 		self._last_notification = None  # Keep track of when was user alerted last time. Helps avoid spamming
 		self._snooze_end_time = time.time()  # Track when snooze for events ends. Assume snooze already expired
@@ -14,6 +15,7 @@ class PausedForUser:
 	def process_gcode(self, settings, printer, line):
 		# Firmware will print to terminal when printer has paused for user
 
+		# if line.startswith("Not SD printing"):
 		if line.startswith("echo:busy: paused for user"):
 			# Check if this type of notification is disabled
 			pause_interval = settings.get_int(['pause_interval'])
@@ -40,7 +42,7 @@ class PausedForUser:
 				# Send APNS Notification only if interval is not zero (user requested to
 				# shutdown this notification) and there is no active snooze for this type of events
 				if time.time() > self._snooze_end_time:
-					self.send_notification(settings)
+					self.__send_notification(settings)
 
 		# Always return what we parsed
 		return line
@@ -51,7 +53,10 @@ class PausedForUser:
 
 	# Private functions
 
-	def send_notification(self, settings):
+	def __send_notification(self, settings):
+		# Send IFTTT Notifications
+		self._ifttt_alerts.fire_event(settings, "paused-for-user", "")
+
 		server_url = settings.get(["server_url"])
 		if not server_url or not server_url.strip():
 			# No APNS server has been defined so do nothing

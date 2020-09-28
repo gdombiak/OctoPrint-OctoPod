@@ -3,8 +3,9 @@ from .alerts import Alerts
 
 class ToolsNotifications:
 
-	def __init__(self, logger):
+	def __init__(self, logger, ifttt_alerts):
 		self._logger = logger
+		self._ifttt_alerts = ifttt_alerts
 		self._alerts = Alerts(self._logger)
 		self._printer_was_printing_above_tool0_low = False  # Variable used for tool0 cooling alerts
 
@@ -42,11 +43,14 @@ class ToolsNotifications:
 																							 temps[k]['actual']))
 				self._printer_was_printing_above_tool0_low = False
 
-				self.send__tool_notification(settings, "tool0-cooled", tool0_threshold_low)
+				self.__send__tool_notification(settings, "tool0-cooled", tool0_threshold_low)
 
 	##~~ Private functions - Tool Notifications
 
-	def send__tool_notification(self, settings, event_code, temperature):
+	def __send__tool_notification(self, settings, event_code, temperature):
+		# Send IFTTT Notifications
+		self._ifttt_alerts.fire_event(settings, event_code, temperature)
+
 		server_url = settings.get(["server_url"])
 		if not server_url or not server_url.strip():
 			# No APNS server has been defined so do nothing
