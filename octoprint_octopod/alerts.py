@@ -125,7 +125,7 @@ class Alerts:
 		}
 
 	def send_alert_code(self, language_code, apns_token, url, printer_name, event_code, category=None, image=None,
-						event_param=None):
+						event_param=None, apns_dict=None):
 		message = None
 		if language_code == 'es-419':
 			# Default to Spanish instead of Latin American Spanish
@@ -146,14 +146,17 @@ class Alerts:
 		self._logger.debug("Sending notification for event '%s' (%s)" % (event_code, printer_name))
 
 		# Now send APNS notification using proper locale
-		return self.send_alert(apns_token, url, printer_name, message, category, image)
+		return self.send_alert(apns_token, url, printer_name, message, category, image, apns_dict)
 
-	def send_alert(self, apns_token, url, printer_name, message, category, image):
+	def send_alert(self, apns_token, url, printer_name, message, category, image, apns_dict=None):
 		data = {"tokens": [apns_token], "title": printer_name, "message": message, "sound": "default",
 				"printerName": printer_name, "useDev": self._use_dev}
 
 		if category is not None:
 			data['category'] = category
+
+		if apns_dict is not None:
+			data.update(apns_dict)
 
 		try:
 			if image:

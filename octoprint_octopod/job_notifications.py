@@ -195,8 +195,18 @@ class JobNotifications:
 					last_result = self._alerts.send_alert(apns_token, url, printer_name, current_printer_state, None,
 														  None)
 				elif (current_printer_state_id == "FINISHING" and was_printing) or test:
+					apns_category = None
+					apns_dict = None
+					if ("job" in current_data and "file" in current_data["job"] and "path" in current_data["job"][
+						"file"] and current_data["job"]["file"]["path"] is not None and "origin" in current_data["job"][
+						"file"] and current_data["job"]["file"]["origin"] is not None):
+						# Define APNS Category so notification shows "Print Again" button
+						apns_category = "printComplete"
+						# Include file information to print again
+						apns_dict = {'filePath': current_data['job']['file']['path'],
+									 'fileOrigin': current_data['job']['file']['origin']}
 					last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name,
-															   "Print complete", None, image)
+															   "Print complete", apns_category, image, None, apns_dict)
 					# Skip the silent notification for finishing at 100%. One for operational at 100% will be sent later
 					continue
 
