@@ -102,3 +102,8 @@ You can test the configuration before saving it by using the _Send test notifica
 [0.2.0]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.0
 [0.1.3]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.1.3
 [0.1.2]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.1.2
+
+## Thanks
+
+Special thanks to [JetBrains](https://www.jetbrains.com/) for providing a free license for open source development
+with [PyCharm](https://www.jetbrains.com/pycharm/).
