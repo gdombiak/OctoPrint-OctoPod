@@ -13,6 +13,7 @@ include a snapshot of the camera.
 
 The plugin also has support for [IFTTT](https://ifttt.com/home). Build your own integration leveraging
 events fired by this plugin. Enter your [IFTTT Key](https://ifttt.com/maker_webhooks) and create your Applets.
+IFTTT setup guide can be found [here](https://github.com/gdombiak/OctoPrint-OctoPod/wiki/How-to-use-IFTTT%3F).
 
 This is the complete list of supported notifications:
 1. Print finished (includes camera snapshot) or at specific progress percentages
@@ -24,6 +25,7 @@ This is the complete list of supported notifications:
 1. [Palette 2 / Pro](https://www.mosaicmfg.com/products/palette-2) encountered a problem while printing
 1. [MMU](https://shop.prusa3d.com/en/upgrades/183-original-prusa-i3-mk25smk3s-multi-material-2s-upgrade-kit-mmu2s.html#) requires user assistance (requires Prusa firmware)
 1. Firmware errors. Get security alerts like thermal runaway, probing failed, min temp error, max temp error, etc.
+1. RPi (or your preferred SoC) temperature is above the specified threshold
 
 ## Setup
 
