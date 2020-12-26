@@ -39,7 +39,7 @@ class SBCFactory(object):
         :param logger:
         :return:
         """
-        if not os.path.exists("/etc/armbianmonitor"):
+        if not os.path.exists("/proc/cpuinfo"):
             return False
         with open('/proc/cpuinfo', 'r') as infile:
             cpuinfo = infile.read()
