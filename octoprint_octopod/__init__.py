@@ -95,7 +95,10 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			progress_type='50',      # 0=disabled, 25=every 25%, 50=every 50%, 100=only when finished
 			ifttt_key='',
 			ifttt_name='',
-			soc_temp_high=75
+			soc_temp_high=75,
+			webcam_flipH=False,
+			webcam_flipV=False,
+			webcam_rotate90=False
 		)
 
 	def on_settings_save(self, data):
@@ -144,6 +147,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 		if current <= 9:
 			self._settings.set(['soc_temp_high'], self.get_settings_defaults()["soc_temp_high"])
+			self._settings.set(['webcam_flipH'], self._settings.global_get(["webcam", "flipH"]))
+			self._settings.set(['webcam_flipV'], self._settings.global_get(["webcam", "flipV"]))
+			self._settings.set(['webcam_rotate90'], self._settings.global_get(["webcam", "rotate90"]))
 
 	# AssetPlugin mixin
 
@@ -252,6 +258,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			)
 			code = self._job_notifications.send__print_job_notification(self._settings, self._printer, payload,
 																		data["server_url"], data["camera_snapshot_url"],
+																		data["camera_flip_h"], data["camera_flip_v"],
+																		data["camera_rotate90"],
 																		True)
 			return flask.jsonify(dict(code=code))
 		elif command == 'snooze':
