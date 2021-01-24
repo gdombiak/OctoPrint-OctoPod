@@ -70,7 +70,7 @@ class Alerts:
 				"tool0-cooled": 'Estensore sotto la soglia di temperatura specificata',
 				"palette2-error-while-printing": 'Errore {} su Palette 2. La tua stampa è in pausa',
 				"layer_changed": 'Layer {}',
-				"soc_temp_exceeded": 'SoC Temperature above threshold {}°'
+				"soc_temp_exceeded": 'Temperatura SoC oltre la soglia di {}°'
 			},
 			'lt-LT': {
 				"Print complete": 'Baigta',
@@ -106,7 +106,7 @@ class Alerts:
 				"tool0-cooled": 'Extruder under angiven temperaturgräns',
 				"palette2-error-while-printing": 'Fel {} inträffade på Palette 2. Din utskrift har pausats',
 				"layer_changed": 'Lager {}',
-				"soc_temp_exceeded": 'SoC Temperature above threshold {}°'
+				"soc_temp_exceeded": 'SoC-temperatur över tröskeln {}°'
 			},
 			'fr': {
 				"Print complete": 'Impression terminée',
@@ -118,7 +118,7 @@ class Alerts:
 				"tool0-cooled": 'Extrudeur en dessous du seuil spécifié',
 				"palette2-error-while-printing": 'Erreur {} sur Palette 2. Impression en pause',
 				"layer_changed": 'Layer {}',
-				"soc_temp_exceeded": 'SoC Temperature above threshold {}°'
+				"soc_temp_exceeded": 'SoC Température au-dessus du seuil {}°'
 			},
 			'ru': {
 				"Print complete": 'Печать завершена',
@@ -130,7 +130,7 @@ class Alerts:
 				"tool0-cooled": 'Температурный порог экструдера ниже заданного',
 				"palette2-error-while-printing": 'Произошла ошибка {} в Palette 2. Печать была приостановлена',
 				"layer_changed": 'Слой {}',
-				"soc_temp_exceeded": 'SoC Temperature above threshold {}°'
+				"soc_temp_exceeded": 'Температура SoC выше порога {}°'
 			}
 		}
 
