@@ -27,6 +27,21 @@
                         <input type="text" class="input-block-level" id="camera_snapshot_url" data-bind="value: settings.plugins.octopod.camera_snapshot_url">
                         <span class="help-inline">{{ _('Enter URL address that provides an image snapshot that will be included in the notification') }}</span>
                     </div>
+                    <div class="controls">
+                        <label class="checkbox">
+                            <input type="checkbox" data-bind="checked: settings.plugins.octopod.webcam_flipH" id="octopod-webcamFlipH"> {{ _('Flip webcam horizontally') }}
+                        </label>
+                    </div>
+                    <div class="controls">
+                        <label class="checkbox">
+                            <input type="checkbox" data-bind="checked: settings.plugins.octopod.webcam_flipV" id="octopod-webcamFlipV"> {{ _('Flip webcam vertically') }}
+                        </label>
+                    </div>
+                    <div class="controls">
+                        <label class="checkbox">
+                            <input type="checkbox" data-bind="checked: settings.plugins.octopod.webcam_rotate90" id="octopod-webcamRotate90"> {{ _('Rotate webcam 90 degrees counter clockwise') }}
+                        </label>
+                    </div>
                 </div>
 
                  <div class="control-group">
@@ -100,6 +115,16 @@
                     </div>
                 </div>
 
+                <h4>{{ _('System On a Chip (SoC) Notifications') }}</h4>
+
+                <p>{{ _('When SoC temperature goes above threshold, OctoPrint will send notification. New single-board computers like RPi 4 tend to run hot. A value of 0
+                will disable the notifications below') }}</p>
+                <label class="control-label">{{ _('Temperature') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="soc_temp_high" data-bind="value: settings.plugins.octopod.soc_temp_high" min="0" max="100" step="1" value="75">
+                    </div>
+                </div>
 
                 <div class="control-group">
                     <div class="controls">
@@ -137,7 +162,8 @@
 
                 <h4>{{ _('Configuration') }}</h4>
                 <p>{{ _('Complete the following required fields. You need to use your own IFTTT key. Find your key in the') }} <a href="https://ifttt.com/maker_webhooks" target="_blank" >
-                {{ _('IFTTT documentation page') }}</a>. {{ _('When using multiple printers, it is useful to know which printer originated the event.') }}</p>
+                {{ _('IFTTT documentation page') }}</a>. {{ _('For setup help follow ') }} <a href="https://github.com/gdombiak/OctoPrint-OctoPod/wiki/How-to-use-IFTTT%3F" target="_blank" >
+                {{ _('this guide') }}</a>. {{ _('When using multiple printers, it is useful to know which printer originated the event.') }}</p>
 
                 <label class="control-label">{{ _('Key') }}</label>
                 <div class="controls">
@@ -164,7 +190,7 @@
                         <th class="octopod_ifttt_event_value2">{{ _('Value 2') }}</th>
                     </tr>
                     </thead>
-                    <tbody">
+                    <tbody>
                     <tr>
                         <td class="octopod_ifttt_event_name">octopod-print-progress</td>
                         <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
@@ -214,6 +240,11 @@
                         <td class="octopod_ifttt_event_name">octopod-mmu-event</td>
                         <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
                         <td class="octopod_ifttt_event_value2"></td>
+                    </tr>
+                    <tr>
+                        <td class="octopod_ifttt_event_name">octopod-soc-temp-exceeded</td>
+                        <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="octopod_ifttt_event_value2">&lt;temp threshold&gt;</td>
                     </tr>
                     </tbody>
                 </table>

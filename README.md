@@ -13,6 +13,7 @@ include a snapshot of the camera.
 
 The plugin also has support for [IFTTT](https://ifttt.com/home). Build your own integration leveraging
 events fired by this plugin. Enter your [IFTTT Key](https://ifttt.com/maker_webhooks) and create your Applets.
+IFTTT setup guide can be found [here](https://github.com/gdombiak/OctoPrint-OctoPod/wiki/How-to-use-IFTTT%3F).
 
 This is the complete list of supported notifications:
 1. Print finished (includes camera snapshot) or at specific progress percentages
@@ -24,6 +25,7 @@ This is the complete list of supported notifications:
 1. [Palette 2 / Pro](https://www.mosaicmfg.com/products/palette-2) encountered a problem while printing
 1. [MMU](https://shop.prusa3d.com/en/upgrades/183-original-prusa-i3-mk25smk3s-multi-material-2s-upgrade-kit-mmu2s.html#) requires user assistance (requires Prusa firmware)
 1. Firmware errors. Get security alerts like thermal runaway, probing failed, min temp error, max temp error, etc.
+1. RPi (or your preferred SoC) temperature is above the specified threshold
 
 ## Setup
 
@@ -42,6 +44,10 @@ the notification. Update Bed, MMU and other notifications as needed.
 You can test the configuration before saving it by using the _Send test notification_ button.
 
 ## Changelog
+
+**[0.3.0]** (02/07/2021)
+- Added new notification when temperature of RPi is too hot
+- You can now rotate/flip camera as needed
 
 **[0.2.9]** (10/10/2020)
 - Added support for new "Print again" button in push notification. Requires OctoPod 3.7
@@ -90,6 +96,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.0]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.0
 [0.2.9]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.9
 [0.2.8]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.8
 [0.2.7]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.7

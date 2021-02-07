@@ -21,7 +21,8 @@ class Alerts:
 				"paused-user-event": 'Printer paused for user',
 				"tool0-cooled": 'Extruder below specified temperature threshold',
 				"palette2-error-while-printing": 'Error {} occurred on Palette 2. Your print has been paused',
-				"layer_changed": 'Layer {}'
+				"layer_changed": 'Layer {}',
+				"soc_temp_exceeded": 'SoC Temperature above threshold {}°'
 			},
 			'es': {
 				"Print complete": 'Impresión completa',
@@ -32,7 +33,8 @@ class Alerts:
 				"paused-user-event": 'Impresora en pausa esperando al usuario',
 				"tool0-cooled": 'Extrusora por debajo del umbral de temperatura especificado',
 				"palette2-error-while-printing": 'Error {} en Palette 2. Su impresión ha sido suspendida',
-				"layer_changed": 'Capa {}'
+				"layer_changed": 'Capa {}',
+				"soc_temp_exceeded": 'Temperatura del SoC por arriba de {}°'
 			},
 			'cs': {
 				"Print complete": 'Tisk dokončen',
@@ -43,7 +45,8 @@ class Alerts:
 				"paused-user-event": 'Tiskárna čeká na uživatele',
 				"tool0-cooled": 'Tryska nedosáhla požadované teploty',
 				"palette2-error-while-printing": 'Nastala chyba {} na Palette 2. Tisk byl pozastaven',
-				"layer_changed": 'Vrstva {}'
+				"layer_changed": 'Vrstva {}',
+				"soc_temp_exceeded": 'Teplota SoC přesahuje hranici {}°'
 			},
 			'de': {
 				"Print complete": 'Druck vollständig',
@@ -54,7 +57,8 @@ class Alerts:
 				"paused-user-event": 'Drucker angehalten für Benutzer',
 				"tool0-cooled": 'Extruder unterhalb der vorgegebenen Schwelle',
 				"palette2-error-while-printing": 'Fehler {} auf Palette 2 aufgetreten. Dein Druck wurde pausiert',
-				"layer_changed": 'Schicht {}'
+				"layer_changed": 'Schicht {}',
+				"soc_temp_exceeded": 'SoC Temperatur oberhalb der Schwelle {}°'
 			},
 			'it': {
 				"Print complete": 'Stampa completata',
@@ -65,7 +69,8 @@ class Alerts:
 				"paused-user-event": 'Stampante in pausa, in attesa dell\'utente',
 				"tool0-cooled": 'Estensore sotto la soglia di temperatura specificata',
 				"palette2-error-while-printing": 'Errore {} su Palette 2. La tua stampa è in pausa',
-				"layer_changed": 'Layer {}'
+				"layer_changed": 'Layer {}',
+				"soc_temp_exceeded": 'Temperatura SoC oltre la soglia di {}°'
 			},
 			'lt-LT': {
 				"Print complete": 'Baigta',
@@ -76,7 +81,8 @@ class Alerts:
 				"paused-user-event": 'Spausdintuvas laukia vartotojo',
 				"tool0-cooled": 'Ekstruderis žemiau nurodytos temperatūros ribos',
 				"palette2-error-while-printing": 'Klaida {} ištiko Palette 2. Įjungta pauzė',
-				"layer_changed": 'Sluoksnis {}'
+				"layer_changed": 'Sluoksnis {}',
+				"soc_temp_exceeded": 'SoC temparatūra virš ribos {}°'
 			},
 			'nb': {
 				"Print complete": 'Utskrift ferdig',
@@ -87,7 +93,8 @@ class Alerts:
 				"paused-user-event": 'Skriver venter på bruker',
 				"tool0-cooled": 'Ekstruder under spesifisert temperaturgrense',
 				"palette2-error-while-printing": 'Feil {} oppstod på Palette 2. Din print er satt på pause',
-				"layer_changed": 'Lag {}'
+				"layer_changed": 'Lag {}',
+				"soc_temp_exceeded": 'SoC Temperatur over terskelen {}°'
 			},
 			'sv': {
 				"Print complete": 'Utskrift klar',
@@ -98,7 +105,8 @@ class Alerts:
 				"paused-user-event": 'Skrivare pausad för användare',
 				"tool0-cooled": 'Extruder under angiven temperaturgräns',
 				"palette2-error-while-printing": 'Fel {} inträffade på Palette 2. Din utskrift har pausats',
-				"layer_changed": 'Lager {}'
+				"layer_changed": 'Lager {}',
+				"soc_temp_exceeded": 'SoC-temperatur över tröskeln {}°'
 			},
 			'fr': {
 				"Print complete": 'Impression terminée',
@@ -109,7 +117,8 @@ class Alerts:
 				"paused-user-event": 'Imprimante en pause pour l’utilisateur',
 				"tool0-cooled": 'Extrudeur en dessous du seuil spécifié',
 				"palette2-error-while-printing": 'Erreur {} sur Palette 2. Impression en pause',
-				"layer_changed": 'Layer {}'
+				"layer_changed": 'Layer {}',
+				"soc_temp_exceeded": 'SoC Température au-dessus du seuil {}°'
 			},
 			'ru': {
 				"Print complete": 'Печать завершена',
@@ -120,7 +129,8 @@ class Alerts:
 				"paused-user-event": 'Принтер приостановлен для пользователя',
 				"tool0-cooled": 'Температурный порог экструдера ниже заданного',
 				"palette2-error-while-printing": 'Произошла ошибка {} в Palette 2. Печать была приостановлена',
-				"layer_changed": 'Слой {}'
+				"layer_changed": 'Слой {}',
+				"soc_temp_exceeded": 'Температура SoC выше порога {}°'
 			}
 		}
 

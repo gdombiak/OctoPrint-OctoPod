@@ -19,10 +19,13 @@ from .paused_for_user import PausedForUser
 from .palette2 import Palette2Notifications
 from .layer_notifications import LayerNotifications
 from .ifttt_notifications import IFTTTAlerts
-
+from .soc_temp_notifications import SocTempNotifications
+from .libs.sbc import SBCFactory, SBC, RPi
 
 # Plugin that stores APNS tokens reported from iOS devices to know which iOS devices to alert
 # when print is done or other relevant events
+
+debug_soc_temp = False
 
 class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 					octoprint.plugin.AssetPlugin,
@@ -44,6 +47,10 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		self._paused_for_user = PausedForUser(self._logger, self._ifttt_alerts)
 		self._palette2 = Palette2Notifications(self._logger, self._ifttt_alerts)
 		self._layerNotifications = LayerNotifications(self._logger, self._ifttt_alerts)
+		self._check_soc_temp_timer = None
+		self._soc_timer_interval = 5.0 if debug_soc_temp else 30.0
+		self._soc_temp_notifications = SocTempNotifications(self._logger, self._ifttt_alerts, self._soc_timer_interval,
+															debug_soc_temp)
 
 	# StartupPlugin mixin
 
@@ -60,6 +67,15 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 		# Start timer that will check bed temperature and send notifications if needed
 		self._restart_timer()
+
+		# if running on linux then check soc temperature
+		if sys.platform.startswith("linux") or debug_soc_temp:
+			sbc = RPi(self._logger) if debug_soc_temp else SBCFactory().factory(self._logger)
+			if sbc.is_supported:
+				self._soc_temp_notifications.sbc = sbc
+				sbc.debugMode = debug_soc_temp
+				self._soc_temp_notifications.send_plugin_message = self.send_plugin_message
+				self.start_soc_timer(self._soc_timer_interval)
 
 	# SettingsPlugin mixin
 
@@ -78,7 +94,11 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			palette2_printing_error_codes=[103, 104, 111, 121],
 			progress_type='50',      # 0=disabled, 25=every 25%, 50=every 50%, 100=only when finished
 			ifttt_key='',
-			ifttt_name=''
+			ifttt_name='',
+			soc_temp_high=75,
+			webcam_flipH=False,
+			webcam_flipV=False,
+			webcam_rotate90=False
 		)
 
 	def on_settings_save(self, data):
@@ -94,7 +114,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 9
+		return 10
 
 	def on_settings_migrate(self, target, current):
 		if current == 1:
@@ -124,6 +144,12 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		if current <= 8:
 			self._settings.set(['ifttt_key'], self.get_settings_defaults()["ifttt_key"])
 			self._settings.set(['ifttt_name'], self.get_settings_defaults()["ifttt_name"])
+
+		if current <= 9:
+			self._settings.set(['soc_temp_high'], self.get_settings_defaults()["soc_temp_high"])
+			self._settings.set(['webcam_flipH'], self._settings.global_get(["webcam", "flipH"]))
+			self._settings.set(['webcam_flipV'], self._settings.global_get(["webcam", "flipV"]))
+			self._settings.set(['webcam_rotate90'], self._settings.global_get(["webcam", "rotate90"]))
 
 	# AssetPlugin mixin
 
@@ -209,7 +235,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	def get_api_commands(self):
 		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], test=[],
-					snooze=["eventCode", "minutes"], addLayer=["layer"], removeLayer=["layer"], getLayers=[])
+					snooze=["eventCode", "minutes"], addLayer=["layer"], removeLayer=["layer"], getLayers=[],
+					getSoCTemps=[])
 
 	def on_api_command(self, command, data):
 		if not user_permission.can():
@@ -231,6 +258,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			)
 			code = self._job_notifications.send__print_job_notification(self._settings, self._printer, payload,
 																		data["server_url"], data["camera_snapshot_url"],
+																		data["camera_flip_h"], data["camera_flip_v"],
+																		data["camera_rotate90"],
 																		True)
 			return flask.jsonify(dict(code=code))
 		elif command == 'snooze':
@@ -244,6 +273,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			self._layerNotifications.remove_layer(data["layer"])
 		elif command == 'getLayers':
 			return flask.jsonify(dict(layers=self._layerNotifications.get_layers()))
+		elif command == 'getSoCTemps':
+			return flask.jsonify(self._soc_temp_notifications.get_soc_temps())
 		else:
 			return flask.make_response("Unknown command", 400)
 
@@ -281,6 +312,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	def on_plugin_message(self, plugin, data, permissions=None):
 		self._palette2.check_plugin_message(self._settings, plugin, data)
 
+	def send_plugin_message(self, data):
+		self._plugin_manager.send_plugin_message(self._identifier, data)
+
 	# Timer functions
 
 	def _restart_timer(self):
@@ -300,6 +334,14 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	def run_timer_job(self):
 		self._bed_notifications.check_temps(self._settings, self._printer)
 		self._tool_notifications.check_temps(self._settings, self._printer)
+
+	def start_soc_timer(self, interval):
+		self._logger.debug(u"Monitoring SoC temp with Timer")
+		self._check_soc_temp_timer = RepeatedTimer(interval, self.update_soc_temp, run_first=True)
+		self._check_soc_temp_timer.start()
+
+	def update_soc_temp(self):
+		self._soc_temp_notifications.check_soc_temp(self._settings)
 
 	# GCODE hook
 

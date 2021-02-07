@@ -1,4 +1,4 @@
-from io import BytesIO ## for Python 2 & 3
+from io import BytesIO  ## for Python 2 & 3
 
 import requests
 from PIL import Image
@@ -35,7 +35,6 @@ class JobNotifications:
 			# Assume print notification only at 100% (once done printing)
 			# 100% is sent via #send__print_job_notification
 			return
-
 
 	def send__print_job_progress(self, settings, progress):
 		# Send IFTTT Notifications
@@ -94,7 +93,7 @@ class JobNotifications:
 		return last_result
 
 	def send__print_job_notification(self, settings, printer, event_payload, server_url=None, camera_snapshot_url=None,
-									 test=False):
+									 webcam_flipH=None, webcam_flipV=None, webcam_rotate90=None, test=False):
 		progress_type = settings.get(["progress_type"])
 		if progress_type == '0' and not test:
 			# Print notification disabled
@@ -114,7 +113,7 @@ class JobNotifications:
 		was_printing = False
 		current_data = printer.get_current_data()
 		if "progress" in current_data and current_data["progress"] is not None \
-			and "completion" in current_data["progress"] and current_data["progress"][
+				and "completion" in current_data["progress"] and current_data["progress"][
 			"completion"] is not None:
 			completion = current_data["progress"]["completion"]
 
@@ -122,9 +121,9 @@ class JobNotifications:
 		if not test:
 			# Ignore other states that are not any of the following
 			if current_printer_state_id != "OPERATIONAL" and current_printer_state_id != "PRINTING" and \
-				current_printer_state_id != "PAUSED" and current_printer_state_id != "CLOSED" and \
-				current_printer_state_id != "ERROR" and current_printer_state_id != "CLOSED_WITH_ERROR" and \
-				current_printer_state_id != "OFFLINE" and current_printer_state_id != "FINISHING":
+					current_printer_state_id != "PAUSED" and current_printer_state_id != "CLOSED" and \
+					current_printer_state_id != "ERROR" and current_printer_state_id != "CLOSED_WITH_ERROR" and \
+					current_printer_state_id != "OFFLINE" and current_printer_state_id != "FINISHING":
 				return -3
 
 			current_printer_state = event_payload["state_string"]
@@ -145,13 +144,25 @@ class JobNotifications:
 		if (was_printing and current_printer_state_id == "FINISHING") or test:
 			# Only include image when print is complete. This is an optimization to avoid sending
 			# images that won't be rendered by the app
+			if webcam_flipH is not None:
+				hflip = webcam_flipH
+			else:
+				hflip = settings.get(["webcam_flipH"])
+			if webcam_flipV is not None:
+				vflip = webcam_flipV
+			else:
+				vflip = settings.get(["webcam_flipV"])
+			if webcam_rotate90 is not None:
+				rotate = webcam_rotate90
+			else:
+				rotate = settings.get(["webcam_rotate90"])
 			try:
 				if camera_snapshot_url:
 					camera_url = camera_snapshot_url
 				else:
 					camera_url = settings.get(["camera_snapshot_url"])
 				if camera_url and camera_url.strip():
-					image = self.image(camera_url, settings)
+					image = self.image(camera_url, hflip, vflip, rotate)
 			except:
 				self._logger.info("Could not load image from url")
 
@@ -240,7 +251,7 @@ class JobNotifications:
 
 	# Private functions - Print Job Notifications
 
-	def image(self, snapshot_url, settings):
+	def image(self, snapshot_url, hflip, vflip, rotate):
 		"""
 		Create an image by getting an image form the setting webcam-snapshot.
 		Transpose this image according the settings and returns it
@@ -263,11 +274,7 @@ class JobNotifications:
 				image = output.getvalue()
 				output.close()
 		except Exception as e:
-			self._logger.debug( "Error reducing resolution of image: %s" % str(e) )
-
-		hflip = settings.global_get(["webcam", "flipH"])
-		vflip = settings.global_get(["webcam", "flipV"])
-		rotate = settings.global_get(["webcam", "rotate90"])
+			self._logger.debug("Error reducing resolution of image: %s" % str(e))
 
 		if hflip or vflip or rotate:
 			try:
@@ -286,6 +293,6 @@ class JobNotifications:
 				image = output.getvalue()
 				output.close()
 			except Exception as e:
-				self._logger.debug( "Error rotating image: %s" % str(e) )
+				self._logger.debug("Error rotating image: %s" % str(e))
 
 		return image

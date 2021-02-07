@@ -24,11 +24,17 @@ $(function() {
 
             var serverURL = $('#server_url').val();
             var cameraSnapshotURL = $('#camera_snapshot_url').val();
+            var webcamFlipH = $('#octopod-webcamFlipH').prop("checked");
+            var webcamFlipV = $('#octopod-webcamFlipV').prop("checked");
+            var webcamRotate90 = $('#octopod-webcamRotate90').prop("checked");
 
             var payload = {
                 command: "test",
                 server_url: serverURL,
-                camera_snapshot_url: cameraSnapshotURL
+                camera_snapshot_url: cameraSnapshotURL,
+                camera_flip_h: webcamFlipH,
+                camera_flip_v: webcamFlipV,
+                camera_rotate90: webcamRotate90
             };
 
             $.ajax({
