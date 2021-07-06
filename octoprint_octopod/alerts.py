@@ -159,6 +159,19 @@ class Alerts:
 		return self.send_alert(apns_token, url, printer_name, message, category, image, apns_dict)
 
 	def send_alert(self, apns_token, url, printer_name, message, category, image, apns_dict=None):
+		"""
+		Send Push Notification to OctoPod app running on iPhone (includes Apple Watch and iPad)
+		via the OctoPod APNS service.
+
+		:param apns_token: APNS token that uniquely identifies the iOS app installed in the iPhone
+		:param url: endpoint to hit of OctoPod APNS service
+		:param printer_name: Title to display in the notification
+		:param message: Message to include in the notification
+		:param category: Optional. Category supported by OctoPod app. Actions depend on the category
+		:param image: Optional. Image to include in the notification
+		:param apns_dict: Optional. Extra information to include in the notification. Useful for actions.
+		:return: HTTP status code returned by OctoPod APNS service (see url param)
+		"""
 		data = {"tokens": [apns_token], "title": printer_name, "message": message, "sound": "default",
 				"printerName": printer_name, "useDev": self._use_dev}
 
