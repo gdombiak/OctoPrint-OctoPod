@@ -45,6 +45,9 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.3.1]** (07/05/2021)
+-  Added support for 3rd party plugins to send push notifications. [Documentation](https://github.com/gdombiak/OctoPrint-OctoPod/wiki/How-to-send-push-notifications-from-3rd-party-plugins%3F)
+
 **[0.3.0]** (02/07/2021)
 - Added new notification when temperature of RPi is too hot
 - You can now rotate/flip camera as needed
@@ -96,6 +99,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.1]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.1
 [0.3.0]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.0
 [0.2.9]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.9
 [0.2.8]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.8
