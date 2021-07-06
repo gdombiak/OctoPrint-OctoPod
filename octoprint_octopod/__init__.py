@@ -1,31 +1,34 @@
 # coding=utf-8
 from __future__ import absolute_import
 
-import sys
 import datetime
 import logging
+import sys
 
 import flask
-
 import octoprint.plugin
+from PIL import Image
 from octoprint.events import eventManager, Events
 from octoprint.server import user_permission
 from octoprint.util import RepeatedTimer
-from .job_notifications import JobNotifications
+
 from .bed_notifications import BedNotifications
-from .tools_notifications import ToolsNotifications
-from .mmu import MMUAssistance
-from .paused_for_user import PausedForUser
-from .palette2 import Palette2Notifications
-from .layer_notifications import LayerNotifications
+from .custom_notifications import CustomNotifications
 from .ifttt_notifications import IFTTTAlerts
-from .soc_temp_notifications import SocTempNotifications
+from .job_notifications import JobNotifications
+from .layer_notifications import LayerNotifications
 from .libs.sbc import SBCFactory, SBC, RPi
+from .mmu import MMUAssistance
+from .palette2 import Palette2Notifications
+from .paused_for_user import PausedForUser
+from .soc_temp_notifications import SocTempNotifications
+from .tools_notifications import ToolsNotifications
 
 # Plugin that stores APNS tokens reported from iOS devices to know which iOS devices to alert
 # when print is done or other relevant events
 
 debug_soc_temp = False
+
 
 class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 					octoprint.plugin.AssetPlugin,
@@ -51,6 +54,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		self._soc_timer_interval = 5.0 if debug_soc_temp else 30.0
 		self._soc_temp_notifications = SocTempNotifications(self._logger, self._ifttt_alerts, self._soc_timer_interval,
 															debug_soc_temp)
+		self._custom_notifications = CustomNotifications(self._logger)
 
 	# StartupPlugin mixin
 
@@ -92,7 +96,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			mmu_interval=5,
 			pause_interval=5,
 			palette2_printing_error_codes=[103, 104, 111, 121],
-			progress_type='50',      # 0=disabled, 25=every 25%, 50=every 50%, 100=only when finished
+			progress_type='50',  # 0=disabled, 25=every 25%, 50=every 50%, 100=only when finished
 			ifttt_key='',
 			ifttt_name='',
 			soc_temp_high=75,
@@ -213,7 +217,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 					token["printerName"] = printer_name
 					token["date"] = datetime.datetime.now().strftime("%x %X")
 					updated = True
-				if language_code is not None and ("languageCode" not in token or token["languageCode"] != language_code):
+				if language_code is not None and (
+						"languageCode" not in token or token["languageCode"] != language_code):
 					# Language being used by OctoPod has been updated
 					token["languageCode"] = language_code
 					token["date"] = datetime.datetime.now().strftime("%x %X")
@@ -223,8 +228,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		if not found:
 			self._logger.debug("Adding token for %s." % device_name)
 			# Token was not found so we need to add it
-			existing_tokens.append({'apnsToken': new_token, 'deviceName': device_name, 'date': datetime.datetime.now().strftime("%x %X"),
-									'printerID': printer_id, 'printerName': printer_name, 'languageCode': language_code})
+			existing_tokens.append(
+				{'apnsToken': new_token, 'deviceName': device_name, 'date': datetime.datetime.now().strftime("%x %X"),
+				 'printerID': printer_id, 'printerName': printer_name, 'languageCode': language_code})
 			updated = True
 		if updated:
 			# Save new settings
@@ -349,12 +355,26 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		line = self._paused_for_user.process_gcode(self._settings, self._printer, line)
 		return self._mmu_assitance.process_gcode(self._settings, line)
 
+	# Helper functions
+
+	def push_notification(self, message: str, image: Image=None) -> bool:
+		"""
+		Send arbitrary push notification to OctoPod app running on iPhone (includes Apple Watch and iPad)
+		via the OctoPod APNS service.
+
+		:param message: Message to include in the notification
+		:param image: Optional. Image to include in the notification
+		:return: True if the notification was successfully sent
+		"""
+		return self._custom_notifications.send_notification(self._settings, message, image)
+
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
 # ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
 # can be overwritten via __plugin_xyz__ control properties. See the documentation for that.
 __plugin_name__ = "OctoPod Plugin"
 __plugin_pythoncompat__ = ">=2.7,<4"
+
 
 def __plugin_load__():
 	global __plugin_implementation__
@@ -364,4 +384,9 @@ def __plugin_load__():
 	__plugin_hooks__ = {
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
 		"octoprint.comm.protocol.gcode.received": __plugin_implementation__.process_gcode
+	}
+
+	global __plugin_helpers__
+	__plugin_helpers__ = {
+		"apns_notification": __plugin_implementation__.push_notification
 	}
