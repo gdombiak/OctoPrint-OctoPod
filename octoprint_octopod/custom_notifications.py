@@ -1,5 +1,4 @@
 from .alerts import Alerts
-from PIL import Image
 
 
 class CustomNotifications:
@@ -13,7 +12,7 @@ class CustomNotifications:
 		self._logger = logger
 		self._alerts = Alerts(self._logger)
 
-	def send_notification(self, settings, message: str, image: Image) -> bool:
+	def send_notification(self, settings, message, image):
 		"""
 		Send arbitrary push notification to OctoPod app running on iPhone (includes Apple Watch and iPad)
 		via the OctoPod APNS service.

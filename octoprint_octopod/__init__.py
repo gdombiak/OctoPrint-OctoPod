@@ -7,7 +7,6 @@ import sys
 
 import flask
 import octoprint.plugin
-from PIL import Image
 from octoprint.events import eventManager, Events
 from octoprint.server import user_permission
 from octoprint.util import RepeatedTimer
@@ -357,7 +356,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	# Helper functions
 
-	def push_notification(self, message: str, image: Image=None) -> bool:
+	def push_notification(self, message, image=None):
 		"""
 		Send arbitrary push notification to OctoPod app running on iPhone (includes Apple Watch and iPad)
 		via the OctoPod APNS service.
