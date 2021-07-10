@@ -8,6 +8,7 @@ class ToolsNotifications:
 		self._ifttt_alerts = ifttt_alerts
 		self._alerts = Alerts(self._logger)
 		self._printer_was_printing_above_tool0_low = False  # Variable used for tool0 cooling alerts
+		self._printer_alerted_reached_tool0_target = False  # Variable used for tool0 warm alerts
 
 	def check_temps(self, settings, printer):
 		temps = printer.get_current_temperatures()
@@ -25,6 +26,7 @@ class ToolsNotifications:
 			# }
 			if k == 'tool0':
 				tool0_threshold_low = settings.get_int(['tool0_low'])
+				target_temp = settings.get(['tool0_target_temp'])
 			else:
 				continue
 
@@ -44,6 +46,20 @@ class ToolsNotifications:
 				self._printer_was_printing_above_tool0_low = False
 
 				self.__send__tool_notification(settings, "tool0-cooled", tool0_threshold_low)
+
+			# Check if tool0 has reached target temp and user wants to receive alerts for this event
+			if temps[k]['target'] > 0 and target_temp:
+				diff = temps[k]['actual'] - temps[k]['target']
+				# If we have not alerted user and printer reached target temp then alert user. Only alert
+				# when actual is equal to target or passed target by 5. Useful if hotend is too hot after
+				# print and you want to be alerted when it cooled down to a target temp
+				if not self._printer_alerted_reached_tool0_target and 0 <= diff < 5:
+					self._printer_alerted_reached_tool0_target = True
+					self.__send__tool_notification(settings, "tool0-warmed", temps[k]['target'])
+			elif temps[k]['target'] == 0:
+				# There is no target temp so reset alert flag so we can alert again
+				# once a target temp is set
+				self._printer_alerted_reached_tool0_target = False
 
 	##~~ Private functions - Tool Notifications
 

@@ -45,8 +45,13 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.3.2]** (07/09/2021)
+- Added new notification when hotend reached target temperature. Default is off
+- Added new IFTTT event ```octopod-tool0-warmed``` when hotend reached target temperature. Default is off
+- Fixed Python2 incompatibility. Plugin works again with Python 2
+
 **[0.3.1]** (07/05/2021)
--  Added support for 3rd party plugins to send push notifications. [Documentation](https://github.com/gdombiak/OctoPrint-OctoPod/wiki/How-to-send-push-notifications-from-3rd-party-plugins%3F)
+- Added support for 3rd party plugins to send push notifications. [Documentation](https://github.com/gdombiak/OctoPrint-OctoPod/wiki/How-to-send-push-notifications-from-3rd-party-plugins%3F)
 
 **[0.3.0]** (02/07/2021)
 - Added new notification when temperature of RPi is too hot
@@ -99,6 +104,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.2]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.2
 [0.3.1]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.1
 [0.3.0]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.0
 [0.2.9]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.2.9
