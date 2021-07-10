@@ -20,6 +20,7 @@ class Alerts:
 				"mmu-event": 'MMU Requires User Assistance',
 				"paused-user-event": 'Printer paused for user',
 				"tool0-cooled": 'Extruder below specified temperature threshold',
+				"tool0-warmed": 'Extruder warmed to specified temperature',
 				"palette2-error-while-printing": 'Error {} occurred on Palette 2. Your print has been paused',
 				"layer_changed": 'Layer {}',
 				"soc_temp_exceeded": 'SoC Temperature above threshold {}°'
@@ -32,6 +33,7 @@ class Alerts:
 				"mmu-event": 'MMU requiere asistencia del usuario',
 				"paused-user-event": 'Impresora en pausa esperando al usuario',
 				"tool0-cooled": 'Extrusora por debajo del umbral de temperatura especificado',
+				"tool0-warmed": 'Extrusora calentada a la temperatura especificada',
 				"palette2-error-while-printing": 'Error {} en Palette 2. Su impresión ha sido suspendida',
 				"layer_changed": 'Capa {}',
 				"soc_temp_exceeded": 'Temperatura del SoC por arriba de {}°'
@@ -44,6 +46,7 @@ class Alerts:
 				"mmu-event": 'MMU vyžaduje asistenci uživatele',
 				"paused-user-event": 'Tiskárna čeká na uživatele',
 				"tool0-cooled": 'Tryska nedosáhla požadované teploty',
+				"tool0-warmed": 'Tryska se zahřeje na stanovenou teplotu',
 				"palette2-error-while-printing": 'Nastala chyba {} na Palette 2. Tisk byl pozastaven',
 				"layer_changed": 'Vrstva {}',
 				"soc_temp_exceeded": 'Teplota SoC přesahuje hranici {}°'
@@ -56,6 +59,7 @@ class Alerts:
 				"mmu-event": 'MMU fordert Hilfestellung',
 				"paused-user-event": 'Drucker angehalten für Benutzer',
 				"tool0-cooled": 'Extruder unterhalb der vorgegebenen Schwelle',
+				"tool0-warmed": 'Extruder auf spezifizierte Temperatur erwärmt',
 				"palette2-error-while-printing": 'Fehler {} auf Palette 2 aufgetreten. Dein Druck wurde pausiert',
 				"layer_changed": 'Schicht {}',
 				"soc_temp_exceeded": 'SoC Temperatur oberhalb der Schwelle {}°'
@@ -68,6 +72,7 @@ class Alerts:
 				"mmu-event": 'MMU richiede l\'intervento dell\'utente',
 				"paused-user-event": 'Stampante in pausa, in attesa dell\'utente',
 				"tool0-cooled": 'Estensore sotto la soglia di temperatura specificata',
+				"tool0-warmed": 'Estensore riscaldato alla temperatura specificata',
 				"palette2-error-while-printing": 'Errore {} su Palette 2. La tua stampa è in pausa',
 				"layer_changed": 'Layer {}',
 				"soc_temp_exceeded": 'Temperatura SoC oltre la soglia di {}°'
@@ -80,6 +85,7 @@ class Alerts:
 				"mmu-event": 'MMU reikalauja pagalbos',
 				"paused-user-event": 'Spausdintuvas laukia vartotojo',
 				"tool0-cooled": 'Ekstruderis žemiau nurodytos temperatūros ribos',
+				"tool0-warmed": 'Ekstruderis pašildomas iki nurodytos temperatūros',
 				"palette2-error-while-printing": 'Klaida {} ištiko Palette 2. Įjungta pauzė',
 				"layer_changed": 'Sluoksnis {}',
 				"soc_temp_exceeded": 'SoC temparatūra virš ribos {}°'
@@ -92,6 +98,7 @@ class Alerts:
 				"mmu-event": 'MMU krever tilsyn',
 				"paused-user-event": 'Skriver venter på bruker',
 				"tool0-cooled": 'Ekstruder under spesifisert temperaturgrense',
+				"tool0-warmed": 'Ekstruder varmet opp til spesifisert temperatur',
 				"palette2-error-while-printing": 'Feil {} oppstod på Palette 2. Din print er satt på pause',
 				"layer_changed": 'Lag {}',
 				"soc_temp_exceeded": 'SoC Temperatur over terskelen {}°'
@@ -104,6 +111,7 @@ class Alerts:
 				"mmu-event": 'MMU kräver användarhjälp',
 				"paused-user-event": 'Skrivare pausad för användare',
 				"tool0-cooled": 'Extruder under angiven temperaturgräns',
+				"tool0-warmed": 'Extruder värms upp till specificerad temperatur',
 				"palette2-error-while-printing": 'Fel {} inträffade på Palette 2. Din utskrift har pausats',
 				"layer_changed": 'Lager {}',
 				"soc_temp_exceeded": 'SoC-temperatur över tröskeln {}°'
@@ -116,6 +124,7 @@ class Alerts:
 				"mmu-event": 'Le MMU demande une assistance',
 				"paused-user-event": 'Imprimante en pause pour l’utilisateur',
 				"tool0-cooled": 'Extrudeur en dessous du seuil spécifié',
+				"tool0-warmed": 'Extrudeuse chauffée à la température spécifiée',
 				"palette2-error-while-printing": 'Erreur {} sur Palette 2. Impression en pause',
 				"layer_changed": 'Layer {}',
 				"soc_temp_exceeded": 'SoC Température au-dessus du seuil {}°'
@@ -128,6 +137,7 @@ class Alerts:
 				"mmu-event": 'MMU требуется помощь пользователя',
 				"paused-user-event": 'Принтер приостановлен для пользователя',
 				"tool0-cooled": 'Температурный порог экструдера ниже заданного',
+				"tool0-warmed": 'Экструдер нагрет до заданной температуры',
 				"palette2-error-while-printing": 'Произошла ошибка {} в Palette 2. Печать была приостановлена',
 				"layer_changed": 'Слой {}',
 				"soc_temp_exceeded": 'Температура SoC выше порога {}°'

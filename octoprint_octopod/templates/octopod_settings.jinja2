@@ -72,6 +72,15 @@
                     </div>
                 </div>
 
+                <br>
+                <p>{{ _('When extruder reached target temperature (printing or not), OctoPrint will send notification.') }}</p>
+                <label class="control-label">{{ _('Target Temperature') }}</label>
+                <div class="controls">
+                    <label class="checkbox">
+                        <input type="checkbox" data-bind="checked: settings.plugins.octopod.tool0_target_temp" id="octopod-tool0_target_temp"> {{ _('Notify target temp reached') }}
+                    </label>
+                </div>
+
                 <h4>{{ _('Bed Notifications') }}</h4>
 
                 <p>{{ _('When bed temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
@@ -225,6 +234,11 @@
                         <td class="octopod_ifttt_event_name">octopod-tool0-cooled</td>
                         <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
                         <td class="octopod_ifttt_event_value2">&lt;temp threshold&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="octopod_ifttt_event_name">octopod-tool0-warmed</td>
+                        <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="octopod_ifttt_event_value2">&lt;target temp&gt;</td>
                     </tr>
                     <tr>
                         <td class="octopod_ifttt_event_name">octopod-layer-changed</td>

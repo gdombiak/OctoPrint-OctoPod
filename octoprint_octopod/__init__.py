@@ -90,6 +90,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			tokens=[],
 			temp_interval=5,
 			tool0_low=0,
+			tool0_target_temp=False,
 			bed_low=30,
 			bed_target_temp_hold=10,
 			mmu_interval=5,
@@ -117,7 +118,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 10
+		return 11
 
 	def on_settings_migrate(self, target, current):
 		if current == 1:
@@ -153,6 +154,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			self._settings.set(['webcam_flipH'], self._settings.global_get(["webcam", "flipH"]))
 			self._settings.set(['webcam_flipV'], self._settings.global_get(["webcam", "flipV"]))
 			self._settings.set(['webcam_rotate90'], self._settings.global_get(["webcam", "rotate90"]))
+
+		if current <= 10:
+			self._settings.set(['tool0_target_temp'], self.get_settings_defaults()["tool0_target_temp"])
 
 	# AssetPlugin mixin
 
@@ -361,8 +365,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		Send arbitrary push notification to OctoPod app running on iPhone (includes Apple Watch and iPad)
 		via the OctoPod APNS service.
 
-		:param message: Message to include in the notification
-		:param image: Optional. Image to include in the notification
+		:param message: (String) Message to include in the notification
+		:param image: Optional. (PIL Image) Image to include in the notification
 		:return: True if the notification was successfully sent
 		"""
 		return self._custom_notifications.send_notification(self._settings, message, image)
