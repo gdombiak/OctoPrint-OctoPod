@@ -117,8 +117,8 @@ class BedNotifications:
 				language_code = token["languageCode"]
 				url = server_url + '/v1/push_printer'
 
-				last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name, event_code,
-														   None, None)
+				last_result = self._alerts.send_alert_code(settings, language_code, apns_token, url, printer_name,
+														   event_code, None, None)
 			else:
 				# Legacy mode that uses silent notifications. As user update OctoPod app then they will automatically
 				# switch to the new mode

@@ -90,6 +90,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			server_url='http://octopodprint.com/',
 			camera_snapshot_url='http://localhost:8080/?action=snapshot',
 			tokens=[],
+			sound_notification='default',
 			temp_interval=5,
 			tool0_low=0,
 			tool0_target_temp=False,
@@ -165,6 +166,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		if current <= 11:
 			self._settings.set(['thermal_runway_threshold'], self.get_settings_defaults()["thermal_runway_threshold"])
 			self._settings.set(['thermal_threshold_minutes_frequency'], self.get_settings_defaults()["thermal_threshold_minutes_frequency"])
+			self._settings.set(['sound_notification'], self.get_settings_defaults()["sound_notification"])
 
 	# AssetPlugin mixin
 

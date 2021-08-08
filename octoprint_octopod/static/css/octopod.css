@@ -48,3 +48,12 @@ table {
     }
   }
 }
+
+input.radio {
+  margin-bottom: 5px;
+}
+
+label.radio_label {
+  display: inline;
+  padding-right: 10px;
+}

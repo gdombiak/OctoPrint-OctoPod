@@ -168,8 +168,8 @@ class Alerts:
 			}
 		}
 
-	def send_alert_code(self, language_code, apns_token, url, printer_name, event_code, category=None, image=None,
-						event_param=None, apns_dict=None):
+	def send_alert_code(self, settings, language_code, apns_token, url, printer_name, event_code, category=None,
+						image=None, event_param=None, apns_dict=None):
 		message = None
 		if language_code == 'es-419':
 			# Default to Spanish instead of Latin American Spanish
@@ -190,13 +190,14 @@ class Alerts:
 		self._logger.debug("Sending notification for event '%s' (%s)" % (event_code, printer_name))
 
 		# Now send APNS notification using proper locale
-		return self.send_alert(apns_token, url, printer_name, message, category, image, apns_dict)
+		return self.send_alert(settings, apns_token, url, printer_name, message, category, image, apns_dict)
 
-	def send_alert(self, apns_token, url, printer_name, message, category, image, apns_dict=None):
+	def send_alert(self, settings, apns_token, url, printer_name, message, category, image, apns_dict=None):
 		"""
 		Send Push Notification to OctoPod app running on iPhone (includes Apple Watch and iPad)
 		via the OctoPod APNS service.
 
+		:param settings: Plugin settings
 		:param apns_token: APNS token that uniquely identifies the iOS app installed in the iPhone
 		:param url: endpoint to hit of OctoPod APNS service
 		:param printer_name: Title to display in the notification
@@ -208,6 +209,10 @@ class Alerts:
 		"""
 		data = {"tokens": [apns_token], "title": printer_name, "message": message, "sound": "default",
 				"printerName": printer_name, "useDev": self._use_dev}
+
+		custom_sound = settings.get(["sound_notification"])
+		if custom_sound:
+			data['sound'] = custom_sound
 
 		if category is not None:
 			data['category'] = category

@@ -101,7 +101,7 @@ class ToolsNotifications:
 				language_code = token["languageCode"]
 				url = server_url + '/v1/push_printer'
 
-				last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name, event_code,
-														   None, None)
+				last_result = self._alerts.send_alert_code(settings, language_code, apns_token, url, printer_name,
+														   event_code, None, None)
 
 		return last_result

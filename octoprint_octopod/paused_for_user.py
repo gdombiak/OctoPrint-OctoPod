@@ -91,7 +91,7 @@ class PausedForUser:
 				language_code = token["languageCode"]
 				url = server_url + '/v1/push_printer'
 
-				last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name,
+				last_result = self._alerts.send_alert_code(settings, language_code, apns_token, url, printer_name,
 														   "paused-user-event", None, None)
 
 		return last_result
