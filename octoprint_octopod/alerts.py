@@ -141,6 +141,19 @@ class Alerts:
 				"palette2-error-while-printing": 'Произошла ошибка {} в Palette 2. Печать была приостановлена',
 				"layer_changed": 'Слой {}',
 				"soc_temp_exceeded": 'Температура SoC выше порога {}°'
+			},
+			'nl': {
+				"Print complete": 'Prin compleet',
+				"Print progress": "Voortgang {}%",
+				"bed-cooled": 'Printerbed onder de opgegeven temperatuurdrempel',
+				"bed-warmed": 'Printerbed opgewarmd tot gespecificeerde temperatuur en duur',
+				"mmu-event": 'MMU vereist gebruikershulp',
+				"paused-user-event": 'Printer is gepauzeerd voor gebruiker',
+				"tool0-cooled": 'Extruder onder de opgegeven temperatuurdrempelwaarde',
+				"tool0-warmed": 'Extruder verwarmd tot gespecificeerde temperatuur',
+				"palette2-error-while-printing": 'Fout {} heeft plaatsgevonden op palet 2. Uw afdruk is gepauzeerd',
+				"layer_changed": 'Laag {}',
+				"soc_temp_exceeded": 'SoC-temperatuur boven drempel {}°'
 			}
 		}
 
