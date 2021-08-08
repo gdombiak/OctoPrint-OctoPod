@@ -21,6 +21,7 @@ from .mmu import MMUAssistance
 from .palette2 import Palette2Notifications
 from .paused_for_user import PausedForUser
 from .soc_temp_notifications import SocTempNotifications
+from .thermal_protection_notifications import ThermalProtectionNotifications
 from .tools_notifications import ToolsNotifications
 
 # Plugin that stores APNS tokens reported from iOS devices to know which iOS devices to alert
@@ -54,6 +55,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		self._soc_temp_notifications = SocTempNotifications(self._logger, self._ifttt_alerts, self._soc_timer_interval,
 															debug_soc_temp)
 		self._custom_notifications = CustomNotifications(self._logger)
+		self._thermal_protection_notifications = ThermalProtectionNotifications(self._logger, self._ifttt_alerts)
 
 	# StartupPlugin mixin
 
@@ -100,6 +102,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			ifttt_key='',
 			ifttt_name='',
 			soc_temp_high=75,
+			thermal_runway_threshold=10,
+			thermal_threshold_minutes_frequency=10,
 			webcam_flipH=False,
 			webcam_flipV=False,
 			webcam_rotate90=False
@@ -118,7 +122,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 11
+		return 12
 
 	def on_settings_migrate(self, target, current):
 		if current == 1:
@@ -157,6 +161,10 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 		if current <= 10:
 			self._settings.set(['tool0_target_temp'], self.get_settings_defaults()["tool0_target_temp"])
+
+		if current <= 11:
+			self._settings.set(['thermal_runway_threshold'], self.get_settings_defaults()["thermal_runway_threshold"])
+			self._settings.set(['thermal_threshold_minutes_frequency'], self.get_settings_defaults()["thermal_threshold_minutes_frequency"])
 
 	# AssetPlugin mixin
 
@@ -343,6 +351,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	def run_timer_job(self):
 		self._bed_notifications.check_temps(self._settings, self._printer)
 		self._tool_notifications.check_temps(self._settings, self._printer)
+		self._thermal_protection_notifications.check_temps(self._settings, self._printer)
 
 	def start_soc_timer(self, interval):
 		self._logger.debug(u"Monitoring SoC temp with Timer")

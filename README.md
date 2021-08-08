@@ -17,15 +17,16 @@ IFTTT setup guide can be found [here](https://github.com/gdombiak/OctoPrint-Octo
 
 This is the complete list of supported notifications:
 1. Print finished (includes camera snapshot) or at specific progress percentages
-1. Print reached specified layers (requires [DisplayLayerProgress plugin](https://plugins.octoprint.org/plugins/DisplayLayerProgress/))
-1. Bed warmed up to target temp for a period of time. Helps get smooth first layers
-1. Bed cooled down below specified threshold. Ideal to easily remove prints from bed
-1. Extruder cooled down below specified threshold. Ideal to know when to turn printer off
-1. Printer paused for user. This may happen when running out of filament or when doing manual multi color printing (M600)
-1. [Palette 2 / Pro](https://www.mosaicmfg.com/products/palette-2) encountered a problem while printing
-1. [MMU](https://shop.prusa3d.com/en/upgrades/183-original-prusa-i3-mk25smk3s-multi-material-2s-upgrade-kit-mmu2s.html#) requires user assistance (requires Prusa firmware)
-1. Firmware errors. Get security alerts like thermal runaway, probing failed, min temp error, max temp error, etc.
-1. RPi (or your preferred SoC) temperature is above the specified threshold
+2. Print reached specified layers (requires [DisplayLayerProgress plugin](https://plugins.octoprint.org/plugins/DisplayLayerProgress/))
+3. Bed warmed up to target temp for a period of time. Helps get smooth first layers
+4. Bed cooled down below specified threshold. Ideal to easily remove prints from bed
+5. Extruder cooled down below specified threshold. Ideal to know when to turn printer off
+6. Possible thermal runaway detected (bed, hotends or chamber)
+7. Printer paused for user. This may happen when running out of filament or when doing manual multi color printing (M600)
+8. [Palette 2 / Pro](https://www.mosaicmfg.com/products/palette-2) encountered a problem while printing
+9. [MMU](https://shop.prusa3d.com/en/upgrades/183-original-prusa-i3-mk25smk3s-multi-material-2s-upgrade-kit-mmu2s.html#) requires user assistance (requires Prusa firmware)
+10. Firmware errors. Get security alerts like thermal runaway, probing failed, min temp error, max temp error, etc.
+11. RPi (or your preferred SoC) temperature is above the specified threshold
 
 ## Setup
 
