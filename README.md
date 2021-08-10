@@ -46,6 +46,11 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.3.3]** (08/10/2021)
+- New notification for thermal runaway protection. Thanks Juha Kuusama for the idea!
+- Configure your preferred notification sound. Thanks AuroraDigitalSystems for the idea! Requires OctoPod 3.12 (to be released)
+- Added Dutch translation - Thanks Ihsan Topcu. Requires OctoPod 3.12 (to be released)
+
 **[0.3.2]** (07/09/2021)
 - Added new notification when hotend reached target temperature. Default is off
 - Added new IFTTT event ```octopod-tool0-warmed``` when hotend reached target temperature. Default is off
@@ -105,6 +110,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.3]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.3
 [0.3.2]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.2
 [0.3.1]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.1
 [0.3.0]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.0
