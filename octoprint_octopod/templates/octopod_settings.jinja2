@@ -47,10 +47,14 @@
                  <div class="control-group">
                     <label class="control-label">{{ _('Progress Notification') }}</label>
                     <div class="controls">
-                        <input type="radio" id="progress_type1" data-bind="checked: settings.plugins.octopod.progress_type" value="0">&nbsp;{{ _('Disabled') }}<br>
-                        <input type="radio" id="progress_type2" data-bind="checked: settings.plugins.octopod.progress_type" value="25">&nbsp;25% - 50% - 75% - 100%<br>
-                        <input type="radio" id="progress_type3" data-bind="checked: settings.plugins.octopod.progress_type" value="50">&nbsp;50% - 100%<br>
-                        <input type="radio" id="progress_type4" data-bind="checked: settings.plugins.octopod.progress_type" value="100">&nbsp;100%<br>
+                        <input class="radio" type="radio" id="progress_type1" data-bind="checked: settings.plugins.octopod.progress_type" value="0">
+                        <label class="radio_label" for="progress_type1">{{ _('Disabled') }}</label>
+                        <input class="radio" type="radio" id="progress_type2" data-bind="checked: settings.plugins.octopod.progress_type" value="25">
+                        <label class="radio_label" for="progress_type2">{{ _('Every 25&#37;') }}</label>
+                        <input class="radio" type="radio" id="progress_type3" data-bind="checked: settings.plugins.octopod.progress_type" value="50">
+                        <label class="radio_label" for="progress_type3">{{ _('Every 50&#37;') }}</label>
+                        <input class="radio" type="radio" id="progress_type4" data-bind="checked: settings.plugins.octopod.progress_type" value="100">
+                        <label class="radio_label" for="progress_type4">100%</label>
                     </div>
                 </div>
 
@@ -59,6 +63,22 @@
                 <div class="control-group">
                     <div class="controls">
                         <button class="btn" data-bind="click: function() { testNotification() }"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Send test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
+                    </div>
+                </div>
+
+                <h4>{{ _('Sound Options') }}</h4>
+
+                <p>{{ _('Customize the sound that is played when you receive an OctoPod notification. Only available with OctoPrint 3.12 or later!') }}</p>
+                <div class="control-group">
+                    <div class="controls">
+                        <input class="radio" type="radio" id="sound_ios_default" data-bind="checked: settings.plugins.octopod.sound_notification" value="default">
+                        <label class="radio_label" for="sound_ios_default">{{ _('iOS Default') }}</label>
+                        <input class="radio" type="radio" id="sound_cheerful" data-bind="checked: settings.plugins.octopod.sound_notification" value="cheerful-2-528.m4r">
+                        <label class="radio_label" for="sound_cheerful">{{ _('Cheerful') }}</label>
+                        <input class="radio" type="radio" id="sound_serious" data-bind="checked: settings.plugins.octopod.sound_notification" value="serious-strike-533.m4r">
+                        <label class="radio_label" for="sound_serious">{{ _('Serious Strike') }}</label>
+                        <input class="radio" type="radio" id="sound_soft_bells" data-bind="checked: settings.plugins.octopod.sound_notification" value="soft-bells-495.m4r">
+                        <label class="radio_label" for="sound_soft_bells">{{ _('Soft Bells') }}</label>
                     </div>
                 </div>
 
@@ -131,7 +151,32 @@
                 <label class="control-label">{{ _('Temperature') }}</label>
                 <div class="controls">
                     <div class="input-append">
-                        <input type="number" class="input-mini text-right" id="soc_temp_high" data-bind="value: settings.plugins.octopod.soc_temp_high" min="0" max="100" step="1" value="75">
+                        <input type="number" class="input-mini text-right" id="soc_temp_high" data-bind="value: settings.plugins.octopod.soc_temp_high" min="0" max="100" step="1" value="75"><span class="add-on">&deg;C</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="controls">
+                        <label class="checkbox">
+                        <input type="checkbox" data-bind="checked: settings.plugins.octopod.debug_logging">{{ _('Enable debug logging') }}
+                        </label>
+                    </div>
+                </div>
+
+                <h4>{{ _('Thermal Protection') }}</h4>
+
+                <p>{{ _('Receive a notification when possible thermal runaway was detected based on actual and target temperatures. Protection covers bed, hotends and chamber. A value of 0 will disable the notifications below') }}</p>
+                <label class="control-label">{{ _('Temperature difference') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="thermal_runway_threshold" data-bind="value: settings.plugins.octopod.thermal_runway_threshold" min="0" max="20" step="1" value="10"><span class="add-on">&deg;C</span>
+                    </div>
+                </div>
+
+                <label class="control-label">{{ _('Delay between notifications') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="thermal_threshold_minutes_frequency" data-bind="value: settings.plugins.octopod.thermal_threshold_minutes_frequency" min="5" max="30" step="1" value="10"><span class="add-on">{{ _('Minutes') }}</span>
                     </div>
                 </div>
 
@@ -259,6 +304,11 @@
                         <td class="octopod_ifttt_event_name">octopod-soc-temp-exceeded</td>
                         <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
                         <td class="octopod_ifttt_event_value2">&lt;temp threshold&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="octopod_ifttt_event_name">octopod-thermal-runaway</td>
+                        <td class="octopod_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="octopod_ifttt_event_value2"></td>
                     </tr>
                     </tbody>
                 </table>

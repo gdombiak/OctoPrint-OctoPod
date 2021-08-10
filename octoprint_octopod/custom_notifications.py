@@ -57,4 +57,4 @@ class CustomNotifications:
 				printer_name = token["printerName"]
 				url = server_url + '/v1/push_printer'
 
-				return self._alerts.send_alert(apns_token, url, printer_name, message, None, image) < 300
+				return self._alerts.send_alert(settings, apns_token, url, printer_name, message, None, image) < 300

@@ -1,50 +1,39 @@
-table {
-  th, td {
-    &.octopod_device_name {
-      text-overflow: ellipsis;
-      text-align: left;
-    }
+.octopod_device_name {
+  text-overflow: ellipsis;
+}
 
-    &.octopod_device_registered {
-      text-align: right;
-      width: 130px;
-    }
+.octopod_device_registered {
+  width: 130px;
+}
 
-    &.octopod_device_printer {
-      text-overflow: ellipsis;
-      text-align: left;
-    }
+.octopod_device_printer {
+  text-overflow: ellipsis;
+}
 
-    &.octopod_device_action {
-      width: 70px;
-      text-align: center;
-      white-space: nowrap;
+td.octopod_device_action, th.octopod_device_action {
+  width: 70px;
+  text-align: center;
+  white-space: nowrap;
+}
 
-      a {
-        text-decoration: none;
-        color: #000;
+.octopod_ifttt_event_name {
+  text-overflow: ellipsis;
+  width: 130px;
+}
 
-        &.disabled {
-          color: #ccc;
-          cursor: default;
-        }
-      }
-    }
+.octopod_ifttt_event_value1 {
+  width: 130px;
+}
 
-    &.octopod_ifttt_event_name {
-      text-overflow: ellipsis;
-      text-align: left;
-      width: 130px;
-    }
+.octopod_ifttt_event_value2 {
+  width: 130px;
+}
 
-    &.octopod_ifttt_event_value1 {
-      text-align: center;
-      width: 130px;
-    }
+input.radio {
+  margin-bottom: 5px;
+}
 
-    &.octopod_ifttt_event_value2 {
-      text-align: center;
-      width: 130px;
-    }
-  }
+label.radio_label {
+  display: inline;
+  padding-right: 10px;
 }

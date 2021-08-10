@@ -84,7 +84,7 @@ class JobNotifications:
 				# killed the app
 				printer_name = token["printerName"]
 				language_code = token["languageCode"]
-				last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name,
+				last_result = self._alerts.send_alert_code(settings, language_code, apns_token, url, printer_name,
 														   "Print progress", None, image, progress)
 
 			# Send silent notification to refresh Apple Watch complication
@@ -203,8 +203,8 @@ class JobNotifications:
 				if current_printer_state_id == "ERROR":
 					self._logger.debug(
 						"Sending notification for error message: %s (%s)" % (current_printer_state, printer_name))
-					last_result = self._alerts.send_alert(apns_token, url, printer_name, current_printer_state, None,
-														  None)
+					last_result = self._alerts.send_alert(settings, apns_token, url, printer_name,
+														  current_printer_state, None, None)
 				elif (current_printer_state_id == "FINISHING" and was_printing) or test:
 					apns_category = None
 					apns_dict = None
@@ -216,7 +216,7 @@ class JobNotifications:
 						# Include file information to print again
 						apns_dict = {'filePath': current_data['job']['file']['path'],
 									 'fileOrigin': current_data['job']['file']['origin']}
-					last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name,
+					last_result = self._alerts.send_alert_code(settings, language_code, apns_token, url, printer_name,
 															   "Print complete", apns_category, image, None, apns_dict)
 					# Skip the silent notification for finishing at 100%. One for operational at 100% will be sent later
 					continue
