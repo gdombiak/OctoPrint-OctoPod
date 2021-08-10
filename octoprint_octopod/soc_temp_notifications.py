@@ -1,5 +1,7 @@
-from .alerts import Alerts
 import time
+
+from .alerts import Alerts
+
 
 class SocTempNotifications:
 
@@ -91,7 +93,7 @@ class SocTempNotifications:
 				language_code = token["languageCode"]
 				url = server_url + '/v1/push_printer'
 
-				last_result = self._alerts.send_alert_code(language_code, apns_token, url, printer_name,
+				last_result = self._alerts.send_alert_code(settings, language_code, apns_token, url, printer_name,
 														   "soc_temp_exceeded", None, None, soc_temp_threshold)
 
 		return last_result

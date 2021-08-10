@@ -23,7 +23,8 @@ class Alerts:
 				"tool0-warmed": 'Extruder warmed to specified temperature',
 				"palette2-error-while-printing": 'Error {} occurred on Palette 2. Your print has been paused',
 				"layer_changed": 'Layer {}',
-				"soc_temp_exceeded": 'SoC Temperature above threshold {}°'
+				"soc_temp_exceeded": 'SoC Temperature above threshold {}°',
+				"thermal-runaway": 'DANGER: Possible thermal runaway detected!'
 			},
 			'es': {
 				"Print complete": 'Impresión completa',
@@ -36,7 +37,8 @@ class Alerts:
 				"tool0-warmed": 'Extrusora calentada a la temperatura especificada',
 				"palette2-error-while-printing": 'Error {} en Palette 2. Su impresión ha sido suspendida',
 				"layer_changed": 'Capa {}',
-				"soc_temp_exceeded": 'Temperatura del SoC por arriba de {}°'
+				"soc_temp_exceeded": 'Temperatura del SoC por arriba de {}°',
+				"thermal-runaway": 'PELIGRO: ¡Posible fuga térmica detectada!'
 			},
 			'cs': {
 				"Print complete": 'Tisk dokončen',
@@ -49,7 +51,8 @@ class Alerts:
 				"tool0-warmed": 'Tryska se zahřeje na stanovenou teplotu',
 				"palette2-error-while-printing": 'Nastala chyba {} na Palette 2. Tisk byl pozastaven',
 				"layer_changed": 'Vrstva {}',
-				"soc_temp_exceeded": 'Teplota SoC přesahuje hranici {}°'
+				"soc_temp_exceeded": 'Teplota SoC přesahuje hranici {}°',
+				"thermal-runaway": 'NEBEZPEČÍ: Možný termální únik zjištěno!'
 			},
 			'de': {
 				"Print complete": 'Druck vollständig',
@@ -62,7 +65,8 @@ class Alerts:
 				"tool0-warmed": 'Extruder auf spezifizierte Temperatur erwärmt',
 				"palette2-error-while-printing": 'Fehler {} auf Palette 2 aufgetreten. Dein Druck wurde pausiert',
 				"layer_changed": 'Schicht {}',
-				"soc_temp_exceeded": 'SoC Temperatur oberhalb der Schwelle {}°'
+				"soc_temp_exceeded": 'SoC Temperatur oberhalb der Schwelle {}°',
+				"thermal-runaway": 'Gefahr: Möglicher thermischer Runaway erkannt!'
 			},
 			'it': {
 				"Print complete": 'Stampa completata',
@@ -75,7 +79,8 @@ class Alerts:
 				"tool0-warmed": 'Estensore riscaldato alla temperatura specificata',
 				"palette2-error-while-printing": 'Errore {} su Palette 2. La tua stampa è in pausa',
 				"layer_changed": 'Layer {}',
-				"soc_temp_exceeded": 'Temperatura SoC oltre la soglia di {}°'
+				"soc_temp_exceeded": 'Temperatura SoC oltre la soglia di {}°',
+				"thermal-runaway": 'PERICOLO: possibile è stata rilevata la tratta termica!'
 			},
 			'lt-LT': {
 				"Print complete": 'Baigta',
@@ -88,7 +93,8 @@ class Alerts:
 				"tool0-warmed": 'Ekstruderis pašildomas iki nurodytos temperatūros',
 				"palette2-error-while-printing": 'Klaida {} ištiko Palette 2. Įjungta pauzė',
 				"layer_changed": 'Sluoksnis {}',
-				"soc_temp_exceeded": 'SoC temparatūra virš ribos {}°'
+				"soc_temp_exceeded": 'SoC temparatūra virš ribos {}°',
+				"thermal-runaway": 'PAVOJUS: galima aptikti galimą terminį išbėgimą!'
 			},
 			'nb': {
 				"Print complete": 'Utskrift ferdig',
@@ -101,7 +107,8 @@ class Alerts:
 				"tool0-warmed": 'Ekstruder varmet opp til spesifisert temperatur',
 				"palette2-error-while-printing": 'Feil {} oppstod på Palette 2. Din print er satt på pause',
 				"layer_changed": 'Lag {}',
-				"soc_temp_exceeded": 'SoC Temperatur over terskelen {}°'
+				"soc_temp_exceeded": 'SoC Temperatur over terskelen {}°',
+				"thermal-runaway": 'FARE: Mulig termisk runaway oppdaget!'
 			},
 			'sv': {
 				"Print complete": 'Utskrift klar',
@@ -114,7 +121,8 @@ class Alerts:
 				"tool0-warmed": 'Extruder värms upp till specificerad temperatur',
 				"palette2-error-while-printing": 'Fel {} inträffade på Palette 2. Din utskrift har pausats',
 				"layer_changed": 'Lager {}',
-				"soc_temp_exceeded": 'SoC-temperatur över tröskeln {}°'
+				"soc_temp_exceeded": 'SoC-temperatur över tröskeln {}°',
+				"thermal-runaway": 'FARA: Möjlig värmekörning upptäckt!'
 			},
 			'fr': {
 				"Print complete": 'Impression terminée',
@@ -127,7 +135,8 @@ class Alerts:
 				"tool0-warmed": 'Extrudeuse chauffée à la température spécifiée',
 				"palette2-error-while-printing": 'Erreur {} sur Palette 2. Impression en pause',
 				"layer_changed": 'Layer {}',
-				"soc_temp_exceeded": 'SoC Température au-dessus du seuil {}°'
+				"soc_temp_exceeded": 'SoC Température au-dessus du seuil {}°',
+				"thermal-runaway": 'DANGER: Possible emballement thermique détecté !'
 			},
 			'ru': {
 				"Print complete": 'Печать завершена',
@@ -140,12 +149,27 @@ class Alerts:
 				"tool0-warmed": 'Экструдер нагрет до заданной температуры',
 				"palette2-error-while-printing": 'Произошла ошибка {} в Palette 2. Печать была приостановлена',
 				"layer_changed": 'Слой {}',
-				"soc_temp_exceeded": 'Температура SoC выше порога {}°'
+				"soc_temp_exceeded": 'Температура SoC выше порога {}°',
+				"thermal-runaway": 'ОПАСНОСТЬ: Возможный термический бег выявлен!'
+			},
+			'nl': {
+				"Print complete": 'Prin compleet',
+				"Print progress": "Voortgang {}%",
+				"bed-cooled": 'Printerbed onder de opgegeven temperatuurdrempel',
+				"bed-warmed": 'Printerbed opgewarmd tot gespecificeerde temperatuur en duur',
+				"mmu-event": 'MMU vereist gebruikershulp',
+				"paused-user-event": 'Printer is gepauzeerd voor gebruiker',
+				"tool0-cooled": 'Extruder onder de opgegeven temperatuurdrempelwaarde',
+				"tool0-warmed": 'Extruder verwarmd tot gespecificeerde temperatuur',
+				"palette2-error-while-printing": 'Fout {} heeft plaatsgevonden op palet 2. Uw afdruk is gepauzeerd',
+				"layer_changed": 'Laag {}',
+				"soc_temp_exceeded": 'SoC-temperatuur boven drempel {}°',
+				"thermal-runaway": 'Gevaar: mogelijk thermal runaway gedecteerd!'
 			}
 		}
 
-	def send_alert_code(self, language_code, apns_token, url, printer_name, event_code, category=None, image=None,
-						event_param=None, apns_dict=None):
+	def send_alert_code(self, settings, language_code, apns_token, url, printer_name, event_code, category=None,
+						image=None, event_param=None, apns_dict=None):
 		message = None
 		if language_code == 'es-419':
 			# Default to Spanish instead of Latin American Spanish
@@ -166,13 +190,14 @@ class Alerts:
 		self._logger.debug("Sending notification for event '%s' (%s)" % (event_code, printer_name))
 
 		# Now send APNS notification using proper locale
-		return self.send_alert(apns_token, url, printer_name, message, category, image, apns_dict)
+		return self.send_alert(settings, apns_token, url, printer_name, message, category, image, apns_dict)
 
-	def send_alert(self, apns_token, url, printer_name, message, category, image, apns_dict=None):
+	def send_alert(self, settings, apns_token, url, printer_name, message, category, image, apns_dict=None):
 		"""
 		Send Push Notification to OctoPod app running on iPhone (includes Apple Watch and iPad)
 		via the OctoPod APNS service.
 
+		:param settings: Plugin settings
 		:param apns_token: APNS token that uniquely identifies the iOS app installed in the iPhone
 		:param url: endpoint to hit of OctoPod APNS service
 		:param printer_name: Title to display in the notification
@@ -184,6 +209,10 @@ class Alerts:
 		"""
 		data = {"tokens": [apns_token], "title": printer_name, "message": message, "sound": "default",
 				"printerName": printer_name, "useDev": self._use_dev}
+
+		custom_sound = settings.get(["sound_notification"])
+		if custom_sound:
+			data['sound'] = custom_sound
 
 		if category is not None:
 			data['category'] = category
