@@ -10,6 +10,7 @@ class ThermalProtectionNotifications:
 		self._ifttt_alerts = ifttt_alerts
 		self._alerts = Alerts(self._logger)
 		self._last_thermal_runaway_notification_time = None  # Variable used for spacing notifications
+		self._last_actual_temps = {} # Variable that helps know if we are cooling down or not
 
 	def check_temps(self, settings, printer):
 		temps = printer.get_current_temperatures()
@@ -33,16 +34,28 @@ class ThermalProtectionNotifications:
 				self.__check_thermal_runway(temps, k, thermal_threshold, thermal_threshold_minutes_frequency, settings)
 
 	def __check_thermal_runway(self, temps, part, thermal_threshold, thermal_threshold_minutes_frequency, settings):
-		if temps[part]['target'] and temps[part]['target'] > 0:
+		target_temp = temps[part]['target']
+		if target_temp and target_temp > 0:
+			actual_temp = temps[part]['actual']
 			# Check if there is a possible thermal runaway
-			if temps[part]['actual'] >= (temps[part]['target'] + thermal_threshold):
+			if actual_temp >= (target_temp + thermal_threshold):
+				# Ignore if we are cooling down (could happen when target temp went down and actual is still higher)
+				if not self.__get_last_temp(part) or self.__get_last_temp(part) > actual_temp:
+					# Remember last temp so we can see if we are still cooling down
+					self.__save_last_temp(part, actual_temp)
+					return
+				# Alert about possible thermal runaway (unless we just alerted)
 				last_time = self._last_thermal_runaway_notification_time
 				should_alert = not last_time or time.time() > last_time + (thermal_threshold_minutes_frequency * 60)
 				if should_alert:
 					self._logger.debug("Possible thermal runaway detected for {0}. Actual {1} and Target {2} ".
-										format(part, temps[part]['actual'], temps[part]['target']))
+									   format(part, actual_temp, target_temp))
 					self.__send__thermal_notification(settings, "thermal-runaway")
 					self._last_thermal_runaway_notification_time = time.time()
+					self.__clear_last_temp(part)
+			else:
+				self.__clear_last_temp(part)
+
 
 	def __send__thermal_notification(self, settings, event_code):
 		# Fire IFTTT webhook
@@ -89,3 +102,13 @@ class ThermalProtectionNotifications:
 														   event_code, None, None)
 
 		return last_result
+
+	def __save_last_temp(self, part, actual_temp):
+		self._last_actual_temps[part] = actual_temp
+
+	def __clear_last_temp(self, part):
+		# Use pop and use some default value in case key does not exist
+		self._last_actual_temps.pop(part, 0)
+
+	def __get_last_temp(self, part):
+		return self._last_actual_temps.get(part)
