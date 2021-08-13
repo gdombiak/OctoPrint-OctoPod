@@ -46,6 +46,9 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.3.4]** (08/12/2021)
+- Fixed incorrect thermal runaway alert notification. Thanks Brian Porter
+
 **[0.3.3]** (08/10/2021)
 - New notification for thermal runaway protection. Thanks Juha Kuusama for the idea!
 - Configure your preferred notification sound. Thanks AuroraDigitalSystems for the idea! Requires OctoPod 3.12 (to be released)
@@ -110,6 +113,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.4]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.4
 [0.3.3]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.3
 [0.3.2]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.2
 [0.3.1]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.1
