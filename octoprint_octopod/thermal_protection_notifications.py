@@ -11,6 +11,7 @@ class ThermalProtectionNotifications:
 		self._alerts = Alerts(self._logger)
 		self._last_thermal_runaway_notification_time = None  # Variable used for spacing notifications
 		self._last_actual_temps = {} # Variable that helps know if we are cooling down or not
+		self._last_target_temps = {} # Variable that helps know if we need to reset saved info
 
 	def check_temps(self, settings, printer):
 		temps = printer.get_current_temperatures()
@@ -36,26 +37,71 @@ class ThermalProtectionNotifications:
 	def __check_thermal_runway(self, temps, part, thermal_threshold, thermal_threshold_minutes_frequency, settings):
 		target_temp = temps[part]['target']
 		if target_temp and target_temp > 0:
+			# Check if target temp has changed
+			if target_temp != self.__get_last_target_temp(part):
+				# Target temp changed so store it, reset old stored info and start over
+				self.__save_last_target_temp(part, target_temp)
+				self.__clear_last_actual_temp(part)
+				return
+			# Proceed with thermal checking
 			actual_temp = temps[part]['actual']
-			# Check if there is a possible thermal runaway
+			now = time.time()
+			# Check if there is a possible thermal runaway when we are heating up more than we requested (very unusual)
 			if actual_temp >= (target_temp + thermal_threshold):
 				# Ignore if we are cooling down (could happen when target temp went down and actual is still higher)
-				if not self.__get_last_temp(part) or self.__get_last_temp(part) > actual_temp:
+				if not self.__get_last_actual_temp(part) or self.__get_last_actual_temp(part) > actual_temp:
 					# Remember last temp so we can see if we are still cooling down
 					self.__save_last_temp(part, actual_temp)
 					return
-				# Alert about possible thermal runaway (unless we just alerted)
-				last_time = self._last_thermal_runaway_notification_time
-				should_alert = not last_time or time.time() > last_time + (thermal_threshold_minutes_frequency * 60)
-				if should_alert:
-					self._logger.debug("Possible thermal runaway detected for {0}. Actual {1} and Target {2} ".
-									   format(part, actual_temp, target_temp))
-					self.__send__thermal_notification(settings, "thermal-runaway")
-					self._last_thermal_runaway_notification_time = time.time()
-					self.__clear_last_temp(part)
-			else:
-				self.__clear_last_temp(part)
+				elif self.__get_last_actual_temp(part) == actual_temp:
+					# Not cooling down yet and temp still the same. Give it up to 14 seconds to cool
+					# down or send the alert
+					cooldown_threshold = settings.get_int(['thermal_cooldown_seconds_threshold'])
+					if self.__get_last_actual_temp_time(part) + cooldown_threshold > now:
+						# We can still wait more time to let things cool down
+						return
 
+				# Alert about possible thermal runaway (unless we just alerted)
+				self.__thermal_runaway_detected(actual_temp, now, part, settings, target_temp,
+											  thermal_threshold_minutes_frequency)
+			else:
+				# Check if we are below target and not warming up (more realistic case). Some firmwares
+				# already perform this check but some printers still have thermal runaway disabled so this
+				# check can save those printers from catching fire
+				below_target_threshold = settings.get_int(['thermal_below_target_threshold'])
+				# Check if below target temp. Use range to say that it is below target
+				if actual_temp + below_target_threshold < target_temp:
+					if not self.__get_last_actual_temp(part):
+						# Remember last temp so we can see if we temps are going up or not
+						self.__save_last_temp(part, actual_temp)
+						return
+					# Check if temp did not increase since last temp check. Task runs every 5 seconds
+					# so if temp did not increase in 5 seconds then send alert
+					if actual_temp <= self.__get_last_actual_temp(part):
+						# Alert about possible thermal runaway (unless we just alerted)
+						self.__thermal_runaway_detected(actual_temp, now, part, settings, target_temp,
+														thermal_threshold_minutes_frequency)
+					else:
+						# Remember last temp so we can see if we temp keeps going up
+						self.__save_last_temp(part, actual_temp)
+				else:
+					# Temp is not above target range and is not below target range. IOW, it is in an ok range
+					self.__clear_last_actual_temp(part)
+		else:
+			# No target temp is defined so clean up any tracking info
+			self.__clear_last_actual_temp(part)
+			self.__clear_last_target_temp(part)
+
+	def __thermal_runaway_detected(self, actual_temp, now, part, settings, target_temp,
+								 thermal_threshold_minutes_frequency):
+		last_time = self._last_thermal_runaway_notification_time
+		should_alert = not last_time or now > last_time + (thermal_threshold_minutes_frequency * 60)
+		if should_alert:
+			self._logger.debug("Possible thermal runaway detected for {0}. Actual {1} and Target {2} ".
+							   format(part, actual_temp, target_temp))
+			self.__send__thermal_notification(settings, "thermal-runaway")
+			self._last_thermal_runaway_notification_time = now
+			self.__clear_last_actual_temp(part)
 
 	def __send__thermal_notification(self, settings, event_code):
 		# Fire IFTTT webhook
@@ -104,11 +150,26 @@ class ThermalProtectionNotifications:
 		return last_result
 
 	def __save_last_temp(self, part, actual_temp):
-		self._last_actual_temps[part] = actual_temp
+		self._last_actual_temps[part] = (actual_temp, time.time())
 
-	def __clear_last_temp(self, part):
+	def __clear_last_actual_temp(self, part):
 		# Use pop and use some default value in case key does not exist
 		self._last_actual_temps.pop(part, 0)
 
-	def __get_last_temp(self, part):
-		return self._last_actual_temps.get(part)
+	def __get_last_actual_temp(self, part):
+		tuple = self._last_actual_temps.get(part)
+		return tuple[0] if tuple else None
+
+	def __get_last_actual_temp_time(self, part):
+		tuple = self._last_actual_temps.get(part)
+		return tuple[1] if tuple else None
+
+	def __save_last_target_temp(self, part, target_temp):
+		self._last_target_temps[part] = target_temp
+
+	def __clear_last_target_temp(self, part):
+		# Use pop and use some default value in case key does not exist
+		self._last_target_temps.pop(part, 0)
+
+	def __get_last_target_temp(self, part):
+		return self._last_target_temps.get(part)
