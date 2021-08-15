@@ -64,7 +64,7 @@ class ThermalProtectionNotifications:
 					# down or send the alert
 					cooldown_threshold = settings.get_int(['thermal_cooldown_seconds_threshold'])
 					if self.__get_last_actual_temp_time(part) + cooldown_threshold > now:
-						self._logger.debug("Thermal runaway - Tracking {0}. Temp NOT going down. "
+						self._logger.debug("Thermal runaway - Tracking {0}. Temp NOT going down. Will wait more time. "
 										  "Actual {1} and Target {2} ".format(part, actual_temp, target_temp))
 						# We can still wait more time to let things cool down
 						return
