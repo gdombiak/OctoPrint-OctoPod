@@ -85,7 +85,8 @@ class ThermalProtectionNotifications:
 						# Remember last temp so we can see if we temps are going up or not
 						self.__save_last_temp(part, actual_temp)
 						return
-					if self.__get_last_target_temp_time(part) + warmup_threshold > now:
+					if actual_temp == self.__get_last_actual_temp(part) and \
+							self.__get_last_target_temp_time(part) + warmup_threshold > now:
 						self._logger.debug("Thermal runaway - Tracking {0}. Temp NOT going up. Will wait more time. "
 										  "Actual {1} and Target {2} ".format(part, actual_temp, target_temp))
 						# We can still wait more time to let things warm up
