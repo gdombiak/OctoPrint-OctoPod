@@ -80,7 +80,7 @@ class Alerts:
 				"palette2-error-while-printing": 'Errore {} su Palette 2. La tua stampa è in pausa',
 				"layer_changed": 'Layer {}',
 				"soc_temp_exceeded": 'Temperatura SoC oltre la soglia di {}°',
-				"thermal-runaway": 'PERICOLO: è stato rilevata una possibile fuga termica (therman runaway)!'
+				"thermal-runaway": 'PERICOLO: è stato rilevata una possibile fuga termica (thermal runaway)!'
 			},
 			'lt-LT': {
 				"Print complete": 'Baigta',
