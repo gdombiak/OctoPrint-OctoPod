@@ -85,7 +85,10 @@ class ThermalProtectionNotifications:
 						# Remember last temp so we can see if we temps are going up or not
 						self.__save_last_temp(part, actual_temp)
 						return
-					if actual_temp == self.__get_last_actual_temp(part) and \
+					# Check if current temp is still the same as last time we checked (or up to 1C lower)
+					# Allow up to 1C lower since sometimes bed may lose half a degree
+					if (actual_temp == self.__get_last_actual_temp(part) or
+						self.__temp_decreased_upto(actual_temp, self.__get_last_actual_temp(part), 1)) and \
 							self.__get_last_target_temp_time(part) + warmup_threshold > now:
 						self._logger.debug("Thermal runaway - Tracking {0}. Temp NOT going up. Will wait more time. "
 										  "Actual {1} and Target {2} ".format(part, actual_temp, target_temp))
@@ -171,6 +174,10 @@ class ThermalProtectionNotifications:
 														   event_code, None, None)
 
 		return last_result
+
+	def __temp_decreased_upto(self, actual_temp, last_actual_temp, decrease):
+		return actual_temp <  last_actual_temp and \
+			   actual_temp > last_actual_temp - decrease
 
 	def __save_last_temp(self, part, actual_temp):
 		self._last_actual_temps[part] = (actual_temp, time.time())
