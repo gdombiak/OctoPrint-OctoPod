@@ -46,7 +46,10 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
-**[0.3.5]** (08/20/2021)
+**[0.3.6]** (08/23/2021)
+- Fixed false thermal runaway alert when target did not change but actual temp briefly cooled down
+
+- **[0.3.5]** (08/20/2021)
 - Added 'advanced' thermal runaway detection. Thanks Josh Wright for all your help testing!!!
 - Fixed another incorrect thermal runaway alert notification. Thanks Brian Porter
 
@@ -117,6 +120,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.6]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.6
 [0.3.5]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.5
 [0.3.4]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.4
 [0.3.3]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.3
