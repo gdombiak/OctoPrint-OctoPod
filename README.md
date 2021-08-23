@@ -49,7 +49,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.3.6]** (08/23/2021)
 - Fixed false thermal runaway alert when target did not change but actual temp briefly cooled down
 
-- **[0.3.5]** (08/20/2021)
+**[0.3.5]** (08/20/2021)
 - Added 'advanced' thermal runaway detection. Thanks Josh Wright for all your help testing!!!
 - Fixed another incorrect thermal runaway alert notification. Thanks Brian Porter
 
