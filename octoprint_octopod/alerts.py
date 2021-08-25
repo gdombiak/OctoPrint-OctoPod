@@ -165,6 +165,20 @@ class Alerts:
 				"layer_changed": 'Laag {}',
 				"soc_temp_exceeded": 'SoC-temperatuur boven drempel {}°',
 				"thermal-runaway": 'Gevaar: mogelijk thermal runaway gedecteerd!'
+			},
+			'zh-Hans': {
+				"Print complete": '打印完成',
+				"Print progress": "打印 {}％",
+				"bed-cooled": '打印机床低于指定温度阈值',
+				"bed-warmed": '打印机床加热到指定的温度和持续时间',
+				"mmu-event": 'MMU 需要用户协助',
+				"paused-user-event": '打印机为用户暂停',
+				"tool0-cooled": '挤出机低于指定温度阈值',
+				"tool0-warmed": '挤出机加热到指定温度',
+				"palette2-error-while-printing": '错误 {} 发生在Palette 2 上。您的打印已暂停',
+				"layer_changed": '{} 层',
+				"soc_temp_exceeded": 'SoC 温度高于阈值 {}°',
+				"thermal-runaway": '危险：检测到可能的热失控'
 			}
 		}
 
