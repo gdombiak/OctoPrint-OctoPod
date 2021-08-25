@@ -82,6 +82,17 @@
                     </div>
                 </div>
 
+                <h4>{{ _('Layer Notifications') }}</h4>
+
+                <p>{{ _('Receive a notification with an image for the first X layers to confirm print started fine. A value of 0 will disable the notifications below. From OctoPod app you can also
+                configure to receive a notification at specific layers for current print job.') }} <strong>{{ _('Requires <a href="https://plugins.octoprint.org/plugins/DisplayLayerProgress/" target="_blank">DisplayLayerProgress</a> plugin') }}</strong></p>
+                <label class="control-label">{{ _('First') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="notify_first_X_layers" data-bind="value: settings.plugins.octopod.notify_first_X_layers" min="0" max="10" step="1" value="0"><span class="add-on">{{ _('layers') }}</span>
+                    </div>
+                </div>
+
                 <h4>{{ _('Extruder Notifications') }}</h4>
 
                 <p>{{ _('When extruder temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
