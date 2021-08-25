@@ -45,6 +45,7 @@ class ThermalProtectionNotifications:
 			# Proceed with thermal checking
 			actual_temp = temps[part]['actual']
 			now = time.time()
+			cooldown_threshold = settings.get_int(['thermal_cooldown_seconds_threshold'])
 			# Check if there is a possible thermal runaway when we are heating up more than we requested (very unusual)
 			if actual_temp >= (target_temp + thermal_threshold):
 				# Ignore if we are cooling down (could happen when target temp went down and actual is still higher)
@@ -61,12 +62,17 @@ class ThermalProtectionNotifications:
 				elif self.__get_last_actual_temp(part) == actual_temp:
 					# Not cooling down yet and temp still the same. Give it up to 14 seconds to cool
 					# down or send the alert
-					cooldown_threshold = settings.get_int(['thermal_cooldown_seconds_threshold'])
 					if self.__get_last_actual_temp_time(part) + cooldown_threshold > now:
 						self._logger.debug("Thermal runaway - Tracking {0}. Temp NOT going down. Will wait more time. "
 										  "Actual {1} and Target {2} ".format(part, actual_temp, target_temp))
 						# We can still wait more time to let things cool down
 						return
+				elif self.__temp_increased_upto(actual_temp, self.__get_last_actual_temp(part), 9) and \
+							self.__get_last_actual_temp_time(part) + cooldown_threshold > now:
+					self._logger.debug("Thermal runaway - Tracking {0}. Temp went UP instead of DOWN. Will wait "
+									   "more time. Actual {1} and Target {2} ".format(part, actual_temp, target_temp))
+					# We can still wait more time to let things cool down
+					return
 
 				# Alert about possible thermal runaway (unless we just alerted)
 				self.__thermal_runaway_detected(actual_temp, now, part, settings, target_temp,
@@ -175,6 +181,10 @@ class ThermalProtectionNotifications:
 	def __temp_decreased_upto(self, actual_temp, last_actual_temp, decrease):
 		return actual_temp <  last_actual_temp and \
 			   actual_temp > last_actual_temp - decrease
+
+	def __temp_increased_upto(self, actual_temp, last_actual_temp, increase):
+		return actual_temp >  last_actual_temp and \
+			   actual_temp < last_actual_temp + increase
 
 	def __save_last_temp(self, part, actual_temp):
 		self._last_actual_temps[part] = (actual_temp, time.time())

@@ -110,7 +110,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			thermal_below_target_threshold=5,
 			webcam_flipH=False,
 			webcam_flipV=False,
-			webcam_rotate90=False
+			webcam_rotate90=False,
+			notify_first_X_layers=1
 		)
 
 	def on_settings_save(self, data):
@@ -175,6 +176,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			self._settings.set(['thermal_cooldown_seconds_threshold'], self.get_settings_defaults()["thermal_cooldown_seconds_threshold"])
 			self._settings.set(['thermal_below_target_threshold'], self.get_settings_defaults()["thermal_below_target_threshold"])
 			self._settings.set(['thermal_warmup_seconds_threshold'], self.get_settings_defaults()["thermal_warmup_seconds_threshold"])
+
+		if current <= 13:
+			self._settings.set(['notify_first_X_layers'], self.get_settings_defaults()["notify_first_X_layers"])
 
 	# AssetPlugin mixin
 
