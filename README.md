@@ -46,6 +46,10 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.3.8]** (08/28/2021)
+- Use Marlin defaults to prevent false thermal runaway alerts. Defaults are also configurable from UI. Thanks bonjipoo
+- Migration error thrown on fresh install with latest OctoPi install and Python 3. Thanks Pizzahd88
+
 **[0.3.7]** (08/25/2021)
 - NEW: Send notification with picture for first X (up to 10) layers for early catch of failed prints. Requires DisplayLayerProgress plugin
 - NEW: Added Chinese simplified（简体中文）Translation. Thanks 零更酱 / clementatt
@@ -125,6 +129,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.8]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.8
 [0.3.7]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.7
 [0.3.6]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.6
 [0.3.5]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.5
