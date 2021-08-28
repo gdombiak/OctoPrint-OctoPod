@@ -192,28 +192,28 @@
                 <label class="control-label">{{ _('Bed should increase temp in') }}</label>
                 <div class="controls">
                     <div class="input-append">
-                        <input type="number" class="input-mini text-right" id="thermal_warmup_bed_seconds_threshold" data-bind="value: settings.plugins.octopod.thermal_warmup_bed_seconds_threshold" min="9" max="59" step="5" value="19"><span class="add-on">seconds</span>
+                        <input type="number" class="input-mini text-right" id="thermal_warmup_bed_seconds_threshold" data-bind="value: settings.plugins.octopod.thermal_warmup_bed_seconds_threshold" min="9" max="59" step="5" value="19"><span class="add-on">{{ _('seconds') }}</span>
                     </div>
                 </div>
 
                 <label class="control-label">{{ _('Hotend should increase temp in') }}</label>
                 <div class="controls">
                     <div class="input-append">
-                        <input type="number" class="input-mini text-right" id="thermal_warmup_hotend_seconds_threshold" data-bind="value: settings.plugins.octopod.thermal_warmup_hotend_seconds_threshold" min="9" max="79" step="5" value="39"><span class="add-on">seconds</span>
+                        <input type="number" class="input-mini text-right" id="thermal_warmup_hotend_seconds_threshold" data-bind="value: settings.plugins.octopod.thermal_warmup_hotend_seconds_threshold" min="9" max="79" step="5" value="39"><span class="add-on">{{ _('seconds') }}</span>
                     </div>
                 </div>
 
                 <label class="control-label">{{ _('Chamber should increase temp in') }}</label>
                 <div class="controls">
                     <div class="input-append">
-                        <input type="number" class="input-mini text-right" id="thermal_warmup_chamber_seconds_threshold" data-bind="value: settings.plugins.octopod.thermal_warmup_chamber_seconds_threshold" min="9" max="59" step="5" value="19"><span class="add-on">seconds</span>
+                        <input type="number" class="input-mini text-right" id="thermal_warmup_chamber_seconds_threshold" data-bind="value: settings.plugins.octopod.thermal_warmup_chamber_seconds_threshold" min="9" max="59" step="5" value="19"><span class="add-on">{{ _('seconds') }}</span>
                     </div>
                 </div>
 
                 <label class="control-label">{{ _('Delay between notifications') }}</label>
                 <div class="controls">
                     <div class="input-append">
-                        <input type="number" class="input-mini text-right" id="thermal_threshold_minutes_frequency" data-bind="value: settings.plugins.octopod.thermal_threshold_minutes_frequency" min="5" max="30" step="1" value="10"><span class="add-on">{{ _('Minutes') }}</span>
+                        <input type="number" class="input-mini text-right" id="thermal_threshold_minutes_frequency" data-bind="value: settings.plugins.octopod.thermal_threshold_minutes_frequency" min="5" max="30" step="1" value="10"><span class="add-on">{{ _('minutes') }}</span>
                     </div>
                 </div>
 
