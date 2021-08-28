@@ -13,7 +13,7 @@
                 <p>{{ _('Complete URLs below so that OctoPrint can send notifications to OctoPod once print is finished') }}</p>
 
                 <div class="control-group">
-                    <label class="control-label">{{ _('Notification Server URL') }}</label>
+                    <label class="control-label" id="server_url_label">{{ _('Notification Server URL') }}</label>
                     <div class="controls">
                         <input type="text" class="input-block-level" id="server_url" data-bind="value: settings.plugins.octopod.server_url">
                         <span class="help-inline">{{ _('Enter URL address to the OctoPod server that sends Apple Push Notifications') }}</span>
@@ -22,7 +22,7 @@
 
                  <div class="control-group">
                     <!-- <label class="control-label">{{ _('Snapshot URL') }}</label> -->
-                    <label class="control-label">Snapshot URL</label>
+                    <label class="control-label" id="snapshot_url_label">Snapshot URL</label>
                     <div class="controls">
                         <input type="text" class="input-block-level" id="camera_snapshot_url" data-bind="value: settings.plugins.octopod.camera_snapshot_url">
                         <span class="help-inline">{{ _('Enter URL address that provides an image snapshot that will be included in the notification') }}</span>
@@ -45,7 +45,7 @@
                 </div>
 
                  <div class="control-group">
-                    <label class="control-label">{{ _('Progress Notification') }}</label>
+                    <label class="control-label" id="progress_notification_label">{{ _('Progress Notification') }}</label>
                     <div class="controls">
                         <input class="radio" type="radio" id="progress_type1" data-bind="checked: settings.plugins.octopod.progress_type" value="0">
                         <label class="radio_label" for="progress_type1">{{ _('Disabled') }}</label>
@@ -82,6 +82,8 @@
                     </div>
                 </div>
 
+                <hr class="solid">
+
                 <h4>{{ _('Layer Notifications') }}</h4>
 
                 <p>{{ _('Receive a notification with an image for the first X layers to confirm print started fine. A value of 0 will disable the notifications below. From OctoPod app you can also
@@ -92,6 +94,8 @@
                         <input type="number" class="input-mini text-right" id="notify_first_X_layers" data-bind="value: settings.plugins.octopod.notify_first_X_layers" min="0" max="10" step="1" value="0"><span class="add-on">{{ _('layers') }}</span>
                     </div>
                 </div>
+
+                <hr class="solid">
 
                 <h4>{{ _('Extruder Notifications') }}</h4>
 
@@ -112,6 +116,8 @@
                     </label>
                 </div>
 
+                <hr class="solid">
+
                 <h4>{{ _('Bed Notifications') }}</h4>
 
                 <p>{{ _('When bed temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
@@ -130,6 +136,8 @@
                         <input type="number" class="input-mini text-right" id="bed_target_temp_hold" data-bind="value: settings.plugins.octopod.bed_target_temp_hold" min="0" max="15" step="1" value="0">
                     </div>
                 </div>
+
+                <hr class="solid">
 
                 <h4>{{ _('Printer Paused Notifications') }}</h4>
 
@@ -155,6 +163,8 @@
                     </div>
                 </div>
 
+                <hr class="solid">
+
                 <h4>{{ _('System On a Chip (SoC) Notifications') }}</h4>
 
                 <p>{{ _('When SoC temperature goes above threshold, OctoPrint will send notification. New single-board computers like RPi 4 tend to run hot. A value of 0
@@ -166,13 +176,37 @@
                     </div>
                 </div>
 
+                <hr class="solid">
+
                 <h4>{{ _('Thermal Protection') }}</h4>
 
                 <p>{{ _('Receive a notification when possible thermal runaway was detected based on actual and target temperatures. Protection covers bed, hotends and chamber. A value of 0 will disable the notifications below') }}</p>
-                <label class="control-label">{{ _('Temperature difference') }}</label>
+
+                <label class="control-label">{{ _('Max Temperature difference') }}</label>
                 <div class="controls">
                     <div class="input-append">
                         <input type="number" class="input-mini text-right" id="thermal_runway_threshold" data-bind="value: settings.plugins.octopod.thermal_runway_threshold" min="0" max="20" step="1" value="10"><span class="add-on">&deg;C</span>
+                    </div>
+                </div>
+
+                <label class="control-label">{{ _('Bed should increase temp in') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="thermal_warmup_bed_seconds_threshold" data-bind="value: settings.plugins.octopod.thermal_warmup_bed_seconds_threshold" min="9" max="59" step="5" value="19"><span class="add-on">seconds</span>
+                    </div>
+                </div>
+
+                <label class="control-label">{{ _('Hotend should increase temp in') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="thermal_warmup_hotend_seconds_threshold" data-bind="value: settings.plugins.octopod.thermal_warmup_hotend_seconds_threshold" min="9" max="79" step="5" value="39"><span class="add-on">seconds</span>
+                    </div>
+                </div>
+
+                <label class="control-label">{{ _('Chamber should increase temp in') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="thermal_warmup_chamber_seconds_threshold" data-bind="value: settings.plugins.octopod.thermal_warmup_chamber_seconds_threshold" min="9" max="59" step="5" value="19"><span class="add-on">seconds</span>
                     </div>
                 </div>
 
@@ -182,6 +216,8 @@
                         <input type="number" class="input-mini text-right" id="thermal_threshold_minutes_frequency" data-bind="value: settings.plugins.octopod.thermal_threshold_minutes_frequency" min="5" max="30" step="1" value="10"><span class="add-on">{{ _('Minutes') }}</span>
                     </div>
                 </div>
+
+                <hr class="solid">
 
                 <div class="control-group">
                     <div class="controls">

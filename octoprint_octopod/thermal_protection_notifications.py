@@ -82,7 +82,7 @@ class ThermalProtectionNotifications:
 				# already perform this check but some printers still have thermal runaway disabled so this
 				# check can save those printers from catching fire
 				below_target_threshold = settings.get_int(['thermal_below_target_threshold'])
-				warmup_threshold = settings.get_int(['thermal_warmup_seconds_threshold'])
+				warmup_threshold = self.__get_warmup_threshold(settings, part)
 				# Check if below target temp. Use range to say that it is below target
 				if actual_temp + below_target_threshold < target_temp:
 					if not self.__get_last_actual_temp(part):
@@ -216,3 +216,10 @@ class ThermalProtectionNotifications:
 		tuple = self._last_target_temps.get(part)
 		return tuple[1] if tuple else None
 
+	def __get_warmup_threshold(self, settings, part):
+		if part == 'bed':
+			return settings.get_int(['thermal_warmup_bed_seconds_threshold'])
+		elif part.startswith('tool'):
+			return settings.get_int(['thermal_warmup_hotend_seconds_threshold'])
+		else:
+			return settings.get_int(['thermal_warmup_chamber_seconds_threshold'])
