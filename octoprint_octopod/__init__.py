@@ -132,54 +132,56 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		return 13
 
 	def on_settings_migrate(self, target, current):
-		if current == 1:
+		if current is None or current == 1:
 			# add the 2 new values included
 			self._settings.set(['temp_interval'], self.get_settings_defaults()["temp_interval"])
 			self._settings.set(['bed_low'], self.get_settings_defaults()["bed_low"])
 
-		if current <= 2:
+		if current is None or current <= 2:
 			self._settings.set(['bed_target_temp_hold'], self.get_settings_defaults()["bed_target_temp_hold"])
 
-		if current <= 3:
+		if current is None or current <= 3:
 			self._settings.set(['mmu_interval'], self.get_settings_defaults()["mmu_interval"])
 
-		if current <= 4:
+		if current is None or current <= 4:
 			self._settings.set(['pause_interval'], self.get_settings_defaults()["pause_interval"])
 
-		if current <= 5:
+		if current is None or current <= 5:
 			self._settings.set(['tool0_low'], self.get_settings_defaults()["tool0_low"])
 
-		if current <= 6:
+		if current is None or current <= 6:
 			self._settings.set(['palette2_printing_error_codes'],
 							   self.get_settings_defaults()["palette2_printing_error_codes"])
 
-		if current <= 7:
+		if current is None or current <= 7:
 			self._settings.set(['progress_type'], self.get_settings_defaults()["progress_type"])
 
-		if current <= 8:
+		if current is None or current <= 8:
 			self._settings.set(['ifttt_key'], self.get_settings_defaults()["ifttt_key"])
 			self._settings.set(['ifttt_name'], self.get_settings_defaults()["ifttt_name"])
 
-		if current <= 9:
+		if current is None or current <= 9:
 			self._settings.set(['soc_temp_high'], self.get_settings_defaults()["soc_temp_high"])
 			self._settings.set(['webcam_flipH'], self._settings.global_get(["webcam", "flipH"]))
 			self._settings.set(['webcam_flipV'], self._settings.global_get(["webcam", "flipV"]))
 			self._settings.set(['webcam_rotate90'], self._settings.global_get(["webcam", "rotate90"]))
 
-		if current <= 10:
+		if current is None or current <= 10:
 			self._settings.set(['tool0_target_temp'], self.get_settings_defaults()["tool0_target_temp"])
 
-		if current <= 11:
+		if current is None or current <= 11:
 			self._settings.set(['thermal_runway_threshold'], self.get_settings_defaults()["thermal_runway_threshold"])
 			self._settings.set(['thermal_threshold_minutes_frequency'], self.get_settings_defaults()["thermal_threshold_minutes_frequency"])
 			self._settings.set(['sound_notification'], self.get_settings_defaults()["sound_notification"])
 
-		if current <= 12:
+		if current is None or current <= 12:
 			self._settings.set(['thermal_cooldown_seconds_threshold'], self.get_settings_defaults()["thermal_cooldown_seconds_threshold"])
 			self._settings.set(['thermal_below_target_threshold'], self.get_settings_defaults()["thermal_below_target_threshold"])
-			self._settings.set(['thermal_warmup_seconds_threshold'], self.get_settings_defaults()["thermal_warmup_seconds_threshold"])
+			self._settings.set(['thermal_warmup_bed_seconds_threshold'], self.get_settings_defaults()["thermal_warmup_bed_seconds_threshold"])
+			self._settings.set(['thermal_warmup_hotend_seconds_threshold'], self.get_settings_defaults()["thermal_warmup_hotend_seconds_threshold"])
+			self._settings.set(['thermal_warmup_chamber_seconds_threshold'], self.get_settings_defaults()["thermal_warmup_chamber_seconds_threshold"])
 
-		if current <= 13:
+		if current is None or current <= 13:
 			self._settings.set(['notify_first_X_layers'], self.get_settings_defaults()["notify_first_X_layers"])
 
 	# AssetPlugin mixin
