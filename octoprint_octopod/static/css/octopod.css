@@ -37,3 +37,22 @@ label.radio_label {
   display: inline;
   padding-right: 10px;
 }
+
+/* Solid border */
+hr.solid {
+  border-top: 1px solid #bbb;
+}
+
+.form-horizontal .control-label {
+  width: 260px;
+  padding-right: 10px;
+}
+
+.radio input[type="radio"], .checkbox input[type="checkbox"] {
+  margin-left: 0;
+  margin-right: 5px;
+}
+
+#server_url_label, #snapshot_url_label, #progress_notification_label {
+  width: 160px;
+}
