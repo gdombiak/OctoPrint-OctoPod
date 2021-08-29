@@ -46,6 +46,12 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.3.9]** (08/29/2021)
+- NEW: Added support to delay notification when print is complete
+- FIXED: Progress notification at 25%, 50% and 75% now include camera snapshot
+- FIXED: Progress notification at 25%, 50% and 75% now respect camera orientation
+- FIXED: UI formatting that broke formatting of other OctoPrint setting pages
+
 **[0.3.8]** (08/28/2021)
 - Use Marlin defaults to prevent false thermal runaway alerts. Defaults are also configurable from UI. Thanks bonjipoo
 - Migration error thrown on fresh install with latest OctoPi install and Python 3. Thanks Pizzahd88
@@ -129,6 +135,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.9]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.9
 [0.3.8]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.8
 [0.3.7]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.7
 [0.3.6]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.6
