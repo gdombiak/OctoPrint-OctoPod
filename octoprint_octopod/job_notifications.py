@@ -1,3 +1,5 @@
+import threading
+
 from .alerts import Alerts
 from .base_notification import BaseNotification
 
@@ -138,6 +140,39 @@ class JobNotifications(BaseNotification):
 			current_printer_state = "Operational"
 			completion = 100
 
+		tokens = settings.get(["tokens"])
+		if len(tokens) == 0:
+			# No iOS devices were registered so skip notification
+			return -2
+
+		# See if user asked to delay this notification
+		print_complete_delay_seconds = settings.get_int(['print_complete_delay_seconds'])
+
+		if test or print_complete_delay_seconds == 0 or completion < 100 or not (
+				was_printing and current_printer_state_id == "FINISHING"):
+			last_result = self.__send_print_complete_or_silent_notification(camera_snapshot_url, completion,
+																			current_data, current_printer_state,
+																			current_printer_state_id, settings, test,
+																			tokens, url, was_printing, webcam_flipH,
+																			webcam_flipV, webcam_rotate90)
+		else:
+			delayed_task = threading.Timer(print_complete_delay_seconds,
+										   self.__send_print_complete_or_silent_notification,
+										   [camera_snapshot_url, completion, current_data, current_printer_state,
+											current_printer_state_id, settings, test, tokens, url, was_printing,
+											webcam_flipH, webcam_flipV, webcam_rotate90])
+			delayed_task.start()
+			# this value is ignored since it is used for testing
+			last_result = 0
+
+		return last_result
+
+	# Private functions - Print Job Notifications
+
+	def __send_print_complete_or_silent_notification(self, camera_snapshot_url, completion, current_data,
+													 current_printer_state, current_printer_state_id, settings, test,
+													 tokens, url, was_printing, webcam_flipH, webcam_flipV,
+													 webcam_rotate90):
 		# Get a snapshot of the camera
 		image = None
 		if (was_printing and current_printer_state_id == "FINISHING") or test:
@@ -164,18 +199,11 @@ class JobNotifications(BaseNotification):
 					image = self.image(camera_url, hflip, vflip, rotate)
 			except:
 				self._logger.info("Could not load image from url")
-
 		# Send IFTTT Notifications
 		if current_printer_state_id == "ERROR":
 			self._ifttt_alerts.fire_event(settings, "printer-error", current_printer_state)
 		elif (current_printer_state_id == "FINISHING" and was_printing) or test:
 			self._ifttt_alerts.fire_event(settings, "print-complete", "")
-
-		tokens = settings.get(["tokens"])
-		if len(tokens) == 0:
-			# No iOS devices were registered so skip notification
-			return -2
-
 		# For each registered token we will send a push notification
 		# We do it individually since 'printerID' is included so that
 		# iOS app can properly render local notification with
@@ -257,7 +285,5 @@ class JobNotifications(BaseNotification):
 				# switch to the new mode
 				last_result = self._alerts.send_job_request(apns_token, image, printer_id, current_printer_state,
 															completion, url, test)
-
 		return last_result
 
-# Private functions - Print Job Notifications

@@ -82,6 +82,16 @@
                     </div>
                 </div>
 
+                <h4>{{ _('Print Complete') }}</h4>
+
+                <p>{{ _('Some users may want to delay taking a snapshot and sending notification when print has completed to ensure cameras has a clear snapshot') }}</p>
+                <label class="octopod-label">{{ _('Delay notification by') }}</label>
+                <div class="control-group">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="print_complete_delay_seconds" data-bind="value: settings.plugins.octopod.print_complete_delay_seconds" min="0" max="60" step="1" value="0"><span class="add-on">{{ _('seconds') }}</span>
+                    </div>
+                </div>
+
                 <hr class="solid">
 
                 <h4>{{ _('Layer Notifications') }}</h4>
