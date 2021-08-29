@@ -113,7 +113,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			webcam_flipH=False,
 			webcam_flipV=False,
 			webcam_rotate90=False,
-			notify_first_X_layers=1
+			notify_first_X_layers=1,
+			print_complete_delay_seconds=0
 		)
 
 	def on_settings_save(self, data):
