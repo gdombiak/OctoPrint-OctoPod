@@ -43,9 +43,12 @@ hr.solid {
   border-top: 1px solid #bbb;
 }
 
-.form-horizontal .control-label {
+.octopod-label {
   width: 260px;
   padding-right: 10px;
+  float: left;
+  padding-top: 5px;
+  text-align: right;
 }
 
 .radio input[type="radio"], .checkbox input[type="checkbox"] {
