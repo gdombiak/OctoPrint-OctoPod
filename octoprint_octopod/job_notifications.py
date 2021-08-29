@@ -51,9 +51,12 @@ class JobNotifications(BaseNotification):
 		# Get a snapshot of the camera
 		image = None
 		try:
+			hflip = settings.get(["webcam_flipH"])
+			vflip = settings.get(["webcam_flipV"])
+			rotate = settings.get(["webcam_rotate90"])
 			camera_url = settings.get(["camera_snapshot_url"])
 			if camera_url and camera_url.strip():
-				image = self.image(camera_url, settings)
+				image = self.image(camera_url, hflip, vflip, rotate)
 		except:
 			self._logger.info("Could not load image from url")
 
@@ -228,13 +231,25 @@ class JobNotifications(BaseNotification):
 
 				if image is None and completion == 100 and current_printer_state_id == "OPERATIONAL":
 					# Legacy used to include an image only under this state
+					if webcam_flipH is not None:
+						hflip = webcam_flipH
+					else:
+						hflip = settings.get(["webcam_flipH"])
+					if webcam_flipV is not None:
+						vflip = webcam_flipV
+					else:
+						vflip = settings.get(["webcam_flipV"])
+					if webcam_rotate90 is not None:
+						rotate = webcam_rotate90
+					else:
+						rotate = settings.get(["webcam_rotate90"])
 					try:
 						if camera_snapshot_url:
 							camera_url = camera_snapshot_url
 						else:
 							camera_url = settings.get(["camera_snapshot_url"])
 						if camera_url and camera_url.strip():
-							image = self.image(camera_url, settings)
+							image = self.image(camera_url, hflip, vflip, rotate)
 					except:
 						self._logger.info("Could not load image from url")
 
