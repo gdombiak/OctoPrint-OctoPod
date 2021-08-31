@@ -188,6 +188,10 @@ class Alerts:
 		if language_code == 'es-419':
 			# Default to Spanish instead of Latin American Spanish
 			language_code = 'es'
+		if language_code == 'lt':
+			language_code = 'lt-LT'
+		if language_code == 'zh':
+			language_code = 'zh-Hans'
 
 		if language_code in self._languages:
 			if event_code in self._languages[language_code]:
