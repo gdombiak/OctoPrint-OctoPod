@@ -46,6 +46,10 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.3.10]** (08/30/2021)
+- FIXED: Notifications in Simplified Chinese now show proper translation. Thanks paul-tian
+- FIXED: Notifications in Lithuanian now show proper translation
+
 **[0.3.9]** (08/29/2021)
 - NEW: Added support to delay notification when print is complete
 - FIXED: Progress notification at 25%, 50% and 75% now include camera snapshot
@@ -135,6 +139,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.10]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.10
 [0.3.9]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.9
 [0.3.8]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.8
 [0.3.7]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.7
