@@ -28,17 +28,17 @@
                         <span class="help-inline">{{ _('Enter URL address that provides an image snapshot that will be included in the notification') }}</span>
                     </div>
                     <div class="controls">
-                        <label class="checkbox">
+                        <label class="octopod-checkbox">
                             <input type="checkbox" data-bind="checked: settings.plugins.octopod.webcam_flipH" id="octopod-webcamFlipH"> {{ _('Flip webcam horizontally') }}
                         </label>
                     </div>
                     <div class="controls">
-                        <label class="checkbox">
+                        <label class="octopod-checkbox">
                             <input type="checkbox" data-bind="checked: settings.plugins.octopod.webcam_flipV" id="octopod-webcamFlipV"> {{ _('Flip webcam vertically') }}
                         </label>
                     </div>
                     <div class="controls">
-                        <label class="checkbox">
+                        <label class="octopod-checkbox">
                             <input type="checkbox" data-bind="checked: settings.plugins.octopod.webcam_rotate90" id="octopod-webcamRotate90"> {{ _('Rotate webcam 90 degrees counter clockwise') }}
                         </label>
                     </div>
@@ -121,7 +121,7 @@
                 <p>{{ _('When extruder reached target temperature (printing or not), OctoPrint will send notification.') }}</p>
                 <label class="octopod-label">{{ _('Target Temperature') }}</label>
                 <div class="controls">
-                    <label class="checkbox">
+                    <label class="octopod-checkbox">
                         <input type="checkbox" data-bind="checked: settings.plugins.octopod.tool0_target_temp" id="octopod-tool0_target_temp"> {{ _('Notify target temp reached') }}
                     </label>
                 </div>
@@ -231,8 +231,8 @@
 
                 <div class="control-group">
                     <div class="controls">
-                        <label class="checkbox">
-                        <input type="checkbox" data-bind="checked: settings.plugins.octopod.debug_logging">{{ _('Enable debug logging') }}
+                        <label class="octopod-checkbox">
+                            <input type="checkbox" data-bind="checked: settings.plugins.octopod.debug_logging">{{ _('Enable debug logging') }}
                         </label>
                     </div>
                 </div>
