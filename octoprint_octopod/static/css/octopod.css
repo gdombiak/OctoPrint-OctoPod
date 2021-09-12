@@ -51,7 +51,7 @@ hr.solid {
   text-align: right;
 }
 
-.radio input[type="radio"], .checkbox input[type="checkbox"] {
+.radio input[type="radio"], .octopod-checkbox input[type="checkbox"] {
   margin-left: 0;
   margin-right: 5px;
 }
