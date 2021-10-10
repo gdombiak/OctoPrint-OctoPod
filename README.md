@@ -46,6 +46,11 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.3.11]** (10/10/2021)
+- NEW: Added klipper PAUSE compatibility to PausedForUser. Thanks [Mark Nebelung](https://github.com/mnebelung)
+- FIXED: Print complete notification had a typo in Dutch translation. Thanks [devosthomas](https://github.com/devosthomas)
+- FIXED: Use CSS class specific for octopod to not conflict with OctoPrint. Thanks [Sven Samoray](https://github.com/thelastWallE)
+
 **[0.3.10]** (08/30/2021)
 - FIXED: Notifications in Simplified Chinese now show proper translation. Thanks paul-tian
 - FIXED: Notifications in Lithuanian now show proper translation
@@ -139,6 +144,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.11]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.11
 [0.3.10]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.10
 [0.3.9]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.9
 [0.3.8]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.8
