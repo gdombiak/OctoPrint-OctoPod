@@ -153,7 +153,7 @@ class Alerts:
 				"thermal-runaway": 'ОПАСНОСТЬ: Возможный термический бег выявлен!'
 			},
 			'nl': {
-				"Print complete": 'Prin compleet',
+				"Print complete": 'Print compleet',
 				"Print progress": "Voortgang {}%",
 				"bed-cooled": 'Printerbed onder de opgegeven temperatuurdrempel',
 				"bed-warmed": 'Printerbed opgewarmd tot gespecificeerde temperatuur en duur',
