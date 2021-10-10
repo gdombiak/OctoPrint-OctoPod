@@ -94,7 +94,7 @@ class Alerts:
 				"palette2-error-while-printing": 'Klaida {} ištiko Palette 2. Įjungta pauzė',
 				"layer_changed": 'Sluoksnis {}',
 				"soc_temp_exceeded": 'SoC temparatūra virš ribos {}°',
-				"thermal-runaway": 'PAVOJUS: galima aptikti galimą terminį išbėgimą!'
+				"thermal-runaway": 'PAVOJUS! Galimai aptiktas temperatūros nuokrypis'
 			},
 			'nb': {
 				"Print complete": 'Utskrift ferdig',
