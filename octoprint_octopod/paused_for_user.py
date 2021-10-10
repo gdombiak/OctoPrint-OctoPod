@@ -16,7 +16,7 @@ class PausedForUser:
 		# Firmware will print to terminal when printer has paused for user
 
 		# if line.startswith("Not SD printing"):
-		if line.startswith("echo:busy: paused for user"):
+		if line.startswith("echo:busy: paused for user") or line.startswith("// action:paused"):
 			# Check if this type of notification is disabled
 			pause_interval = settings.get_int(['pause_interval'])
 			if pause_interval == 0:
