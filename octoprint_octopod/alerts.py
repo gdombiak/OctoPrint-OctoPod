@@ -52,7 +52,7 @@ class Alerts:
 				"palette2-error-while-printing": 'Nastala chyba {} na Palette 2. Tisk byl pozastaven',
 				"layer_changed": 'Vrstva {}',
 				"soc_temp_exceeded": 'Teplota SoC přesahuje hranici {}°',
-				"thermal-runaway": 'NEBEZPEČÍ: Možný termální únik zjištěno!'
+				"thermal-runaway": 'NEBEZPEČÍ: Detekována možná ztráta teploty!'
 			},
 			'de': {
 				"Print complete": 'Druck vollständig',
