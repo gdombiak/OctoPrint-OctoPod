@@ -122,7 +122,7 @@ class Alerts:
 				"palette2-error-while-printing": 'Fel {} inträffade på Palette 2. Din utskrift har pausats',
 				"layer_changed": 'Lager {}',
 				"soc_temp_exceeded": 'SoC-temperatur över tröskeln {}°',
-				"thermal-runaway": 'FARA: Möjlig värmekörning upptäckt!'
+				"thermal-runaway": 'VARNING: Möjlig skenande uppvärmning upptäckt!'
 			},
 			'fr': {
 				"Print complete": 'Impression terminée',
