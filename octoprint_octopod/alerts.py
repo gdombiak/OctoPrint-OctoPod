@@ -136,7 +136,7 @@ class Alerts:
 				"palette2-error-while-printing": 'Erreur {} sur Palette 2. Impression en pause',
 				"layer_changed": 'Layer {}',
 				"soc_temp_exceeded": 'SoC Température au-dessus du seuil {}°',
-				"thermal-runaway": 'DANGER: Possible emballement thermique détecté !'
+				"thermal-runaway": 'DANGER: emballement thermique possible détecté !'
 			},
 			'ru': {
 				"Print complete": 'Печать завершена',
