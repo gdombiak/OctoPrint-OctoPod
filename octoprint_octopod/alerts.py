@@ -66,7 +66,7 @@ class Alerts:
 				"palette2-error-while-printing": 'Fehler {} auf Palette 2 aufgetreten. Dein Druck wurde pausiert',
 				"layer_changed": 'Schicht {}',
 				"soc_temp_exceeded": 'SoC Temperatur oberhalb der Schwelle {}°',
-				"thermal-runaway": 'Gefahr: Möglicher thermischer Runaway erkannt!'
+				"thermal-runaway": 'GEFAHR: Möglichen thermischen Runaway erkannt!'
 			},
 			'it': {
 				"Print complete": 'Stampa completata',
