@@ -1,14 +1,13 @@
 import time
 
-from .alerts import Alerts
+from .base_notification import BaseNotification
 
 
-class ThermalProtectionNotifications:
+class ThermalProtectionNotifications(BaseNotification):
 
 	def __init__(self, logger, ifttt_alerts):
-		self._logger = logger
+		BaseNotification.__init__(self, logger)
 		self._ifttt_alerts = ifttt_alerts
-		self._alerts = Alerts(self._logger)
 		self._last_thermal_runaway_notification_time = None  # Variable used for spacing notifications
 		self._last_actual_temps = {} # Variable that helps know if we are cooling down or not
 		self._last_target_temps = {} # Variable that helps know if we need to reset saved info
@@ -136,55 +135,13 @@ class ThermalProtectionNotifications:
 		# Fire IFTTT webhook
 		self._ifttt_alerts.fire_event(settings, event_code, "")
 		# Send push notification via OctoPod app
-		self.__send__octopod_notification(settings, event_code)
-
-	def __send__octopod_notification(self, settings, event_code):
-		server_url = settings.get(["server_url"])
-		if not server_url or not server_url.strip():
-			# No APNS server has been defined so do nothing
-			return -1
-
-		tokens = settings.get(["tokens"])
-		if len(tokens) == 0:
-			# No iOS devices were registered so skip notification
-			return -2
-
-		# For each registered token we will send a push notification
-		# We do it individually since 'printerID' is included so that
-		# iOS app can properly render local notification with
-		# proper printer name
-		used_tokens = []
-		last_result = None
-		for token in tokens:
-			apns_token = token["apnsToken"]
-
-			# Ignore tokens that already received the notification
-			# This is the case when the same OctoPrint instance is added twice
-			# on the iOS app. Usually one for local address and one for public address
-			if apns_token in used_tokens:
-				continue
-			# Keep track of tokens that received a notification
-			used_tokens.append(apns_token)
-
-			if 'printerName' in token and token["printerName"] is not None:
-				# We can send non-silent notifications (the new way) so notifications are rendered even if user
-				# killed the app
-				printer_name = token["printerName"]
-				language_code = token["languageCode"]
-				url = server_url + '/v1/push_printer'
-
-				last_result = self._alerts.send_alert_code(settings, language_code, apns_token, url, printer_name,
-														   event_code, None, None)
-
-		return last_result
+		self._send_base_notification(settings, False, event_code)
 
 	def __temp_decreased_upto(self, actual_temp, last_actual_temp, decrease):
-		return actual_temp <  last_actual_temp and \
-			   actual_temp > last_actual_temp - decrease
+		return last_actual_temp > actual_temp > last_actual_temp - decrease
 
 	def __temp_increased_upto(self, actual_temp, last_actual_temp, increase):
-		return actual_temp >  last_actual_temp and \
-			   actual_temp < last_actual_temp + increase
+		return last_actual_temp < actual_temp < last_actual_temp + increase
 
 	def __save_last_temp(self, part, actual_temp):
 		self._last_actual_temps[part] = (actual_temp, time.time())

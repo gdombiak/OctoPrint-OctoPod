@@ -1,7 +1,7 @@
-from .alerts import Alerts
+from .base_notification import BaseNotification
 
 
-class CustomNotifications:
+class CustomNotifications(BaseNotification):
 	"""
 	Class only used for sending free form push notifications to the phone. This is
 	only used as a service offered by this plugin to other plugins interested in
@@ -9,8 +9,7 @@ class CustomNotifications:
 	"""
 
 	def __init__(self, logger):
-		self._logger = logger
-		self._alerts = Alerts(self._logger)
+		BaseNotification.__init__(self, logger)
 
 	def send_notification(self, settings, message, image):
 		"""
@@ -22,7 +21,7 @@ class CustomNotifications:
 		:param image: Optional. Image to include in the notification
 		:return: True if the notification was successfully sent
 		"""
-		server_url = settings.get(["server_url"])
+		server_url = self._get_server_url(settings)
 		if not server_url or not server_url.strip():
 			# No APNS server has been defined so do nothing
 			self._logger.debug("CustomNotifications - No APNS server has been defined so do nothing")

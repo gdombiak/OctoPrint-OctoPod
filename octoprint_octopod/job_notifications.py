@@ -1,6 +1,5 @@
 import threading
 
-from .alerts import Alerts
 from .base_notification import BaseNotification
 
 
@@ -10,7 +9,6 @@ class JobNotifications(BaseNotification):
 	def __init__(self, logger, ifttt_alerts):
 		BaseNotification.__init__(self, logger)
 		self._ifttt_alerts = ifttt_alerts
-		self._alerts = Alerts(self._logger)
 
 	def on_print_progress(self, settings, progress):
 		progress_type = settings.get(["progress_type"])
@@ -38,60 +36,11 @@ class JobNotifications(BaseNotification):
 		# Send IFTTT Notifications
 		self._ifttt_alerts.fire_event(settings, "print-progress", progress)
 
-		url = settings.get(["server_url"])
-		if not url or not url.strip():
-			# No APNS server has been defined so do nothing
-			return -1
-
-		tokens = settings.get(["tokens"])
-		if len(tokens) == 0:
-			# No iOS devices were registered so skip notification
-			return -2
-
-		url = url + '/v1/push_printer'
-
-		# Get a snapshot of the camera
-		image = None
-		try:
-			hflip = settings.get(["webcam_flipH"])
-			vflip = settings.get(["webcam_flipV"])
-			rotate = settings.get(["webcam_rotate90"])
-			camera_url = settings.get(["camera_snapshot_url"])
-			if camera_url and camera_url.strip():
-				image = self.image(camera_url, hflip, vflip, rotate)
-		except:
-			self._logger.info("Could not load image from url")
-
-		# For each registered token we will send a push notification
-		# We do it individually since 'printerID' is included so that
-		# iOS app can properly render local notification with
-		# proper printer name
-		used_tokens = []
-		last_result = None
-		for token in tokens:
-			apns_token = token["apnsToken"]
-			printer_id = token["printerID"]
-
-			# Ignore tokens that already received the notification
-			# This is the case when the same OctoPrint instance is added twice
-			# on the iOS app. Usually one for local address and one for public address
-			if apns_token in used_tokens:
-				continue
-			# Keep track of tokens that received a notification
-			used_tokens.append(apns_token)
-
-			if 'printerName' in token and token["printerName"] is not None:
-				# We can send non-silent notifications (the new way) so notifications are rendered even if user
-				# killed the app
-				printer_name = token["printerName"]
-				language_code = token["languageCode"]
-				last_result = self._alerts.send_alert_code(settings, language_code, apns_token, url, printer_name,
-														   "Print progress", None, image, progress)
-
-			# Send silent notification to refresh Apple Watch complication
+		def _send_silent_notification(apns_token, image, printer_id, url):
 			self._alerts.send_job_request(apns_token, None, printer_id, "Printing", progress, url)
 
-		return last_result
+		return self._send_base_notification(settings, True, "Print progress", event_param=progress,
+											silent_code_block=_send_silent_notification)
 
 	def send__print_job_notification(self, settings, printer, event_payload, server_url=None, camera_snapshot_url=None,
 									 webcam_flipH=None, webcam_flipV=None, webcam_rotate90=None, test=False):
@@ -102,7 +51,7 @@ class JobNotifications(BaseNotification):
 		if server_url:
 			url = server_url
 		else:
-			url = settings.get(["server_url"])
+			url = self._get_server_url(settings)
 		if not url or not url.strip():
 			# No APNS server has been defined so do nothing
 			return -1
