@@ -16,7 +16,7 @@ class BaseNotification:
 		:return:
 		"""
 		self._logger.debug("Snapshot URL: %s " % str(snapshot_url))
-		image = requests.get(snapshot_url, stream=True).content
+		image = requests.get(snapshot_url, stream=True, timeout=(4, 10)).content
 
 		try:
 			# Reduce resolution of image to prevent 400 error when uploading content
