@@ -6,17 +6,17 @@ import logging
 import sys
 
 import flask
-import octoprint.plugin
-from octoprint.events import eventManager, Events
-from octoprint.server import user_permission
-from octoprint.util import RepeatedTimer
 
+import octoprint.plugin
+from octoprint.access.permissions import Permissions
+from octoprint.events import eventManager, Events
+from octoprint.util import RepeatedTimer
 from .bed_notifications import BedNotifications
 from .custom_notifications import CustomNotifications
 from .ifttt_notifications import IFTTTAlerts
 from .job_notifications import JobNotifications
 from .layer_notifications import LayerNotifications
-from .libs.sbc import SBCFactory, SBC, RPi
+from .libs.sbc import SBCFactory, RPi
 from .mmu import MMUAssistance
 from .palette2 import Palette2Notifications
 from .paused_for_user import PausedForUser
@@ -275,7 +275,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 					getSoCTemps=[])
 
 	def on_api_command(self, command, data):
-		if not user_permission.can():
+		# Use this permission (as good as any other) to see if user can use this plugin and read status
+		if not Permissions.CONNECTION.can():
 			return flask.make_response("Insufficient rights", 403)
 
 		if command == 'updateToken':
