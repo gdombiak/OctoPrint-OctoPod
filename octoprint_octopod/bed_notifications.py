@@ -1,14 +1,13 @@
 import time
 
-from .alerts import Alerts
+from .base_notification import BaseNotification
 
 
-class BedNotifications:
+class BedNotifications(BaseNotification):
 
 	def __init__(self, logger, ifttt_alerts):
-		self._logger = logger
+		BaseNotification.__init__(self, logger)
 		self._ifttt_alerts = ifttt_alerts
-		self._alerts = Alerts(self._logger)
 		self._printer_was_printing_above_bed_low = False  # Variable used for bed cooling alerts
 		self._printer_not_printing_reached_target_temp_start_time = None  # Variable used for bed warming alerts
 
@@ -73,7 +72,7 @@ class BedNotifications:
 						self.__send__bed_notification(settings, "bed-warmed", temps[k]['target'],
 													int(warmed_time_minutes))
 
-	##~~ Private functions - Bed Notifications
+	# Private functions - Bed Notifications
 
 	def __send__bed_notification(self, settings, event_code, temperature, minutes):
 		# Fire IFTTT webhook
@@ -82,49 +81,8 @@ class BedNotifications:
 		self.__send__octopod_notification(settings, event_code, temperature, minutes)
 
 	def __send__octopod_notification(self, settings, event_code, temperature, minutes):
-		server_url = settings.get(["server_url"])
-		if not server_url or not server_url.strip():
-			# No APNS server has been defined so do nothing
-			return -1
+		def _send_legacy_notification(server_url, apns_token, printer_id):
+			url = server_url + '/v1/push_printer/bed_events'
+			return self._alerts.send_bed_request(url, apns_token, printer_id, event_code, temperature, minutes)
 
-		tokens = settings.get(["tokens"])
-		if len(tokens) == 0:
-			# No iOS devices were registered so skip notification
-			return -2
-
-		# For each registered token we will send a push notification
-		# We do it individually since 'printerID' is included so that
-		# iOS app can properly render local notification with
-		# proper printer name
-		used_tokens = []
-		last_result = None
-		for token in tokens:
-			apns_token = token["apnsToken"]
-			printerID = token["printerID"]
-
-			# Ignore tokens that already received the notification
-			# This is the case when the same OctoPrint instance is added twice
-			# on the iOS app. Usually one for local address and one for public address
-			if apns_token in used_tokens:
-				continue
-			# Keep track of tokens that received a notification
-			used_tokens.append(apns_token)
-
-			if 'printerName' in token and token["printerName"] is not None:
-				# We can send non-silent notifications (the new way) so notifications are rendered even if user
-				# killed the app
-				printer_name = token["printerName"]
-				language_code = token["languageCode"]
-				url = server_url + '/v1/push_printer'
-
-				last_result = self._alerts.send_alert_code(settings, language_code, apns_token, url, printer_name,
-														   event_code, None, None)
-			else:
-				# Legacy mode that uses silent notifications. As user update OctoPod app then they will automatically
-				# switch to the new mode
-				url = server_url + '/v1/push_printer/bed_events'
-
-				last_result = self._alerts.send_bed_request(url, apns_token, printerID, event_code, temperature,
-															minutes)
-
-		return last_result
+		return self._send_base_notification(settings, False, event_code, legacy_code_block=_send_legacy_notification)

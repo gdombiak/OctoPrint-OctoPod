@@ -3,11 +3,14 @@ from io import BytesIO  ## for Python 2 & 3
 import requests
 from PIL import Image
 
+from .alerts import Alerts
+
 
 class BaseNotification:
 
 	def __init__(self, logger):
 		self._logger = logger
+		self._alerts = Alerts(self._logger)
 
 	def image(self, snapshot_url, hflip, vflip, rotate):
 		"""
@@ -16,7 +19,7 @@ class BaseNotification:
 		:return:
 		"""
 		self._logger.debug("Snapshot URL: %s " % str(snapshot_url))
-		image = requests.get(snapshot_url, stream=True).content
+		image = requests.get(snapshot_url, stream=True, timeout=(4, 10)).content
 
 		try:
 			# Reduce resolution of image to prevent 400 error when uploading content
@@ -54,3 +57,78 @@ class BaseNotification:
 				self._logger.debug("Error rotating image: %s" % str(e))
 
 		return image
+
+	def _send_base_notification(self, settings, include_image, event_code, category=None, event_param=None,
+								apns_dict=None, silent_code_block=None, legacy_code_block=None):
+		server_url = self._get_server_url(settings)
+		if not server_url or not server_url.strip():
+			# No APNS server has been defined so do nothing
+			return -1
+
+		tokens = settings.get(["tokens"])
+		if len(tokens) == 0:
+			# No iOS devices were registered so skip notification
+			return -2
+
+		url = server_url + '/v1/push_printer'
+
+		# Get a snapshot of the camera
+		image = None
+		if include_image:
+			try:
+				hflip = settings.get(["webcam_flipH"])
+				vflip = settings.get(["webcam_flipV"])
+				rotate = settings.get(["webcam_rotate90"])
+				camera_url = settings.get(["camera_snapshot_url"])
+				if camera_url and camera_url.strip():
+					image = self.image(camera_url, hflip, vflip, rotate)
+			except:
+				self._logger.info("Could not load image from url")
+
+		# For each registered token we will send a push notification
+		# We do it individually since 'printerID' is included so that
+		# iOS app can properly render local notification with
+		# proper printer name
+		used_tokens = []
+		last_result = None
+		for token in tokens:
+			apns_token = token["apnsToken"]
+			printer_id = token["printerID"]
+
+			# Ignore tokens that already received the notification
+			# This is the case when the same OctoPrint instance is added twice
+			# on the iOS app. Usually one for local address and one for public address
+			if apns_token in used_tokens:
+				continue
+			# Keep track of tokens that received a notification
+			used_tokens.append(apns_token)
+
+			if 'printerName' in token and token["printerName"] is not None:
+				# We can send non-silent notifications (the new way) so notifications are rendered even if user
+				# killed the app
+				printer_name = token["printerName"]
+				language_code = token["languageCode"]
+				last_result = self._alerts.send_alert_code(settings, language_code, apns_token, url, printer_name,
+														   event_code, category, image, event_param, apns_dict)
+			else:
+				# Legacy mode that uses silent notifications. As user update OctoPod app then they will automatically
+				# switch to the new mode
+				if legacy_code_block:
+					last_result = legacy_code_block(server_url, apns_token, printer_id)
+
+			if silent_code_block:
+				# Send silent notification to refresh Apple Watch complication
+				silent_code_block(apns_token, image, printer_id, url)
+
+		return last_result
+
+	@staticmethod
+	def _get_server_url(settings):
+		server_url = settings.get(["server_url"])
+		if server_url:
+			# Remove any beginning or trailing spaces
+			server_url = server_url.strip()
+			# Remove trailing / if there is one
+			if server_url.endswith('/'):
+				server_url = server_url[:-1]
+		return server_url

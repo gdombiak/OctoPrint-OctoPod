@@ -46,6 +46,11 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.3.12]** (12/29/2021)
+- IMPROVED: Thermal runaway now plays nicely when printer paused waiting for user
+- FIXED: OctoPrint will no longer freeze forever while waiting to obtain a camera snapshot
+- FIXED: Removed double / in URL when connecting to APNS Proxy server
+
 **[0.3.11]** (10/10/2021)
 - NEW: Added klipper PAUSE compatibility to PausedForUser. Thanks [Mark Nebelung](https://github.com/mnebelung)
 - FIXED: Print complete notification had a typo in Dutch translation. Thanks [devosthomas](https://github.com/devosthomas)
@@ -144,6 +149,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.12]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.12
 [0.3.11]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.11
 [0.3.10]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.10
 [0.3.9]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.9

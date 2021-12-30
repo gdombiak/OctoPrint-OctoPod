@@ -52,7 +52,7 @@ class Alerts:
 				"palette2-error-while-printing": 'Nastala chyba {} na Palette 2. Tisk byl pozastaven',
 				"layer_changed": 'Vrstva {}',
 				"soc_temp_exceeded": 'Teplota SoC přesahuje hranici {}°',
-				"thermal-runaway": 'NEBEZPEČÍ: Možný termální únik zjištěno!'
+				"thermal-runaway": 'NEBEZPEČÍ: Detekována možná ztráta teploty!'
 			},
 			'de': {
 				"Print complete": 'Druck vollständig',
@@ -66,7 +66,7 @@ class Alerts:
 				"palette2-error-while-printing": 'Fehler {} auf Palette 2 aufgetreten. Dein Druck wurde pausiert',
 				"layer_changed": 'Schicht {}',
 				"soc_temp_exceeded": 'SoC Temperatur oberhalb der Schwelle {}°',
-				"thermal-runaway": 'Gefahr: Möglicher thermischer Runaway erkannt!'
+				"thermal-runaway": 'GEFAHR: Möglichen thermischen Runaway erkannt!'
 			},
 			'it': {
 				"Print complete": 'Stampa completata',
@@ -94,7 +94,7 @@ class Alerts:
 				"palette2-error-while-printing": 'Klaida {} ištiko Palette 2. Įjungta pauzė',
 				"layer_changed": 'Sluoksnis {}',
 				"soc_temp_exceeded": 'SoC temparatūra virš ribos {}°',
-				"thermal-runaway": 'PAVOJUS: galima aptikti galimą terminį išbėgimą!'
+				"thermal-runaway": 'PAVOJUS! Galimai aptiktas temperatūros nuokrypis'
 			},
 			'nb': {
 				"Print complete": 'Utskrift ferdig',
@@ -122,7 +122,7 @@ class Alerts:
 				"palette2-error-while-printing": 'Fel {} inträffade på Palette 2. Din utskrift har pausats',
 				"layer_changed": 'Lager {}',
 				"soc_temp_exceeded": 'SoC-temperatur över tröskeln {}°',
-				"thermal-runaway": 'FARA: Möjlig värmekörning upptäckt!'
+				"thermal-runaway": 'VARNING: Möjlig skenande uppvärmning upptäckt!'
 			},
 			'fr': {
 				"Print complete": 'Impression terminée',
@@ -136,7 +136,7 @@ class Alerts:
 				"palette2-error-while-printing": 'Erreur {} sur Palette 2. Impression en pause',
 				"layer_changed": 'Layer {}',
 				"soc_temp_exceeded": 'SoC Température au-dessus du seuil {}°',
-				"thermal-runaway": 'DANGER: Possible emballement thermique détecté !'
+				"thermal-runaway": 'DANGER: emballement thermique possible détecté !'
 			},
 			'ru': {
 				"Print complete": 'Печать завершена',

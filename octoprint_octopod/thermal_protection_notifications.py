@@ -1,17 +1,17 @@
 import time
 
-from .alerts import Alerts
+from .base_notification import BaseNotification
 
 
-class ThermalProtectionNotifications:
+class ThermalProtectionNotifications(BaseNotification):
 
 	def __init__(self, logger, ifttt_alerts):
-		self._logger = logger
+		BaseNotification.__init__(self, logger)
 		self._ifttt_alerts = ifttt_alerts
-		self._alerts = Alerts(self._logger)
 		self._last_thermal_runaway_notification_time = None  # Variable used for spacing notifications
 		self._last_actual_temps = {} # Variable that helps know if we are cooling down or not
 		self._last_target_temps = {} # Variable that helps know if we need to reset saved info
+		self._heater_timeout = False
 
 	def check_temps(self, settings, printer):
 		temps = printer.get_current_temperatures()
@@ -32,6 +32,15 @@ class ThermalProtectionNotifications:
 			# Check for possible thermal runaway
 			for k in temps.keys():
 				self.__check_thermal_runway(temps, k, thermal_threshold, settings)
+
+	def process_gcode(self, line):
+		# Firmware will print to terminal when printer has paused for user. If user does not respond
+		# quickly then heater will timeout and will start to cool down while keeping hotend target temp
+		# unmodified. We need to detect this case to not send incorrect thermal runaway alerts.
+		# '//action:' messages are i18n'ed so cannot be used to detect heater timeout
+		if line.startswith("echo:Press button to heat nozzle"):
+			self._logger.debug("Thermal runaway - Printer paused for user and heater timed out")
+			self._heater_timeout = True
 
 	def __check_thermal_runway(self, temps, part, thermal_threshold, settings):
 		thermal_threshold_minutes_frequency = settings.get_int(['thermal_threshold_minutes_frequency'])
@@ -91,6 +100,15 @@ class ThermalProtectionNotifications:
 						# Remember last temp so we can see if we temps are going up or not
 						self.__save_last_temp(part, actual_temp)
 						return
+					# Check if temp is going down since heater timed out when printer paused waiting for user
+					if self._heater_timeout and actual_temp <= self.__get_last_actual_temp(part) + 1:
+						# Heater timed out when printer paused waiting for user and temp is still going down
+						# Added 1C in case temp goes down to room temp and has minor fluctuations
+						self._logger.debug("Thermal runaway - Ignore checking since heater timed out waiting for user. "
+										  "Actual {1} and Target {2} ".format(part, actual_temp, target_temp))
+						# Remember last temp so we can see if we temps are going up or not
+						self.__save_last_temp(part, actual_temp)
+						return
 					# Check if current temp is still the same as last time we checked (or up to 2C lower)
 					# Allow up to 1C lower since sometimes bed may lose half a degree
 					if (actual_temp == self.__get_last_actual_temp(part) or
@@ -109,6 +127,12 @@ class ThermalProtectionNotifications:
 					else:
 						self._logger.debug("Thermal runaway - Tracking {0}. Temp going up. "
 										  "Actual {1} and Target {2} ".format(part, actual_temp, target_temp))
+						# Clear up flag that tracks if heater timed out. Marlin does not print a
+						# unique code to know when user pressed button to heat nozzle after
+						# printer paused for user and heater timed out. So if we see temp go up
+						# then we can assume user pressed button. Not ideal solution in case there
+						# is a thermal runaway exactly at this time. But best we can do atm
+						self._heater_timeout = False
 						# Remember last temp so we can see if we temp keeps going up
 						self.__save_last_temp(part, actual_temp)
 				else:
@@ -136,55 +160,13 @@ class ThermalProtectionNotifications:
 		# Fire IFTTT webhook
 		self._ifttt_alerts.fire_event(settings, event_code, "")
 		# Send push notification via OctoPod app
-		self.__send__octopod_notification(settings, event_code)
-
-	def __send__octopod_notification(self, settings, event_code):
-		server_url = settings.get(["server_url"])
-		if not server_url or not server_url.strip():
-			# No APNS server has been defined so do nothing
-			return -1
-
-		tokens = settings.get(["tokens"])
-		if len(tokens) == 0:
-			# No iOS devices were registered so skip notification
-			return -2
-
-		# For each registered token we will send a push notification
-		# We do it individually since 'printerID' is included so that
-		# iOS app can properly render local notification with
-		# proper printer name
-		used_tokens = []
-		last_result = None
-		for token in tokens:
-			apns_token = token["apnsToken"]
-
-			# Ignore tokens that already received the notification
-			# This is the case when the same OctoPrint instance is added twice
-			# on the iOS app. Usually one for local address and one for public address
-			if apns_token in used_tokens:
-				continue
-			# Keep track of tokens that received a notification
-			used_tokens.append(apns_token)
-
-			if 'printerName' in token and token["printerName"] is not None:
-				# We can send non-silent notifications (the new way) so notifications are rendered even if user
-				# killed the app
-				printer_name = token["printerName"]
-				language_code = token["languageCode"]
-				url = server_url + '/v1/push_printer'
-
-				last_result = self._alerts.send_alert_code(settings, language_code, apns_token, url, printer_name,
-														   event_code, None, None)
-
-		return last_result
+		self._send_base_notification(settings, False, event_code)
 
 	def __temp_decreased_upto(self, actual_temp, last_actual_temp, decrease):
-		return actual_temp <  last_actual_temp and \
-			   actual_temp > last_actual_temp - decrease
+		return last_actual_temp > actual_temp > last_actual_temp - decrease
 
 	def __temp_increased_upto(self, actual_temp, last_actual_temp, increase):
-		return actual_temp >  last_actual_temp and \
-			   actual_temp < last_actual_temp + increase
+		return last_actual_temp < actual_temp < last_actual_temp + increase
 
 	def __save_last_temp(self, part, actual_temp):
 		self._last_actual_temps[part] = (actual_temp, time.time())
