@@ -11,6 +11,7 @@ class ThermalProtectionNotifications(BaseNotification):
 		self._last_thermal_runaway_notification_time = None  # Variable used for spacing notifications
 		self._last_actual_temps = {} # Variable that helps know if we are cooling down or not
 		self._last_target_temps = {} # Variable that helps know if we need to reset saved info
+		self._heater_timeout = False
 
 	def check_temps(self, settings, printer):
 		temps = printer.get_current_temperatures()
@@ -31,6 +32,15 @@ class ThermalProtectionNotifications(BaseNotification):
 			# Check for possible thermal runaway
 			for k in temps.keys():
 				self.__check_thermal_runway(temps, k, thermal_threshold, settings)
+
+	def process_gcode(self, line):
+		# Firmware will print to terminal when printer has paused for user. If user does not respond
+		# quickly then heater will timeout and will start to cool down while keeping hotend target temp
+		# unmodified. We need to detect this case to not send incorrect thermal runaway alerts.
+		# '//action:' messages are i18n'ed so cannot be used to detect heater timeout
+		if line.startswith("echo:Press button to heat nozzle"):
+			self._logger.debug("Thermal runaway - Printer paused for user and heater timed out")
+			self._heater_timeout = True
 
 	def __check_thermal_runway(self, temps, part, thermal_threshold, settings):
 		thermal_threshold_minutes_frequency = settings.get_int(['thermal_threshold_minutes_frequency'])
@@ -90,6 +100,15 @@ class ThermalProtectionNotifications(BaseNotification):
 						# Remember last temp so we can see if we temps are going up or not
 						self.__save_last_temp(part, actual_temp)
 						return
+					# Check if temp is going down since heater timed out when printer paused waiting for user
+					if self._heater_timeout and actual_temp <= self.__get_last_actual_temp(part) + 1:
+						# Heater timed out when printer paused waiting for user and temp is still going down
+						# Added 1C in case temp goes down to room temp and has minor fluctuations
+						self._logger.debug("Thermal runaway - Ignore checking since heater timed out waiting for user. "
+										  "Actual {1} and Target {2} ".format(part, actual_temp, target_temp))
+						# Remember last temp so we can see if we temps are going up or not
+						self.__save_last_temp(part, actual_temp)
+						return
 					# Check if current temp is still the same as last time we checked (or up to 2C lower)
 					# Allow up to 1C lower since sometimes bed may lose half a degree
 					if (actual_temp == self.__get_last_actual_temp(part) or
@@ -108,6 +127,12 @@ class ThermalProtectionNotifications(BaseNotification):
 					else:
 						self._logger.debug("Thermal runaway - Tracking {0}. Temp going up. "
 										  "Actual {1} and Target {2} ".format(part, actual_temp, target_temp))
+						# Clear up flag that tracks if heater timed out. Marlin does not print a
+						# unique code to know when user pressed button to heat nozzle after
+						# printer paused for user and heater timed out. So if we see temp go up
+						# then we can assume user pressed button. Not ideal solution in case there
+						# is a thermal runaway exactly at this time. But best we can do atm
+						self._heater_timeout = False
 						# Remember last temp so we can see if we temp keeps going up
 						self.__save_last_temp(part, actual_temp)
 				else:

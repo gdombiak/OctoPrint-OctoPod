@@ -385,6 +385,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	def process_gcode(self, comm, line, *args, **kwargs):
 		line = self._paused_for_user.process_gcode(self._settings, self._printer, line)
+		self._thermal_protection_notifications.process_gcode(line)
 		return self._mmu_assitance.process_gcode(self._settings, line)
 
 	# Helper functions
