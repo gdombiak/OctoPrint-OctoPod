@@ -1,12 +1,13 @@
-from .alerts import Alerts
+from .base_notification import BaseNotification
 
 
-class LayerNotifications:
+class LayerNotifications(BaseNotification):
 
-	def __init__(self, logger):
-		self._logger = logger
-		self._alerts = Alerts(self._logger)
+	def __init__(self, logger, ifttt_alerts):
+		BaseNotification.__init__(self, logger)
 		self._layers = []
+		self._ifttt_alerts = ifttt_alerts
+		self.reset_layers()
 
 	def get_layers(self):
 		""" Returns list of layers for which notifications will be sent """
@@ -25,45 +26,19 @@ class LayerNotifications:
 		self._layers.remove(layer)
 
 	def layer_changed(self, settings, current_layer):
+		first_layers = settings.get_int(['notify_first_X_layers'])
 		if current_layer in self._layers:
-			self.send__layer_notification(settings, current_layer)
+			# User specified they wanted to get a notification when print started printing at this layer
+			self.__send__layer_notification(settings, current_layer)
+		elif first_layers > 0 and 1 < int(current_layer) <= first_layers + 1:
+			# Send a picture for first X layers (only send once layer was printed)
+			self.__send__layer_notification(settings, current_layer)
 
-	def send__layer_notification(self, settings, current_layer):
-		server_url = settings.get(["server_url"])
-		if not server_url or not server_url.strip():
-			# No FCM server has been defined so do nothing
-			return -1
+	def __send__layer_notification(self, settings, current_layer):
+		# Send IFTTT Notifications
+		self._ifttt_alerts.fire_event(settings, "layer-changed", current_layer)
 
-		tokens = settings.get(["tokens"])
-		if len(tokens) == 0:
-			# No Android devices were registered so skip notification
-			return -2
-
-		# For each registered token we will send a push notification
-		# We do it individually since 'printerID' is included so that
-		# Android app can properly render local notification with
-		# proper printer name
-		used_tokens = []
-		last_result = None
-		for token in tokens:
-			fcm_token = token["fcmToken"]
-			printerID = token["printerID"]
-
-			# Ignore tokens that already received the notification
-			# This is the case when the same OctoPrint instance is added twice
-			# on the Android app. Usually one for local address and one for public address
-			if fcm_token in used_tokens:
-				continue
-			# Keep track of tokens that received a notification
-			used_tokens.append(fcm_token)
-
-			if 'printerName' in token and token["printerName"] is not None:
-				# We can send non-silent notifications (the new way) so notifications are rendered even if user
-				# killed the app
-				printer_name = token["printerName"]
-				url = server_url
-
-				last_result = self._alerts.send_alert_code(fcm_token, url, printerID, printer_name,
-														   "layer-changed", None, current_layer)
-
-		return last_result
+		return self._send_base_notification(settings,
+											include_image=True,
+											event_code="layer-changed",
+											event_param=current_layer)

@@ -3,25 +3,33 @@ from __future__ import absolute_import
 
 import datetime
 import logging
+import sys
 
 import flask
 
 import octoprint.plugin
+from octoprint.access.permissions import Permissions
 from octoprint.events import eventManager, Events
-from octoprint.server import user_permission
 from octoprint.util import RepeatedTimer
-from .job_notifications import JobNotifications
 from .bed_notifications import BedNotifications
+from .custom_notifications import CustomNotifications
+from .ifttt_notifications import IFTTTAlerts
+from .job_notifications import JobNotifications
+from .layer_notifications import LayerNotifications
+from .libs.sbc import SBCFactory, RPi
+from .mmu import MMUAssistance
+from .palette2 import Palette2Notifications
+from .paused_for_user import PausedForUser
+from .soc_temp_notifications import SocTempNotifications
+from .thermal_protection_notifications import ThermalProtectionNotifications
 from .tools_notifications import ToolsNotifications
 from .test_notifications import TestNotifications
-from .mmu import MMUAssistance
-from .paused_for_user import PausedForUser
-from .palette2 import Palette2Notifications
-from .layer_notifications import LayerNotifications
-
 
 # Plugin that stores FCM tokens reported from Android devices to know which Android devices to alert
 # when print is done or other relevant events
+
+debug_soc_temp = False
+
 
 class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 					octoprint.plugin.AssetPlugin,
@@ -35,14 +43,21 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 		super(PrintoidPlugin, self).__init__()
 		self._logger = logging.getLogger("octoprint.plugins.printoid")
 		self._checkTempTimer = None
-		self._job_notifications = JobNotifications(self._logger)
-		self._tool_notifications = ToolsNotifications(self._logger)
-		self._bed_notifications = BedNotifications(self._logger)
-		self._mmu_assitance = MMUAssistance(self._logger)
+		self._ifttt_alerts = IFTTTAlerts(self._logger)
+		self._job_notifications = JobNotifications(self._logger, self._ifttt_alerts)
+		self._tool_notifications = ToolsNotifications(self._logger, self._ifttt_alerts)
+		self._bed_notifications = BedNotifications(self._logger, self._ifttt_alerts)
+		self._mmu_assitance = MMUAssistance(self._logger, self._ifttt_alerts)
+		self._paused_for_user = PausedForUser(self._logger, self._ifttt_alerts)
+		self._palette2 = Palette2Notifications(self._logger, self._ifttt_alerts)
+		self._layerNotifications = LayerNotifications(self._logger, self._ifttt_alerts)
 		self._test_notifications = TestNotifications(self._logger)
-		self._paused_for_user = PausedForUser(self._logger)
-		self._palette2 = Palette2Notifications(self._logger)
-		self._layerNotifications = LayerNotifications(self._logger)
+		self._check_soc_temp_timer = None
+		self._soc_timer_interval = 5.0 if debug_soc_temp else 30.0
+		self._soc_temp_notifications = SocTempNotifications(self._logger, self._ifttt_alerts, self._soc_timer_interval,
+															debug_soc_temp)
+		self._custom_notifications = CustomNotifications(self._logger)
+		self._thermal_protection_notifications = ThermalProtectionNotifications(self._logger, self._ifttt_alerts)
 
 	# StartupPlugin mixin
 
@@ -60,6 +75,15 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 		# Start timer that will check bed temperature and send notifications if needed
 		self._restart_timer()
 
+		# if running on linux then check soc temperature
+		if sys.platform.startswith("linux") or debug_soc_temp:
+			sbc = RPi(self._logger) if debug_soc_temp else SBCFactory().factory(self._logger)
+			if sbc.is_supported:
+				self._soc_temp_notifications.sbc = sbc
+				sbc.debugMode = debug_soc_temp
+				self._soc_temp_notifications.send_plugin_message = self.send_plugin_message
+				self.start_soc_timer(self._soc_timer_interval)
+
 	# SettingsPlugin mixin
 
 	def get_settings_defaults(self):
@@ -68,14 +92,31 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 			server_url='https://us-central1-firebase-printoid.cloudfunctions.net/printoidPluginGateway',
 			camera_snapshot_url='http://localhost:8080/?action=snapshot',
 			tokens=[],
+			sound_notification='default',
 			temp_interval=5,
 			tool0_low=0,
+			tool0_target_temp=False,
 			bed_low=30,
 			bed_target_temp_hold=10,
 			mmu_interval=5,
 			pause_interval=5,
 			palette2_printing_error_codes=[103, 104, 111, 121],
-			progress_type='25'      # 0=disabled, 10=every 10%, 25=every 25%, 50=every 50%, 100=only when finished
+			progress_type='50',  # 0=disabled, 10=every 10%, 25=every 25%, 50=every 50%, 100=only when finished
+			ifttt_key='',
+			ifttt_name='',
+			soc_temp_high=75,
+			thermal_runway_threshold=10,
+			thermal_threshold_minutes_frequency=10,
+			thermal_cooldown_seconds_threshold=14,
+			thermal_warmup_bed_seconds_threshold=19,
+			thermal_warmup_hotend_seconds_threshold=39,
+			thermal_warmup_chamber_seconds_threshold=19,
+			thermal_below_target_threshold=5,
+			webcam_flipH=False,
+			webcam_flipV=False,
+			webcam_rotate90=False,
+			notify_first_X_layers=1,
+			print_complete_delay_seconds=0
 		)
 
 	def on_settings_save(self, data):
@@ -91,33 +132,60 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 8
+		return 13
 
 	def on_settings_migrate(self, target, current):
-		if current == 1:
+		if current is None or current == 1:
 			# add the 2 new values included
 			self._settings.set(['temp_interval'], self.get_settings_defaults()["temp_interval"])
 			self._settings.set(['bed_low'], self.get_settings_defaults()["bed_low"])
 
-		if current <= 2:
+		if current is None or current <= 2:
 			self._settings.set(['bed_target_temp_hold'], self.get_settings_defaults()["bed_target_temp_hold"])
 
-		if current <= 3:
+		if current is None or current <= 3:
 			self._settings.set(['mmu_interval'], self.get_settings_defaults()["mmu_interval"])
 
-		if current <= 4:
+		if current is None or current <= 4:
 			self._settings.set(['pause_interval'], self.get_settings_defaults()["pause_interval"])
 
-		if current <= 5:
+		if current is None or current <= 5:
 			self._settings.set(['tool0_low'], self.get_settings_defaults()["tool0_low"])
 
-		if current <= 6:
+		if current is None or current <= 6:
 			self._settings.set(['palette2_printing_error_codes'],
 							   self.get_settings_defaults()["palette2_printing_error_codes"])
 
-		if current <= 7:
-			self._settings.set(['progress_type'],
-							   self.get_settings_defaults()["progress_type"])
+		if current is None or current <= 7:
+			self._settings.set(['progress_type'], self.get_settings_defaults()["progress_type"])
+
+		if current is None or current <= 8:
+			self._settings.set(['ifttt_key'], self.get_settings_defaults()["ifttt_key"])
+			self._settings.set(['ifttt_name'], self.get_settings_defaults()["ifttt_name"])
+
+		if current is None or current <= 9:
+			self._settings.set(['soc_temp_high'], self.get_settings_defaults()["soc_temp_high"])
+			self._settings.set(['webcam_flipH'], self._settings.global_get(["webcam", "flipH"]))
+			self._settings.set(['webcam_flipV'], self._settings.global_get(["webcam", "flipV"]))
+			self._settings.set(['webcam_rotate90'], self._settings.global_get(["webcam", "rotate90"]))
+
+		if current is None or current <= 10:
+			self._settings.set(['tool0_target_temp'], self.get_settings_defaults()["tool0_target_temp"])
+
+		if current is None or current <= 11:
+			self._settings.set(['thermal_runway_threshold'], self.get_settings_defaults()["thermal_runway_threshold"])
+			self._settings.set(['thermal_threshold_minutes_frequency'], self.get_settings_defaults()["thermal_threshold_minutes_frequency"])
+			self._settings.set(['sound_notification'], self.get_settings_defaults()["sound_notification"])
+
+		if current is None or current <= 12:
+			self._settings.set(['thermal_cooldown_seconds_threshold'], self.get_settings_defaults()["thermal_cooldown_seconds_threshold"])
+			self._settings.set(['thermal_below_target_threshold'], self.get_settings_defaults()["thermal_below_target_threshold"])
+			self._settings.set(['thermal_warmup_bed_seconds_threshold'], self.get_settings_defaults()["thermal_warmup_bed_seconds_threshold"])
+			self._settings.set(['thermal_warmup_hotend_seconds_threshold'], self.get_settings_defaults()["thermal_warmup_hotend_seconds_threshold"])
+			self._settings.set(['thermal_warmup_chamber_seconds_threshold'], self.get_settings_defaults()["thermal_warmup_chamber_seconds_threshold"])
+
+		if current is None or current <= 13:
+			self._settings.set(['notify_first_X_layers'], self.get_settings_defaults()["notify_first_X_layers"])
 
 	# AssetPlugin mixin
 
@@ -141,7 +209,6 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 	def on_event(self, event, payload):
 		if event == Events.PRINTER_STATE_CHANGED:
 			self._job_notifications.send__printer_state_changed(self._settings, self._printer, payload)
-			
 		elif event == "DisplayLayerProgress_layerChanged":
 			# Event sent from DisplayLayerProgress plugin when there was a detected layer changed
 			self._layerNotifications.layer_changed(self._settings, payload["currentLayer"])
@@ -166,7 +233,7 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 					self._logger.debug("Updating token for %s." % device_name)
 					# Token that exists needs to be updated with new token
 					token["fcmToken"] = new_token
-					token["date"] = datetime.datetime.now()
+					token["date"] = datetime.datetime.now().strftime("%x %X")
 					updated = True
 				found = True
 			elif token["fcmToken"] == new_token and token["printerID"] == printer_id:
@@ -176,15 +243,16 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 				if printer_name is not None and ("printerName" not in token or token["printerName"] != printer_name):
 					# Printer name in Printoid has been updated
 					token["printerName"] = printer_name
-					token["date"] = datetime.datetime.now()
+					token["date"] = datetime.datetime.now().strftime("%x %X")
 					updated = True
 				break
 
 		if not found:
 			self._logger.debug("Adding token for %s." % device_name)
 			# Token was not found so we need to add it
-			existing_tokens.append({'fcmToken': new_token, 'deviceName': device_name, 'date': datetime.datetime.now(),
-									'printerID': printer_id, 'printerName': printer_name})
+			existing_tokens.append(
+				{'fcmToken': new_token, 'deviceName': device_name, 'date': datetime.datetime.now().strftime("%x %X"),
+				 'printerID': printer_id, 'printerName': printer_name})
 			updated = True
 		if updated:
 			# Save new settings
@@ -194,30 +262,33 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.debug("Tokens saved")
 
 	def get_api_commands(self):
-		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], 
+		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"],
 					test=[],
-					snooze=["eventCode", "minutes"], 
-					addLayer=["layer"], 
-					removeLayer=["layer"], 
+					snooze=["eventCode", "minutes"],
+					addLayer=["layer"],
+					removeLayer=["layer"],
 					getLayers=[],
 					clearLayers=[],
 					progressMode=["mode"],
 					headTemperature=["temperature"],
 					bedTemperature=["temperature"],
-					bedWarmDuration=["minutes"])
+					bedWarmDuration=["minutes"],
+					getSoCTemps=[])
 
 	def on_api_command(self, command, data):
-		if not user_permission.can():
+		# Use this permission (as good as any other) to see if user can use this plugin and read status
+		if not Permissions.CONNECTION.can():
 			return flask.make_response("Insufficient rights", 403)
 
 		if command == 'updateToken':
-			# Convert from ASCII to UTF-8 since somce chars will fail otherwise
-			data["deviceName"] = data["deviceName"].encode("utf-8")
+			# Convert from ASCII to UTF-8 since some chars will fail otherwise (e.g. apostrophe) - Only for Python 2
+			if sys.version_info[0] == 2:
+				data["deviceName"] = data["deviceName"].encode("utf-8")
 			printer_name = data["printerName"] if 'printerName' in data else None
 
 			self.update_token("{oldToken}".format(**data), "{newToken}".format(**data), "{deviceName}".format(**data),
 							  "{printerID}".format(**data), printer_name)
-							  
+
 		elif command == 'test':
 			code = self._test_notifications.send__test(self._settings)
 			return flask.jsonify(dict(code=code))
@@ -228,24 +299,27 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 				eventManager().fire(Events.SETTINGS_UPDATED)
 			else:
 				return flask.make_response("changing progress mode failed: unknown mode", 400)
-			
+
 		elif command == 'snooze':
 			if data["eventCode"] == 'mmu-event':
 				self._mmu_assitance.snooze(data["minutes"])
 			else:
 				return flask.make_response("Snooze command for unknown event", 400)
-				
+
 		elif command == 'addLayer':
 			self._layerNotifications.add_layer(data["layer"])
-			
+
 		elif command == 'removeLayer':
 			self._layerNotifications.remove_layer(data["layer"])
-			
+
 		elif command == 'clearLayers':
 			self._layerNotifications.reset_layers()
-			
+
 		elif command == 'getLayers':
 			return flask.jsonify(dict(layers=self._layerNotifications.get_layers()))
+
+		elif command == 'getSoCTemps':
+			return flask.jsonify(self._soc_temp_notifications.get_soc_temps())
 
 		elif command == 'headTemperature':
 			headTempChanged = self._tool_notifications.set_temperature_threshold(self._settings, data["temperature"])
@@ -305,6 +379,9 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 	def on_plugin_message(self, plugin, data, permissions=None):
 		self._palette2.check_plugin_message(self._settings, plugin, data)
 
+	def send_plugin_message(self, data):
+		self._plugin_manager.send_plugin_message(self._identifier, data)
+
 	# Timer functions
 
 	def _restart_timer(self):
@@ -324,12 +401,35 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 	def run_timer_job(self):
 		self._bed_notifications.check_temps(self._settings, self._printer)
 		self._tool_notifications.check_temps(self._settings, self._printer)
+		self._thermal_protection_notifications.check_temps(self._settings, self._printer)
+
+	def start_soc_timer(self, interval):
+		self._logger.debug(u"Monitoring SoC temp with Timer")
+		self._check_soc_temp_timer = RepeatedTimer(interval, self.update_soc_temp, run_first=True)
+		self._check_soc_temp_timer.start()
+
+	def update_soc_temp(self):
+		self._soc_temp_notifications.check_soc_temp(self._settings)
 
 	# GCODE hook
 
 	def process_gcode(self, comm, line, *args, **kwargs):
 		line = self._paused_for_user.process_gcode(self._settings, self._printer, line)
+		self._thermal_protection_notifications.process_gcode(line)
 		return self._mmu_assitance.process_gcode(self._settings, line)
+
+	# Helper functions
+
+	def push_notification(self, message, image=None):
+		"""
+		Send arbitrary push notification to Printoid app running on Android device
+		via the Printoid FCM service.
+
+		:param message: (String) Message to include in the notification
+		:param image: Optional. (PIL Image) Image to include in the notification
+		:return: True if the notification was successfully sent
+		"""
+		return self._custom_notifications.send_notification(self._settings, message, image)
 
 
 # If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
@@ -337,6 +437,7 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 # can be overwritten via __plugin_xyz__ control properties. See the documentation for that.
 __plugin_name__ = "Printoid Plugin"
 __plugin_pythoncompat__ = ">=2.7,<4"
+
 
 def __plugin_load__():
 	global __plugin_implementation__
@@ -346,4 +447,9 @@ def __plugin_load__():
 	__plugin_hooks__ = {
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
 		"octoprint.comm.protocol.gcode.received": __plugin_implementation__.process_gcode
+	}
+
+	global __plugin_helpers__
+	__plugin_helpers__ = {
+		"fcm_notification": __plugin_implementation__.push_notification
 	}

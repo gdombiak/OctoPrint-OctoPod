@@ -1,14 +1,14 @@
-from .alerts import Alerts
+from .base_notification import BaseNotification
 
 
-class ToolsNotifications:
+class ToolsNotifications(BaseNotification):
 
-	def __init__(self, logger):
-		self._logger = logger
-		self._alerts = Alerts(self._logger)
+	def __init__(self, logger, ifttt_alerts):
+		BaseNotification.__init__(self, logger)
+		self._ifttt_alerts = ifttt_alerts
 		self._printer_was_printing_above_tool0_low = False  # Variable used for tool0 cooling alerts
-		
-		
+		self._printer_alerted_reached_tool0_target = False  # Variable used for tool0 warm alerts
+
 	def set_temperature_threshold(self, settings, temperature):
 		if temperature >= 0 and temperature < 400:
 			settings.set(["tool0_low"], temperature)
@@ -16,7 +16,6 @@ class ToolsNotifications:
 			return True
 		else:
 			return False
-	
 
 	def check_temps(self, settings, printer):
 		temps = printer.get_current_temperatures()
@@ -34,6 +33,7 @@ class ToolsNotifications:
 			# }
 			if k == 'tool0':
 				tool0_threshold_low = settings.get_int(['tool0_low'])
+				target_temp = settings.get(['tool0_target_temp'])
 			else:
 				continue
 
@@ -52,45 +52,29 @@ class ToolsNotifications:
 																							 temps[k]['actual']))
 				self._printer_was_printing_above_tool0_low = False
 
-				self.send__tool_notification(settings, "tool0-cold", tool0_threshold_low)
+				self.__send__tool_notification(settings, "tool0-cold", tool0_threshold_low)
+
+			# Check if tool0 has reached target temp and user wants to receive alerts for this event
+			if temps[k]['target'] > 0 and target_temp:
+				diff = temps[k]['actual'] - temps[k]['target']
+				# If we have not alerted user and printer reached target temp then alert user. Only alert
+				# when actual is equal to target or passed target by 5. Useful if hotend is too hot after
+				# print and you want to be alerted when it cooled down to a target temp
+				if not self._printer_alerted_reached_tool0_target and 0 <= diff < 5:
+					self._printer_alerted_reached_tool0_target = True
+					self.__send__tool_notification(settings, "tool0-warm", temps[k]['target'])
+			elif temps[k]['target'] == 0:
+				# There is no target temp so reset alert flag so we can alert again
+				# once a target temp is set
+				self._printer_alerted_reached_tool0_target = False
 
 	##~~ Private functions - Tool Notifications
 
-	def send__tool_notification(self, settings, event_code, temperature):
-		server_url = settings.get(["server_url"])
-		if not server_url or not server_url.strip():
-			# No FCM server has been defined so do nothing
-			return -1
+	def __send__tool_notification(self, settings, event_code, temperature):
+		# Send IFTTT Notifications
+		self._ifttt_alerts.fire_event(settings, event_code, temperature)
 
-		tokens = settings.get(["tokens"])
-		if len(tokens) == 0:
-			# No Android devices were registered so skip notification
-			return -2
-
-		# For each registered token we will send a push notification
-		# We do it individually since 'printerID' is included so that
-		# Android app can properly render local notification with
-		# proper printer name
-		used_tokens = []
-		last_result = None
-		for token in tokens:
-			fcm_token = token["fcmToken"]
-
-			# Ignore tokens that already received the notification
-			# This is the case when the same OctoPrint instance is added twice
-			# on the Android app. Usually one for local address and one for public address
-			if fcm_token in used_tokens:
-				continue
-			# Keep track of tokens that received a notification
-			used_tokens.append(fcm_token)
-
-			if 'printerName' in token and token["printerName"] is not None:
-				# We can send non-silent notifications (the new way) so notifications are rendered even if user
-				# killed the app
-				printerID = token["printerID"]
-				printer_name = token["printerName"]
-				url = server_url
-
-				last_result = self._alerts.send_alert_code(fcm_token, url, printerID, printer_name, event_code, image=None, event_param=temperature)
-
-		return last_result
+		return self._send_base_notification(settings,
+											include_image=False,
+											event_code=event_code,
+											event_param=temperature)

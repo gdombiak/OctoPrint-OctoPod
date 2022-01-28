@@ -1,113 +1,331 @@
 <form class="form-horizontal">
-    <p>{{ _('The Printoid Plugin allows your OctoPrint server to send push notification to the Printoid application, even when the app is in background or not connected to the same network (no need for port forwarding nor VPN setup). This plugin requires Printoid v15.01 minimum. Please check on Google Play if you have the correct version before trying to setup the plugin.') }}</p>
+    <div class="tabbable"> <!-- Only required for left/right tabs -->
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#tabGeneral" data-toggle="tab">General</a></li>
+            <li><a href="#tabDevices" data-toggle="tab">Devices</a></li>
+            <li><a href="#tabIFTTT" data-toggle="tab">IFTTT</a></li>
+        </ul>
+        <div class="tab-content">
+            <!-- DISPLAY - TAB -->
+            <div class="tab-pane active" id="tabGeneral">
 
-	<br>
-	<br>
+                <h4>{{ _('Server Settings') }}</h4>
 
-    <h4>{{ _('Pairing With Printoid') }}</h4>
+                <br>
+                <p>{{ _('Open Printoid on your Android device and make sure to have the corresponding printer selected before testing notification that you would receive when print is finished') }}</p>
+                <div class="control-group">
+                    <div class="controls">
+                        <button class="btn" data-bind="click: function() { testNotification() }"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Send test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
+                    </div>
+                </div>
 
-    <p>{{ _('Open Printoid on your Android device and make sure to have the corresponding OctoPrint profile selected and connected before testing notification that you would receive push notifications') }}</p>
-    <div class="control-group">
-        <div class="controls">
-            <button class="btn" data-bind="click: function() { testNotification() }"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Send test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully, check your phone!') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
-        </div>
-    </div>
+                <h4>{{ _('Sound Options') }}</h4>
 
-	<br>
+                <p>{{ _('Customize the sound that is played when you receive an Printoid notification. Only available with Printoid 18.05 or later!') }}</p>
+                <div class="control-group">
+                    <div class="controls">
+                        <input class="radio" type="radio" id="sound_android_default" data-bind="checked: settings.plugins.printoid.sound_notification" value="default">
+                        <label class="radio_label" for="sound_android_default">{{ _('Android Default') }}</label>
+                        <input class="radio" type="radio" id="sound_cheerful" data-bind="checked: settings.plugins.printoid.sound_notification" value="cheerful-2-528.m4r">
+                        <label class="radio_label" for="sound_cheerful">{{ _('Cheerful') }}</label>
+                        <input class="radio" type="radio" id="sound_serious" data-bind="checked: settings.plugins.printoid.sound_notification" value="serious-strike-533.m4r">
+                        <label class="radio_label" for="sound_serious">{{ _('Serious Strike') }}</label>
+                        <input class="radio" type="radio" id="sound_soft_bells" data-bind="checked: settings.plugins.printoid.sound_notification" value="soft-bells-495.m4r">
+                        <label class="radio_label" for="sound_soft_bells">{{ _('Soft Bells') }}</label>
+                    </div>
+                </div>
 
-    <h4>{{ _('Camera Settings') }}</h4>
-    <p>{{ _('Complete the settings below so that OctoPrint can send notifications to Printoid with a snapshot of your camera if you have one.)') }}</p>
+                <hr class="solid">
 
-     <div class="control-group">
-        <!-- <label class="control-label">{{ _('Snapshot URL') }}</label> -->
-        <label class="control-label">Snapshot URL</label>
-        <div class="controls">
-            <input type="text" class="input-block-level" id="camera_snapshot_url" data-bind="value: settings.plugins.printoid.camera_snapshot_url">
-            <span class="help-inline">{{ _('Enter URL address that provides an image snapshot that will be included in the notification') }}</span>
-        </div>
-    </div>
-    
-	<br>
+                <h4>{{ _('Progress Notifications') }}</h4>
 
-    <h4>{{ _('Print Progress Notifications') }}</h4>
+                <p>{{ _('Be notified each time the printing job reached a certain progress value.') }}</p>
+                 <div class="control-group">
+                    <label class="printoid-label" id="progress_notification_label">{{ _('Progress Notification') }}</label>
+                    <div class="controls">
+                        <input class="radio" type="radio" id="progress_type1" data-bind="checked: settings.plugins.printoid.progress_type" value="0">
+                        <label class="radio_label" for="progress_type1">{{ _('Disabled') }}</label>
+                        <input class="radio" type="radio" id="progress_type2" data-bind="checked: settings.plugins.printoid.progress_type" value="10">
+                        <label class="radio_label" for="progress_type2">{{ _('Every 10&#37;') }}</label>
+                        <input class="radio" type="radio" id="progress_type3" data-bind="checked: settings.plugins.printoid.progress_type" value="25">
+                        <label class="radio_label" for="progress_type3">{{ _('Every 25&#37;') }}</label>
+                        <input class="radio" type="radio" id="progress_type4" data-bind="checked: settings.plugins.printoid.progress_type" value="50">
+                        <label class="radio_label" for="progress_type4">{{ _('Every 50&#37;') }}</label>
+                        <input class="radio" type="radio" id="progress_type5" data-bind="checked: settings.plugins.printoid.progress_type" value="100">
+                        <label class="radio_label" for="progress_type5">100%</label>
+                    </div>
+                </div>
 
-     <div class="control-group">
-        <label class="control-label">{{ _('Progress Notification') }}</label>
-        <div class="controls">
-            <input type="radio" id="progress_type1" data-bind="checked: settings.plugins.printoid.progress_type" value="0">&nbsp;{{ _('Disabled') }}<br>
-            <input type="radio" id="progress_type2" data-bind="checked: settings.plugins.printoid.progress_type" value="10">&nbsp;Every 10%, and at the  end<br>
-            <input type="radio" id="progress_type3" data-bind="checked: settings.plugins.printoid.progress_type" value="25">&nbsp;At 25%, 50%, 75%, and at the end<br>
-            <input type="radio" id="progress_type4" data-bind="checked: settings.plugins.printoid.progress_type" value="50">&nbsp;At 50%, and at the end<br>
-            <input type="radio" id="progress_type5" data-bind="checked: settings.plugins.printoid.progress_type" value="100">&nbsp;At the end (100%)<br>
-        </div>
-    </div>
-    
-    <br>
+                <hr class="solid">
 
-    <h4>{{ _('Heated Head Notifications') }}</h4>
+                <h4>{{ _('Layer Notifications') }}</h4>
 
-    <p>{{ _('When extruder temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
-    <label class="control-label">{{ _('Temperature') }}</label>
-    <div class="controls">
-        <div class="input-append">
-            <input type="number" class="input-mini text-right" id="tool0_low" data-bind="value: settings.plugins.printoid.tool0_low" min="0" max="100" step="1" value="0"><span class="add-on">&deg;C</span>
-        </div>
-    </div>
-    
-    <br>
+                <p>{{ _('Receive a notification with an image for the first X layers to confirm print started fine. A value of 0 will disable the notifications below. From Printoid app you can also
+                configure to receive a notification at specific layers for current print job.') }} <strong>{{ _('Requires <a href="https://plugins.octoprint.org/plugins/DisplayLayerProgress/" target="_blank">DisplayLayerProgress</a> plugin') }}</strong></p>
+                <label class="printoid-label">{{ _('First') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="notify_first_X_layers" data-bind="value: settings.plugins.printoid.notify_first_X_layers" min="0" max="10" step="1" value="0"><span class="add-on">{{ _('layers') }}</span>
+                    </div>
+                </div>
 
-    <h4>{{ _('Heated Bed Notifications') }}</h4>
+                <hr class="solid">
 
-    <p>{{ _('When bed temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
-    <label class="control-label">{{ _('Temperature') }}</label>
-    <div class="controls">
-        <div class="input-append">
-            <input type="number" class="input-mini text-right" id="bed_low" data-bind="value: settings.plugins.printoid.bed_low" min="0" max="100" step="1" value="28"><span class="add-on">&deg;C</span>
-        </div>
-    </div>
+                <h4>{{ _('Extruder Notifications') }}</h4>
 
-    <br>
-    <p>{{ _('When bed warms up to target temperature for specified duration before print starts, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
-    <label class="control-label">{{ _('Minutes') }}</label>
-    <div class="controls">
-        <div class="input-append">
-            <input type="number" class="input-mini text-right" id="bed_target_temp_hold" data-bind="value: settings.plugins.printoid.bed_target_temp_hold" min="0" max="15" step="1" value="0">
-        </div>
-    </div>
-    
-    <br>
+                <p>{{ _('When extruder temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
+                <label class="printoid-label">{{ _('Temperature') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="tool0_low" data-bind="value: settings.plugins.printoid.tool0_low" min="0" max="100" step="1" value="0"><span class="add-on">&deg;C</span>
+                    </div>
+                </div>
 
-    <h4>{{ _('Printer Paused (waiting for user action) Notifications') }}</h4>
+                <br>
+                <p>{{ _('When extruder reached target temperature (printing or not), OctoPrint will send notification.') }}</p>
+                <label class="printoid-label">{{ _('Target Temperature') }}</label>
+                <div class="controls">
+                    <label class="printoid-checkbox">
+                        <input type="checkbox" data-bind="checked: settings.plugins.printoid.tool0_target_temp" id="printoid-tool0_target_temp"> {{ _('Notify target temp reached') }}
+                    </label>
+                </div>
 
-    <p>{{ _('When current print job was paused waiting for user, OctoPrint will send notification. Useful when running
-    out of filament or need to change color of filament (M600). The following setting controls the frequency notifications
-    will be sent. A low number might end up spamming user. A value of 0 will disable this type of notifications') }}</p>
-    <label class="control-label">{{ _('Minutes') }}</label>
-    <div class="controls">
-        <div class="input-append">
-            <input type="number" class="input-mini text-right" id="pause_interval" data-bind="value: settings.plugins.printoid.pause_interval" min="0" max="100" step="1" value="5">
-        </div>
-    </div>
+                <hr class="solid">
 
-	<br>
+                <h4>{{ _('Bed Notifications') }}</h4>
 
-    <h4>{{ _('MMU Notifications') }}</h4>
+                <p>{{ _('When bed temperature falls below threshold once done printing, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
+                <label class="printoid-label">{{ _('Temperature') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="bed_low" data-bind="value: settings.plugins.printoid.bed_low" min="0" max="100" step="1" value="28"><span class="add-on">&deg;C</span>
+                    </div>
+                </div>
 
-    <p>{{ _('When Prusa MMU (Multi Material Upgrade) requires user assistance, OctoPrint will send notification. The following
-    setting controls the frequency notifications will be sent. A low number might end up spamming user. A value of 0
-    will disable MMU notifications') }}</p>
-    <label class="control-label">{{ _('Minutes') }}</label>
-    <div class="controls">
-        <div class="input-append">
-            <input type="number" class="input-mini text-right" id="mmu_interval" data-bind="value: settings.plugins.printoid.mmu_interval" min="0" max="100" step="1" value="5">
-        </div>
-    </div>
+                <br>
+                <p>{{ _('When bed warms up to target temperature for specified duration before print starts, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
+                <label class="printoid-label">{{ _('Minutes') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="bed_target_temp_hold" data-bind="value: settings.plugins.printoid.bed_target_temp_hold" min="0" max="15" step="1" value="0">
+                    </div>
+                </div>
 
-    <div class="control-group">
-        <div class="controls">
-            <label class="checkbox">
-            <input type="checkbox" data-bind="checked: settings.plugins.printoid.debug_logging">{{ _('Enable debug logging') }}
-            </label>
+                <hr class="solid">
+
+                <h4>{{ _('Printer Paused Notifications') }}</h4>
+
+                <p>{{ _('When current print job was paused waiting for user, OctoPrint will send notification. Useful when running
+                out of filament or need to change color of filament (M600). The following setting controls the frequency notifications
+                will be sent. A low number might end up spamming user. A value of 0 will disable this type of notifications') }}</p>
+                <label class="printoid-label">{{ _('Minutes') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="pause_interval" data-bind="value: settings.plugins.printoid.pause_interval" min="0" max="100" step="1" value="5">
+                    </div>
+                </div>
+
+                <h4>{{ _('MMU Notifications') }}</h4>
+
+                <p>{{ _('When Prusa MMU (Multi Material Upgrade) requires user assistance, OctoPrint will send notification. The following
+                setting controls the frequency notifications will be sent. A low number might end up spamming user. A value of 0
+                will disable MMU notifications') }}</p>
+                <label class="printoid-label">{{ _('Minutes') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="mmu_interval" data-bind="value: settings.plugins.printoid.mmu_interval" min="0" max="100" step="1" value="5">
+                    </div>
+                </div>
+
+                <hr class="solid">
+
+                <h4>{{ _('System On a Chip (SoC) Notifications') }}</h4>
+
+                <p>{{ _('When SoC temperature goes above threshold, OctoPrint will send notification. New single-board computers like RPi 4 tend to run hot. A value of 0
+                will disable the notifications below') }}</p>
+                <label class="printoid-label">{{ _('Temperature') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="soc_temp_high" data-bind="value: settings.plugins.printoid.soc_temp_high" min="0" max="100" step="1" value="75"><span class="add-on">&deg;C</span>
+                    </div>
+                </div>
+
+                <hr class="solid">
+
+                <h4>{{ _('Thermal Protection') }}</h4>
+
+                <p>{{ _('Receive a notification when possible thermal runaway was detected based on actual and target temperatures. Protection covers bed, hotends and chamber. A value of 0 for \'Max Temperature difference\' will disable the notifications below') }}</p>
+
+                <label class="printoid-label">{{ _('Max Temperature difference') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="thermal_runway_threshold" data-bind="value: settings.plugins.printoid.thermal_runway_threshold" min="0" max="20" step="1" value="10"><span class="add-on">&deg;C</span>
+                    </div>
+                </div>
+
+                <label class="printoid-label">{{ _('Bed should increase temp in') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="thermal_warmup_bed_seconds_threshold" data-bind="value: settings.plugins.printoid.thermal_warmup_bed_seconds_threshold" min="9" max="59" step="5" value="19"><span class="add-on">{{ _('seconds') }}</span>
+                    </div>
+                </div>
+
+                <label class="printoid-label">{{ _('Hotend should increase temp in') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="thermal_warmup_hotend_seconds_threshold" data-bind="value: settings.plugins.printoid.thermal_warmup_hotend_seconds_threshold" min="9" max="79" step="5" value="39"><span class="add-on">{{ _('seconds') }}</span>
+                    </div>
+                </div>
+
+                <label class="printoid-label">{{ _('Chamber should increase temp in') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="thermal_warmup_chamber_seconds_threshold" data-bind="value: settings.plugins.printoid.thermal_warmup_chamber_seconds_threshold" min="9" max="59" step="5" value="19"><span class="add-on">{{ _('seconds') }}</span>
+                    </div>
+                </div>
+
+                <label class="printoid-label">{{ _('Delay between notifications') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="number" class="input-mini text-right" id="thermal_threshold_minutes_frequency" data-bind="value: settings.plugins.printoid.thermal_threshold_minutes_frequency" min="5" max="30" step="1" value="10"><span class="add-on">{{ _('minutes') }}</span>
+                    </div>
+                </div>
+
+                <hr class="solid">
+
+                <div class="control-group">
+                    <div class="controls">
+                        <label class="printoid-checkbox">
+                            <input type="checkbox" data-bind="checked: settings.plugins.printoid.debug_logging">{{ _('Enable debug logging') }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!-- DEVICES - TAB -->
+            <div class="tab-pane" id="tabDevices">
+                <table class="table table-striped table-hover table-condensed table-hover" id="devices">
+                    <thead>
+                    <tr>
+                        <th class="printoid_device_name">{{ _('Device') }}</th>
+                        <th class="printoid_device_registered">{{ _('Registered') }}</th>
+                        <th class="printoid_device_printer">{{ _('Printer') }}</th>
+                        <th class="printoid_device_action">{{ _('Action') }}</th>
+                    </tr>
+                    </thead>
+                    <tbody data-bind="foreach: settings.plugins.printoid.tokens">
+                    <tr data-bind="attr: {title: name}">
+                        <td class="printoid_device_name" data-bind="text: deviceName"></td>
+                        <td class="printoid_device_registered" data-bind="text: date"></td>
+                        <td class="printoid_device_printer" data-bind="text: printerName"></td>
+                        <td class="printoid_device_action">
+                            <a href="#" class="icon-trash" data-bind="click: $parent.removeDevice"></a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- IFTTT - TAB -->
+            <div class="tab-pane" id="tabIFTTT">
+
+                <h4>{{ _('Configuration') }}</h4>
+                <p>{{ _('Complete the following required fields. You need to use your own IFTTT key. Find your key in the') }} <a href="https://ifttt.com/maker_webhooks" target="_blank" >
+                {{ _('IFTTT documentation page') }}</a>. {{ _('For setup help follow ') }} <a href="https://github.com/gdombiak/OctoPrint-Printoid/wiki/How-to-use-IFTTT%3F" target="_blank" >
+                {{ _('this guide') }}</a>. {{ _('When using multiple printers, it is useful to know which printer originated the event.') }}</p>
+
+                <label class="printoid-label">{{ _('Key') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="input-block-level" id="ifttt_key" data-bind="value: settings.plugins.printoid.ifttt_key" size="30">
+                    </div>
+                </div>
+
+                <label class="printoid-label">{{ _('Printer Name') }}</label>
+                <div class="controls">
+                    <div class="input-append">
+                        <input type="text" class="input-block-level" id="ifttt_name" data-bind="value: settings.plugins.printoid.ifttt_name" size="30">
+                    </div>
+                </div>
+
+                <h4>{{ _('Available Events') }}</h4>
+                <p>{{ _('The following IFTTT events are available when') }} <a href="https://ifttt.com/create" target="_blank" >{{ _('creating IFTTT Applet') }}</a></p>
+
+                <table class="table table-striped table-hover table-condensed table-hover" id="devices">
+                    <thead>
+                    <tr>
+                        <th class="printoid_ifttt_event_name">{{ _('Event Name') }}</th>
+                        <th class="printoid_ifttt_event_value1">{{ _('Value 1') }}</th>
+                        <th class="printoid_ifttt_event_value2">{{ _('Value 2') }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="printoid_ifttt_event_name">printoid-print-progress</td>
+                        <td class="printoid_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="printoid_ifttt_event_value2">&lt;print progress&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="printoid_ifttt_event_name">printoid-print-complete</td>
+                        <td class="printoid_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="printoid_ifttt_event_value2"></td>
+                    </tr>
+                    <tr>
+                        <td class="printoid_ifttt_event_name">printoid-printer-error</td>
+                        <td class="printoid_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="printoid_ifttt_event_value2">&lt;printer state&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="printoid_ifttt_event_name">printoid-paused-for-user</td>
+                        <td class="printoid_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="printoid_ifttt_event_value2"></td>
+                    </tr>
+                    <tr>
+                        <td class="printoid_ifttt_event_name">printoid-bed-cooled</td>
+                        <td class="printoid_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="printoid_ifttt_event_value2">&lt;bed threshold&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="printoid_ifttt_event_name">printoid-bed-warmed</td>
+                        <td class="printoid_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="printoid_ifttt_event_value2">&lt;target bed temp&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="printoid_ifttt_event_name">printoid-tool0-cooled</td>
+                        <td class="printoid_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="printoid_ifttt_event_value2">&lt;temp threshold&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="printoid_ifttt_event_name">printoid-tool0-warmed</td>
+                        <td class="printoid_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="printoid_ifttt_event_value2">&lt;target temp&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="printoid_ifttt_event_name">printoid-layer-changed</td>
+                        <td class="printoid_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="printoid_ifttt_event_value2">&lt;current layer&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="printoid_ifttt_event_name">printoid-palette2-error</td>
+                        <td class="printoid_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="printoid_ifttt_event_value2">&lt;error code&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="printoid_ifttt_event_name">printoid-mmu-event</td>
+                        <td class="printoid_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="printoid_ifttt_event_value2"></td>
+                    </tr>
+                    <tr>
+                        <td class="printoid_ifttt_event_name">printoid-soc-temp-exceeded</td>
+                        <td class="printoid_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="printoid_ifttt_event_value2">&lt;temp threshold&gt;</td>
+                    </tr>
+                    <tr>
+                        <td class="printoid_ifttt_event_name">printoid-thermal-runaway</td>
+                        <td class="printoid_ifttt_event_value1">&lt;printer name&gt;</td>
+                        <td class="printoid_ifttt_event_value2"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

@@ -16,7 +16,7 @@ class Alerts:
 		self._logger.info("//// Send alert to Printoid: '%s' with value %s (%s)" % (event_code, event_param, printer_name))
 
 		data = {
-			"name": printer_name, 
+			"name": printer_name,
 			"data": {
 				"type": "alert",
 				"printer_name": printer_name,

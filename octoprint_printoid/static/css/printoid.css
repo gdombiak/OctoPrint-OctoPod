@@ -1,1 +1,61 @@
-/* TODO: Have your plugin's CSS files generated to here. */
+.printoid_device_name {
+  text-overflow: ellipsis;
+}
+
+.printoid_device_registered {
+  width: 130px;
+}
+
+.printoid_device_printer {
+  text-overflow: ellipsis;
+}
+
+td.printoid_device_action, th.printoid_device_action {
+  width: 70px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.printoid_ifttt_event_name {
+  text-overflow: ellipsis;
+  width: 130px;
+}
+
+.printoid_ifttt_event_value1 {
+  width: 130px;
+}
+
+.printoid_ifttt_event_value2 {
+  width: 130px;
+}
+
+input.radio {
+  margin-bottom: 5px;
+}
+
+label.radio_label {
+  display: inline;
+  padding-right: 10px;
+}
+
+/* Solid border */
+hr.solid {
+  border-top: 1px solid #bbb;
+}
+
+.printoid-label {
+  width: 260px;
+  padding-right: 10px;
+  float: left;
+  padding-top: 5px;
+  text-align: right;
+}
+
+.radio input[type="radio"], .printoid-checkbox input[type="checkbox"] {
+  margin-left: 0;
+  margin-right: 5px;
+}
+
+#server_url_label, #snapshot_url_label, #progress_notification_label {
+  width: 160px;
+}

@@ -24,11 +24,17 @@ $(function() {
 
             var serverURL = $('#server_url').val();
             var cameraSnapshotURL = $('#camera_snapshot_url').val();
+            var webcamFlipH = $('#printoid-webcamFlipH').prop("checked");
+            var webcamFlipV = $('#printoid-webcamFlipV').prop("checked");
+            var webcamRotate90 = $('#printoid-webcamRotate90').prop("checked");
 
             var payload = {
                 command: "test",
                 server_url: serverURL,
-                camera_snapshot_url: cameraSnapshotURL
+                camera_snapshot_url: cameraSnapshotURL,
+                camera_flip_h: webcamFlipH,
+                camera_flip_v: webcamFlipV,
+                camera_rotate90: webcamRotate90
             };
 
             $.ajax({
@@ -40,7 +46,7 @@ $(function() {
                 success: function(response) {
                     self.testResult(true);
                     self.testSuccessful(response.code >= 200 && response.code < 300);
-                    
+
                     if (response.code == -1) {
                         self.testMessage("Please complete 'Notification Server URL'");
                     } else if (response.code == -2) {
@@ -59,6 +65,10 @@ $(function() {
                     self.testActive(false);
                 }
             });
+        };
+
+        self.removeDevice = function(token) {
+            self.settings.plugins.printoid.tokens.remove(token);
         };
 
         self.onBeforeBinding = function() {
