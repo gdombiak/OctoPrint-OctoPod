@@ -32,12 +32,12 @@ debug_soc_temp = False
 
 
 class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
-					octoprint.plugin.AssetPlugin,
-					octoprint.plugin.TemplatePlugin,
-					octoprint.plugin.StartupPlugin,
-					octoprint.plugin.SimpleApiPlugin,
-					octoprint.plugin.EventHandlerPlugin,
-					octoprint.plugin.ProgressPlugin):
+					 octoprint.plugin.AssetPlugin,
+					 octoprint.plugin.TemplatePlugin,
+					 octoprint.plugin.StartupPlugin,
+					 octoprint.plugin.SimpleApiPlugin,
+					 octoprint.plugin.EventHandlerPlugin,
+					 octoprint.plugin.ProgressPlugin):
 
 	def __init__(self):
 		super(PrintoidPlugin, self).__init__()
@@ -54,10 +54,12 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 		self._test_notifications = TestNotifications(self._logger)
 		self._check_soc_temp_timer = None
 		self._soc_timer_interval = 5.0 if debug_soc_temp else 30.0
-		self._soc_temp_notifications = SocTempNotifications(self._logger, self._ifttt_alerts, self._soc_timer_interval,
+		self._soc_temp_notifications = SocTempNotifications(self._logger, self._ifttt_alerts,
+															self._soc_timer_interval,
 															debug_soc_temp)
 		self._custom_notifications = CustomNotifications(self._logger)
-		self._thermal_protection_notifications = ThermalProtectionNotifications(self._logger, self._ifttt_alerts)
+		self._thermal_protection_notifications = ThermalProtectionNotifications(self._logger,
+																				self._ifttt_alerts)
 
 	# StartupPlugin mixin
 
@@ -101,7 +103,8 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 			mmu_interval=5,
 			pause_interval=5,
 			palette2_printing_error_codes=[103, 104, 111, 121],
-			progress_type='50',  # 0=disabled, 10=every 10%, 25=every 25%, 50=every 50%, 100=only when finished
+			progress_type='50',
+			# 0=disabled, 10=every 10%, 25=every 25%, 50=every 50%, 100=only when finished
 			ifttt_key='',
 			ifttt_name='',
 			soc_temp_high=75,
@@ -141,7 +144,8 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 			self._settings.set(['bed_low'], self.get_settings_defaults()["bed_low"])
 
 		if current is None or current <= 2:
-			self._settings.set(['bed_target_temp_hold'], self.get_settings_defaults()["bed_target_temp_hold"])
+			self._settings.set(['bed_target_temp_hold'],
+							   self.get_settings_defaults()["bed_target_temp_hold"])
 
 		if current is None or current <= 3:
 			self._settings.set(['mmu_interval'], self.get_settings_defaults()["mmu_interval"])
@@ -167,25 +171,38 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 			self._settings.set(['soc_temp_high'], self.get_settings_defaults()["soc_temp_high"])
 			self._settings.set(['webcam_flipH'], self._settings.global_get(["webcam", "flipH"]))
 			self._settings.set(['webcam_flipV'], self._settings.global_get(["webcam", "flipV"]))
-			self._settings.set(['webcam_rotate90'], self._settings.global_get(["webcam", "rotate90"]))
+			self._settings.set(['webcam_rotate90'],
+							   self._settings.global_get(["webcam", "rotate90"]))
 
 		if current is None or current <= 10:
-			self._settings.set(['tool0_target_temp'], self.get_settings_defaults()["tool0_target_temp"])
+			self._settings.set(['tool0_target_temp'],
+							   self.get_settings_defaults()["tool0_target_temp"])
 
 		if current is None or current <= 11:
-			self._settings.set(['thermal_runway_threshold'], self.get_settings_defaults()["thermal_runway_threshold"])
-			self._settings.set(['thermal_threshold_minutes_frequency'], self.get_settings_defaults()["thermal_threshold_minutes_frequency"])
-			self._settings.set(['sound_notification'], self.get_settings_defaults()["sound_notification"])
+			self._settings.set(['thermal_runway_threshold'],
+							   self.get_settings_defaults()["thermal_runway_threshold"])
+			self._settings.set(['thermal_threshold_minutes_frequency'],
+							   self.get_settings_defaults()["thermal_threshold_minutes_frequency"])
+			self._settings.set(['sound_notification'],
+							   self.get_settings_defaults()["sound_notification"])
 
 		if current is None or current <= 12:
-			self._settings.set(['thermal_cooldown_seconds_threshold'], self.get_settings_defaults()["thermal_cooldown_seconds_threshold"])
-			self._settings.set(['thermal_below_target_threshold'], self.get_settings_defaults()["thermal_below_target_threshold"])
-			self._settings.set(['thermal_warmup_bed_seconds_threshold'], self.get_settings_defaults()["thermal_warmup_bed_seconds_threshold"])
-			self._settings.set(['thermal_warmup_hotend_seconds_threshold'], self.get_settings_defaults()["thermal_warmup_hotend_seconds_threshold"])
-			self._settings.set(['thermal_warmup_chamber_seconds_threshold'], self.get_settings_defaults()["thermal_warmup_chamber_seconds_threshold"])
+			self._settings.set(['thermal_cooldown_seconds_threshold'],
+							   self.get_settings_defaults()["thermal_cooldown_seconds_threshold"])
+			self._settings.set(['thermal_below_target_threshold'],
+							   self.get_settings_defaults()["thermal_below_target_threshold"])
+			self._settings.set(['thermal_warmup_bed_seconds_threshold'],
+							   self.get_settings_defaults()["thermal_warmup_bed_seconds_threshold"])
+			self._settings.set(['thermal_warmup_hotend_seconds_threshold'],
+							   self.get_settings_defaults()[
+								   "thermal_warmup_hotend_seconds_threshold"])
+			self._settings.set(['thermal_warmup_chamber_seconds_threshold'],
+							   self.get_settings_defaults()[
+								   "thermal_warmup_chamber_seconds_threshold"])
 
 		if current is None or current <= 13:
-			self._settings.set(['notify_first_X_layers'], self.get_settings_defaults()["notify_first_X_layers"])
+			self._settings.set(['notify_first_X_layers'],
+							   self.get_settings_defaults()["notify_first_X_layers"])
 
 	# AssetPlugin mixin
 
@@ -208,7 +225,8 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 
 	def on_event(self, event, payload):
 		if event == Events.PRINTER_STATE_CHANGED:
-			self._job_notifications.send__printer_state_changed(self._settings, self._printer, payload)
+			self._job_notifications.send__printer_state_changed(self._settings, self._printer,
+																payload)
 		elif event == "DisplayLayerProgress_layerChanged":
 			# Event sent from DisplayLayerProgress plugin when there was a detected layer changed
 			self._layerNotifications.layer_changed(self._settings, payload["currentLayer"])
@@ -240,7 +258,8 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 				found = True
 
 			if found:
-				if printer_name is not None and ("printerName" not in token or token["printerName"] != printer_name):
+				if printer_name is not None and (
+						"printerName" not in token or token["printerName"] != printer_name):
 					# Printer name in Printoid has been updated
 					token["printerName"] = printer_name
 					token["date"] = datetime.datetime.now().strftime("%x %X")
@@ -251,7 +270,8 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.debug("Adding token for %s." % device_name)
 			# Token was not found so we need to add it
 			existing_tokens.append(
-				{'fcmToken': new_token, 'deviceName': device_name, 'date': datetime.datetime.now().strftime("%x %X"),
+				{'fcmToken': new_token, 'deviceName': device_name,
+				 'date': datetime.datetime.now().strftime("%x %X"),
 				 'printerID': printer_id, 'printerName': printer_name})
 			updated = True
 		if updated:
@@ -273,6 +293,11 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 					headTemperature=["temperature"],
 					bedTemperature=["temperature"],
 					bedWarmDuration=["minutes"],
+					printerPausedDuration=["minutes"],
+					socTemperatureThreshold=["temperature"],
+					soundOption=["sound"],
+					thermalProtection=["maxTempDiff", "bedShouldIncTemp", "hotendShouldIncTemp",
+									   "chamberShouldIncTemp", "delayBetweenNotif"],
 					getSoCTemps=[])
 
 	def on_api_command(self, command, data):
@@ -286,7 +311,8 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 				data["deviceName"] = data["deviceName"].encode("utf-8")
 			printer_name = data["printerName"] if 'printerName' in data else None
 
-			self.update_token("{oldToken}".format(**data), "{newToken}".format(**data), "{deviceName}".format(**data),
+			self.update_token("{oldToken}".format(**data), "{newToken}".format(**data),
+							  "{deviceName}".format(**data),
 							  "{printerID}".format(**data), printer_name)
 
 		elif command == 'test':
@@ -322,25 +348,72 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 			return flask.jsonify(self._soc_temp_notifications.get_soc_temps())
 
 		elif command == 'headTemperature':
-			headTempChanged = self._tool_notifications.set_temperature_threshold(self._settings, data["temperature"])
+			headTempChanged = self._tool_notifications.set_temperature_threshold(self._settings,
+																				 data[
+																					 "temperature"])
 			if headTempChanged == True:
 				eventManager().fire(Events.SETTINGS_UPDATED)
 			else:
-				return flask.make_response("changing head temperature trigger failed: wrong temperature value", 400)
+				return flask.make_response(
+					"changing head temperature trigger failed: wrong temperature value", 400)
 
 		elif command == 'bedTemperature':
-			bedTempChanged = self._bed_notifications.set_temperature_threshold(self._settings, data["temperature"])
+			bedTempChanged = self._bed_notifications.set_temperature_threshold(self._settings,
+																			   data["temperature"])
 			if bedTempChanged == True:
 				eventManager().fire(Events.SETTINGS_UPDATED)
 			else:
-				return flask.make_response("changing bed temperature trigger failed: wrong temperature value", 400)
+				return flask.make_response(
+					"changing bed temperature trigger failed: wrong temperature value", 400)
 
 		elif command == 'bedWarmDuration':
-			bedTimeChanged = self._bed_notifications.set_temperature_duration(self._settings, data["minutes"])
+			bedTimeChanged = self._bed_notifications.set_temperature_duration(self._settings,
+																			  data["minutes"])
 			if bedTimeChanged == True:
 				eventManager().fire(Events.SETTINGS_UPDATED)
 			else:
-				return flask.make_response("changing bed warm duration failed: wrong temperature value", 400)
+				return flask.make_response(
+					"changing bed warm duration failed: wrong temperature value", 400)
+
+		elif command == 'printerPausedDuration':
+			printerPausedDurationChanged = self._paused_for_user.set_printer_pause_duration(
+				self._settings, data["minutes"])
+			if printerPausedDurationChanged == True:
+				eventManager().fire(Events.SETTINGS_UPDATED)
+			else:
+				return flask.make_response("changing printer paused duration failed: wrong value",
+										   400)
+
+		elif command == 'socTemperatureThreshold':
+			socTempThresholdChanged = self._soc_temp_notifications.set_soc_temperature_threshold(
+				self._settings, data["temperature"])
+			if socTempThresholdChanged == True:
+				eventManager().fire(Events.SETTINGS_UPDATED)
+			else:
+				return flask.make_response("changing SoC temperature threshold failed: wrong value",
+										   400)
+
+		elif command == 'thermalProtection':
+			thermalProtectionChanged = self._thermal_protection_notifications.set_thermal_protection(
+				self._settings,
+				data["maxTempDiff"],
+				data["bedShouldIncTemp"],
+				data["hotendShouldIncTemp"],
+				data["chamberShouldIncTemp"],
+				data["delayBetweenNotif"])
+			if thermalProtectionChanged == True:
+				eventManager().fire(Events.SETTINGS_UPDATED)
+			else:
+				return flask.make_response("changing thermal protection failed: wrong value", 400)
+
+		elif command == 'soundOption':
+			sound = data["sound"]
+			if sound == 'default' or sound == 'sound-1.mp3' or sound == 'sound-2.mp3' or sound == 'sound-3.mp3':
+				self._settings.set(["sound_notification"], sound)
+				self._settings.save()
+				eventManager().fire(Events.SETTINGS_UPDATED)
+			else:
+				return flask.make_response("changing sound option failed failed: wrong value", 400)
 
 		else:
 			return flask.make_response("Unknown command", 400)

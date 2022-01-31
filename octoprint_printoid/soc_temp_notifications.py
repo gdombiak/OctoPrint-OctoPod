@@ -18,6 +18,14 @@ class SocTempNotifications(BaseNotification):
 		self._recorded_temps = []
 		self._record_max_count = self._checks_per_minute * 60 # Track 1 hour of temperatures
 
+	def set_soc_temperature_threshold(self, settings, temperature):
+		if temperature >= 0:
+			settings.set(["soc_temp_high"], temperature)
+			settings.save()
+			return True
+		else:
+			return False
+
 	def get_soc_temps(self):
 		""" Returns list of recorded SoC temperatures """
 		return self._recorded_temps

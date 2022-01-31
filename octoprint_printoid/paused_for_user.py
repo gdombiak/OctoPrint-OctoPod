@@ -11,6 +11,14 @@ class PausedForUser(BaseNotification):
 		self._last_notification = None  # Keep track of when was user alerted last time. Helps avoid spamming
 		self._snooze_end_time = time.time()  # Track when snooze for events ends. Assume snooze already expired
 
+	def set_printer_pause_duration(self, settings, minutes):
+		if minutes >= 0:
+			settings.set(["pause_interval"], minutes)
+			settings.save()
+			return True
+		else:
+			return False
+
 	def process_gcode(self, settings, printer, line):
 		# Firmware will print to terminal when printer has paused for user
 
