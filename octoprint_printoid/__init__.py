@@ -24,6 +24,7 @@ from .soc_temp_notifications import SocTempNotifications
 from .thermal_protection_notifications import ThermalProtectionNotifications
 from .tools_notifications import ToolsNotifications
 from .test_notifications import TestNotifications
+from .gcode_notifications import GcodeNotifications
 
 # Plugin that stores FCM tokens reported from Android devices to know which Android devices to alert
 # when print is done or other relevant events
@@ -51,6 +52,7 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 		self._paused_for_user = PausedForUser(self._logger, self._ifttt_alerts)
 		self._palette2 = Palette2Notifications(self._logger, self._ifttt_alerts)
 		self._layerNotifications = LayerNotifications(self._logger, self._ifttt_alerts)
+		self._gcode_notifications = GcodeNotifications(self._logger, self._ifttt_alerts)
 		self._test_notifications = TestNotifications(self._logger)
 		self._check_soc_temp_timer = None
 		self._soc_timer_interval = 5.0 if debug_soc_temp else 30.0
@@ -104,7 +106,7 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 			pause_interval=5,
 			palette2_printing_error_codes=[103, 104, 111, 121],
 			progress_type='50',
-			# 0=disabled, 10=every 10%, 25=every 25%, 50=every 50%, 100=only when finished
+			# 0=disabled, 5=every 5%, 10=every 10%, 25=every 25%, 50=every 50%, 100=only when finished
 			ifttt_key='',
 			ifttt_name='',
 			soc_temp_high=75,
@@ -289,6 +291,10 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 					removeLayer=["layer"],
 					getLayers=[],
 					clearLayers=[],
+					addGcodeCommand=["gcodeCommand"],
+					removeGcodeCommand=["gcodeCommand"],
+					getGcodeCommands=[],
+					clearGcodeCommands=[],
 					progressMode=["mode"],
 					headTemperature=["temperature"],
 					bedTemperature=["temperature"],
@@ -343,6 +349,19 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 
 		elif command == 'getLayers':
 			return flask.jsonify(dict(layers=self._layerNotifications.get_layers()))
+
+		elif command == 'addGcodeCommand':
+			self._gcode_notifications.add_gcode_commands(data["gcodeCommand"])
+
+		elif command == 'removeGcodeCommand':
+			self._gcode_notifications.remove_gcode_commands(data["gcodeCommand"])
+
+		elif command == 'clearGcodeCommands':
+			self._gcode_notifications.reset_gcode_commands()
+
+		elif command == 'getGcodeCommands':
+			return flask.jsonify(
+				dict(gcode_commands=self._gcode_notifications.get_gcode_commands()))
 
 		elif command == 'getSoCTemps':
 			return flask.jsonify(self._soc_temp_notifications.get_soc_temps())
@@ -486,10 +505,13 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 
 	# GCODE hook
 
-	def process_gcode(self, comm, line, *args, **kwargs):
+	def process_received_gcode(self, comm, line, *args, **kwargs):
 		line = self._paused_for_user.process_gcode(self._settings, self._printer, line)
 		self._thermal_protection_notifications.process_gcode(line)
 		return self._mmu_assitance.process_gcode(self._settings, line)
+
+	def process_sent_gcode(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
+		return self._gcode_notifications.process_gcode(self._settings, gcode)
 
 	# Helper functions
 
@@ -519,7 +541,8 @@ def __plugin_load__():
 	global __plugin_hooks__
 	__plugin_hooks__ = {
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
-		"octoprint.comm.protocol.gcode.received": __plugin_implementation__.process_gcode
+		"octoprint.comm.protocol.gcode.received": __plugin_implementation__.process_received_gcode,
+		"octoprint.comm.protocol.gcode.sent": __plugin_implementation__.process_sent_gcode
 	}
 
 	global __plugin_helpers__
