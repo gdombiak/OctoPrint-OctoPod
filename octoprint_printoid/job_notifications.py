@@ -33,6 +33,14 @@ class JobNotifications(BaseNotification):
 			# Print notification disabled
 			return
 
+		elif progress_type == '5':
+			# Print notifications every 5%
+			# 100% is sent via #send__printer_state_changed
+			if 0 < progress < 100 and progress % 5 == 0:
+				self.send__print_job_progress_value(settings, progress, print_time, print_time_left,
+													file_name, estimated_print_time, current_z)
+			return
+
 		elif progress_type == '10':
 			# Print notifications every 10%
 			# 100% is sent via #send__printer_state_changed
