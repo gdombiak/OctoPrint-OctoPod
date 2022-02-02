@@ -219,7 +219,7 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 	# progress-hook
 	def on_print_progress(self, storage, path, progress):
 		# progress 0 - 100
-		self._job_notifications.on_print_progress(self._settings, progress)
+		self._job_notifications.on_print_progress(self._settings, self._printer, progress)
 
 	# EventHandlerPlugin mixin
 

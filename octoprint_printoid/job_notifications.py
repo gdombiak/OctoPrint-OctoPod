@@ -1,7 +1,8 @@
 import threading
 
-from .base_notification import BaseNotification
+import json
 
+from .base_notification import BaseNotification
 
 class JobNotifications(BaseNotification):
 	_lastPrinterState = None
@@ -18,8 +19,16 @@ class JobNotifications(BaseNotification):
 		else:
 			return False
 
-	def on_print_progress(self, settings, progress):
+	def on_print_progress(self, settings, printer, progress):
 		progress_type = settings.get(["progress_type"])
+
+		current_data = printer.get_current_data()
+		print_time = current_data["progress"]["printTime"]
+		print_time_left = current_data["progress"]["printTimeLeft"]
+		file_name = current_data["job"]["file"]["display"]
+		estimated_print_time = current_data["job"]["estimatedPrintTime"]
+		current_z = current_data["currentZ"]
+
 		if progress_type == '0':
 			# Print notification disabled
 			return
@@ -27,22 +36,25 @@ class JobNotifications(BaseNotification):
 		elif progress_type == '10':
 			# Print notifications every 10%
 			# 100% is sent via #send__printer_state_changed
-			if progress > 0 and progress < 100 and progress % 10 == 0:
-				self.send__print_job_progress_value(settings, progress)
+			if 0 < progress < 100 and progress % 10 == 0:
+				self.send__print_job_progress_value(settings, progress, print_time, print_time_left,
+													file_name, estimated_print_time, current_z)
 			return
 
 		elif progress_type == '25':
 			# Print notifications every 25%
 			# 100% is sent via #send__printer_state_changed
-			if progress > 0 and progress < 100 and progress % 25 == 0:
-				self.send__print_job_progress_value(settings, progress)
+			if 0 < progress < 100 and progress % 25 == 0:
+				self.send__print_job_progress_value(settings, progress, print_time, print_time_left,
+													file_name, estimated_print_time, current_z)
 			return
 
 		elif progress_type == '50':
 			# Print notifications at 50% and 100%
 			# 100% is sent via #send__printer_state_changed
 			if progress == 50:
-				self.send__print_job_progress_value(settings, progress)
+				self.send__print_job_progress_value(settings, progress, print_time, print_time_left,
+													file_name, estimated_print_time, current_z)
 			return
 
 		else:
@@ -50,13 +62,31 @@ class JobNotifications(BaseNotification):
 			# 100% is sent via #send__printer_state_changed
 			return
 
-	def send__print_job_progress_value(self, settings, progress):
+	def send__print_job_progress_value(self,
+									   settings,
+									   progress,
+									   print_time,
+									   print_time_left,
+									   file_name,
+									   estimated_print_time,
+									   current_z):
 		# Send IFTTT Notifications
 		self._ifttt_alerts.fire_event(settings, "print-progress", progress)
+
+		# Build JSON event param
+		event_param_data_set = {
+			"progress": progress,
+			"print_time": print_time,
+			"print_time_left": print_time_left,
+			"file_name": file_name,
+			"estimated_print_time": estimated_print_time,
+			"current_z": current_z
+		}
+		event_param_json = json.dumps(event_param_data_set)
 		return self._send_base_notification(settings,
 											include_image=True,
 											event_code="print-progress",
-											event_param=progress)
+											event_param=event_param_json)
 
 	def send__printer_state_changed(self, settings, printer, event_payload, server_url=None,
 									camera_snapshot_url=None,
@@ -79,7 +109,7 @@ class JobNotifications(BaseNotification):
 		current_data = printer.get_current_data()
 
 		if "progress" in current_data and current_data["progress"] is not None \
-			and "completion" in current_data["progress"] and current_data["progress"][
+				and "completion" in current_data["progress"] and current_data["progress"][
 			"completion"] is not None:
 			completion = current_data["progress"]["completion"]
 
@@ -87,9 +117,9 @@ class JobNotifications(BaseNotification):
 
 		# Ignore other states that are not any of the following
 		if current_printer_state_id != "OPERATIONAL" and current_printer_state_id != "PRINTING" and \
-			current_printer_state_id != "PAUSED" and current_printer_state_id != "CLOSED" and \
-			current_printer_state_id != "ERROR" and current_printer_state_id != "CLOSED_WITH_ERROR" and \
-			current_printer_state_id != "OFFLINE" and current_printer_state_id != "FINISHING":
+				current_printer_state_id != "PAUSED" and current_printer_state_id != "CLOSED" and \
+				current_printer_state_id != "ERROR" and current_printer_state_id != "CLOSED_WITH_ERROR" and \
+				current_printer_state_id != "OFFLINE" and current_printer_state_id != "FINISHING":
 			return -3
 
 		current_printer_state = event_payload["state_string"]
@@ -112,7 +142,6 @@ class JobNotifications(BaseNotification):
 		if print_complete_delay_seconds == 0 or completion < 100 or not (
 				was_printing and current_printer_state_id == "FINISHING"):
 			last_result = self.__send_print_complete_or_silent_notification(camera_snapshot_url,
-																			completion,
 																			current_data,
 																			current_printer_state,
 																			current_printer_state_id,
@@ -125,7 +154,7 @@ class JobNotifications(BaseNotification):
 		else:
 			delayed_task = threading.Timer(print_complete_delay_seconds,
 										   self.__send_print_complete_or_silent_notification,
-										   [camera_snapshot_url, completion, current_data,
+										   [camera_snapshot_url, current_data,
 											current_printer_state,
 											current_printer_state_id, settings, tokens, url,
 											was_printing,
@@ -138,7 +167,7 @@ class JobNotifications(BaseNotification):
 
 	# Private functions - Print Job Notifications
 
-	def __send_print_complete_or_silent_notification(self, camera_snapshot_url, completion,
+	def __send_print_complete_or_silent_notification(self, camera_snapshot_url,
 													 current_data,
 													 current_printer_state,
 													 current_printer_state_id, settings,
@@ -216,18 +245,22 @@ class JobNotifications(BaseNotification):
 
 			if current_printer_state_id == "ERROR":
 				self._logger.debug(
-					"Sending notification for error message: %s (%s)" % (current_printer_state, printer_name))
-				last_result = self.send__print_status_notification(settings, False, "printer-error", current_printer_state)
+					"Sending notification for error message: %s (%s)" % (
+						current_printer_state, printer_name))
+				last_result = self.send__print_status_notification(settings, False, "printer-error",
+																   current_printer_state)
 
 			elif current_printer_state_id == "FINISHING" and was_printing:
 				last_result = self.send__print_status_notification(settings, True, "print-complete")
 
 			else:
-				last_result = self.send__print_status_notification(settings, False, "printer-state", current_printer_state)
+				last_result = self.send__print_status_notification(settings, False, "printer-state",
+																   current_printer_state)
 
 		return last_result
 
-	def send__print_status_notification(self, settings, include_image, event_code, event_param=None):
+	def send__print_status_notification(self, settings, include_image, event_code,
+										event_param=None):
 		# Send IFTTT Notifications
 		self._ifttt_alerts.fire_event(settings, event_code, event_param)
 		return self._send_base_notification(settings,
