@@ -85,8 +85,7 @@ class BedNotifications(BaseNotification):
 						self._logger.debug("Bed reached target temp for {0} minutes".format(warmed_time_minutes))
 						self._printer_not_printing_reached_target_temp_start_time = None
 
-						self.__send__bed_notification(settings, "bed-warn", temps[k]['target'],
-													minutes=int(warmed_time_minutes))
+						self.__send__bed_notification(settings, "bed-warn", temps[k]['target'])
 
 	# Private functions - Bed Notifications
 
@@ -97,4 +96,4 @@ class BedNotifications(BaseNotification):
 		self._send_base_notification(settings,
 									 include_image=False,
 									 event_code=event_code,
-									 event_param=minutes)
+									 event_param=temperature)
