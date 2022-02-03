@@ -1,8 +1,8 @@
+import json
 import threading
 
-import json
-
 from .base_notification import BaseNotification
+
 
 class JobNotifications(BaseNotification):
 	_lastPrinterState = None
@@ -91,8 +91,15 @@ class JobNotifications(BaseNotification):
 			"current_z": current_z
 		}
 		event_param_json = json.dumps(event_param_data_set)
+
+		# Include image only every 10% AND 25%
+		if progress % 10 == 0 or progress % 25 == 0:
+			include_image = True
+		else:
+			include_image = False
+
 		return self._send_base_notification(settings,
-											include_image=True,
+											include_image=include_image,
 											event_code="print-progress",
 											event_param=event_param_json)
 
