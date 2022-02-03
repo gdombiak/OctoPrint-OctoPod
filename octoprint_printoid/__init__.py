@@ -2,17 +2,17 @@
 from __future__ import absolute_import
 
 import datetime
-import logging
-import sys
-
 import flask
-
+import logging
 import octoprint.plugin
+import sys
 from octoprint.access.permissions import Permissions
 from octoprint.events import eventManager, Events
 from octoprint.util import RepeatedTimer
+
 from .bed_notifications import BedNotifications
 from .custom_notifications import CustomNotifications
+from .gcode_notifications import GcodeNotifications
 from .ifttt_notifications import IFTTTAlerts
 from .job_notifications import JobNotifications
 from .layer_notifications import LayerNotifications
@@ -21,10 +21,9 @@ from .mmu import MMUAssistance
 from .palette2 import Palette2Notifications
 from .paused_for_user import PausedForUser
 from .soc_temp_notifications import SocTempNotifications
+from .test_notifications import TestNotifications
 from .thermal_protection_notifications import ThermalProtectionNotifications
 from .tools_notifications import ToolsNotifications
-from .test_notifications import TestNotifications
-from .gcode_notifications import GcodeNotifications
 
 # Plugin that stores FCM tokens reported from Android devices to know which Android devices to alert
 # when print is done or other relevant events
@@ -93,8 +92,8 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging=False,
-			server_url='https://us-central1-firebase-printoid.cloudfunctions.net/printoidPluginGateway',
-			camera_snapshot_url='http://localhost:8080/?action=snapshot',
+			server_url='https://europe-west1-firebase-printoid.cloudfunctions.net/printoidPluginGateway-v2',
+			camera_snapshot_url='http://127.0.0.1:8080/?action=snapshot',
 			tokens=[],
 			sound_notification='default',
 			temp_interval=5,
@@ -137,7 +136,7 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 13
+		return 14
 
 	def on_settings_migrate(self, target, current):
 		if current is None or current == 1:
@@ -205,6 +204,10 @@ class PrintoidPlugin(octoprint.plugin.SettingsPlugin,
 		if current is None or current <= 13:
 			self._settings.set(['notify_first_X_layers'],
 							   self.get_settings_defaults()["notify_first_X_layers"])
+
+		if current is None or current <= 14:
+			self._settings.set(['server_url'],
+							   self.get_settings_defaults()["server_url"])
 
 	# AssetPlugin mixin
 
