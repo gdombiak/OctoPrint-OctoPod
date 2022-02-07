@@ -1,5 +1,4 @@
 # coding=utf-8
-import base64
 import requests
 
 
@@ -32,8 +31,9 @@ class Alerts:
 		}
 
 		try:
-			if image:
-				data['image'] = base64.encodebytes(image).decode('utf-8')
+			# TODO : UNCOMMENT TO ACTIVATE SNAPSHOTS
+			# if image:
+			#	data['image'] = base64.encodebytes(image).decode('utf-8')
 			r = requests.post(url, headers=headers, json=data)
 
 			if r.status_code >= 400:
