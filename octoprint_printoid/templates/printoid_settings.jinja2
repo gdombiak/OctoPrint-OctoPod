@@ -35,6 +35,30 @@
                     </div>
                 </div>
 
+                <div class="control-group">
+                    <!-- <label class="octopod-label">{{ _('Snapshot URL') }}</label> -->
+                    <label class="octopod-label" id="snapshot_url_label">Snapshot URL</label>
+                    <div class="controls">
+                        <input type="text" class="input-block-level" id="camera_snapshot_url" data-bind="value: settings.plugins.octopod.camera_snapshot_url">
+                        <span class="help-inline">{{ _('Enter URL address that provides an image snapshot that will be included in the notification') }}</span>
+                    </div>
+                    <div class="controls">
+                        <label class="octopod-checkbox">
+                            <input type="checkbox" data-bind="checked: settings.plugins.octopod.webcam_flipH" id="octopod-webcamFlipH"> {{ _('Flip webcam horizontally') }}
+                        </label>
+                    </div>
+                    <div class="controls">
+                        <label class="octopod-checkbox">
+                            <input type="checkbox" data-bind="checked: settings.plugins.octopod.webcam_flipV" id="octopod-webcamFlipV"> {{ _('Flip webcam vertically') }}
+                        </label>
+                    </div>
+                    <div class="controls">
+                        <label class="octopod-checkbox">
+                            <input type="checkbox" data-bind="checked: settings.plugins.octopod.webcam_rotate90" id="octopod-webcamRotate90"> {{ _('Rotate webcam 90 degrees counter clockwise') }}
+                        </label>
+                    </div>
+                </div>
+
                 <hr class="solid">
 
                 <h4>{{ _('Progress Notifications') }}</h4>
