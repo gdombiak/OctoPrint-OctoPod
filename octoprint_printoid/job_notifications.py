@@ -5,7 +5,8 @@ from .base_notification import BaseNotification
 
 
 class JobNotifications(BaseNotification):
-	_lastPrinterState = None
+	_lastPrinterStateId = None
+	_lastPrintProgress = 0
 
 	def __init__(self, logger, ifttt_alerts):
 		BaseNotification.__init__(self, logger)
@@ -22,6 +23,17 @@ class JobNotifications(BaseNotification):
 	def on_print_progress(self, settings, printer, progress):
 		progress_type = settings.get(["progress_type"])
 
+		if progress_type == '0':
+			# Print notification disabled
+			return
+
+		elif progress == self._lastPrintProgress:
+			# Do not notify same progress twice
+			return
+
+		else:
+			_lastPrintProgress = progress
+
 		current_data = printer.get_current_data()
 		print_time = current_data["progress"]["printTime"]
 		print_time_left = current_data["progress"]["printTimeLeft"]
@@ -29,11 +41,7 @@ class JobNotifications(BaseNotification):
 		estimated_print_time = current_data["job"]["estimatedPrintTime"]
 		current_z = current_data["currentZ"]
 
-		if progress_type == '0':
-			# Print notification disabled
-			return
-
-		elif progress_type == '5':
+		if progress_type == '5':
 			# Print notifications every 5%
 			# 100% is sent via #send__printer_state_changed
 			if 0 < progress < 100 and progress % 5 == 0:
@@ -138,13 +146,13 @@ class JobNotifications(BaseNotification):
 			return -3
 
 		current_printer_state = event_payload["state_string"]
-		if current_printer_state == self._lastPrinterState:
+		if current_printer_state_id == self._lastPrinterStateId:
 			# OctoPrint may report the same state more than once so ignore dups
 			return -4
 
-		if self._lastPrinterState is not None and self._lastPrinterState.startswith('Printing'):
+		if self._lastPrinterStateId is not None and self._lastPrinterStateId.startswith('Printing'):
 			was_printing = True
-		self._lastPrinterState = current_printer_state
+		self._lastPrinterStateId = current_printer_state_id
 
 		tokens = settings.get(["tokens"])
 		if len(tokens) == 0:
