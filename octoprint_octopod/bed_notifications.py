@@ -10,6 +10,8 @@ class BedNotifications(BaseNotification):
 		self._ifttt_alerts = ifttt_alerts
 		self._printer_was_printing_above_bed_low = False  # Variable used for bed cooling alerts
 		self._printer_not_printing_reached_target_temp_start_time = None  # Variable used for bed warming alerts
+		self._bed_warming_notification_was_sent = False # Variable used for preventing bed warming alerts from sending more than once
+		self._current_bed_target = 0 # The current/previously saved bed target temperature which is used to determine when to reset whether the notification has been sent or not yet
 
 	def check_temps(self, settings, printer):
 		temps = printer.get_current_temperatures()
@@ -62,12 +64,17 @@ class BedNotifications(BaseNotification):
 					temps[k]['target'] - bed_fluctuation)):
 					self._printer_not_printing_reached_target_temp_start_time = None
 
-				if target_temp_minutes_hold and self._printer_not_printing_reached_target_temp_start_time:
+				if self._current_bed_target != temps[k]['target']:
+					self._bed_warming_notification_was_sent = False
+
+				if target_temp_minutes_hold and self._printer_not_printing_reached_target_temp_start_time and not self._bed_warming_notification_was_sent:
 					warmed_time_seconds = time.time() - self._printer_not_printing_reached_target_temp_start_time
 					warmed_time_minutes = warmed_time_seconds / 60
 					if warmed_time_minutes > target_temp_minutes_hold:
 						self._logger.debug("Bed reached target temp for {0} minutes".format(warmed_time_minutes))
 						self._printer_not_printing_reached_target_temp_start_time = None
+						self._bed_warming_notification_was_sent = True
+						self._current_bed_target = temps[k]['target']
 
 						self.__send__bed_notification(settings, "bed-warmed", temps[k]['target'],
 													int(warmed_time_minutes))
