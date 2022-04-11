@@ -139,12 +139,20 @@
                 </div>
 
                 <br>
-                <p>{{ _('When bed warms up to target temperature for specified duration before print starts, OctoPrint will send notification. A value of 0 will disable the notifications below') }}</p>
+                <p>{{ _('When bed warms up to target temperature for specified duration before print starts, OctoPrint will send notification. These notifications will repeat at the selected duration. A value of 0 will disable the notifications below') }}</p>
                 <label class="octopod-label">{{ _('Minutes') }}</label>
                 <div class="controls">
                     <div class="input-append">
                         <input type="number" class="input-mini text-right" id="bed_target_temp_hold" data-bind="value: settings.plugins.octopod.bed_target_temp_hold" min="0" max="15" step="1" value="0">
                     </div>
+                </div>
+
+                <br>
+                <div class="controls">
+                <label class="octopod-label">{{ _('Don\'t repeat this notification') }}</label>
+                    <label class="octopod-checkbox">
+                        <input type="checkbox" data-bind="checked: settings.plugins.octopod.bed_warm_notify_once" id="bed_warm_notify_once">
+                    </label>
                 </div>
 
                 <hr class="solid">
