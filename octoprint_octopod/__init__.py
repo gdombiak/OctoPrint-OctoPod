@@ -383,10 +383,13 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	# GCODE hook
 
-	def process_gcode(self, comm, line, *args, **kwargs):
-		line = self._paused_for_user.process_gcode(self._settings, self._printer, line)
-		self._thermal_protection_notifications.process_gcode(line)
-		return self._mmu_assitance.process_gcode(self._settings, line)
+	def process_sent_gcode(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
+		self._paused_for_user.process_sent_gcode(self._settings, self._printer, gcode)
+
+	def process_received_gcode(self, comm, line, *args, **kwargs):
+		line = self._paused_for_user.process_received_gcode(self._settings, self._printer, line)
+		self._thermal_protection_notifications.process_received_gcode(line)
+		return self._mmu_assitance.process_received_gcode(self._settings, line)
 
 	# Helper functions
 
@@ -416,7 +419,8 @@ def __plugin_load__():
 	global __plugin_hooks__
 	__plugin_hooks__ = {
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
-		"octoprint.comm.protocol.gcode.received": __plugin_implementation__.process_gcode
+		"octoprint.comm.protocol.gcode.received": __plugin_implementation__.process_received_gcode,
+		"octoprint.comm.protocol.gcode.sent": __plugin_implementation__.process_sent_gcode
 	}
 
 	global __plugin_helpers__
