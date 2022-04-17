@@ -97,6 +97,9 @@ class JobNotifications(BaseNotification):
 		# See if user asked to delay this notification
 		print_complete_delay_seconds = settings.get_int(['print_complete_delay_seconds'])
 
+		if completion is None:
+			# No progress information so nothing to report. Return 0 though this value is ignored
+			return 0
 		if test or print_complete_delay_seconds == 0 or completion < 100 or not (
 				was_printing and current_printer_state_id == "FINISHING"):
 			last_result = self.__send_print_complete_or_silent_notification(camera_snapshot_url, completion,

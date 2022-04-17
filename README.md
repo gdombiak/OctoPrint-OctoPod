@@ -46,6 +46,9 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.3.13]** (4/16/2022)
+- IMPROVED: Pause notification now detects M600/M601 when printing from OctoPrint. Prusa Mini users can now receive notifications when printer paused
+
 **[0.3.12]** (12/29/2021)
 - IMPROVED: Thermal runaway now plays nicely when printer paused waiting for user
 - FIXED: OctoPrint will no longer freeze forever while waiting to obtain a camera snapshot
@@ -149,6 +152,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.13]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.13
 [0.3.12]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.12
 [0.3.11]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.11
 [0.3.10]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.10
