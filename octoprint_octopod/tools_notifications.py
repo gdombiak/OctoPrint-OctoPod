@@ -62,8 +62,8 @@ class ToolsNotifications(BaseNotification):
 
 	##~~ Private functions - Tool Notifications
 
-	def __send__tool_notification(self, settings, event_code, temperature):
+	def __send__tool_notification(self, settings, event_code, temperature_threshold):
 		# Send IFTTT Notifications
-		self._ifttt_alerts.fire_event(settings, event_code, temperature)
-
-		return self._send_base_notification(settings, False, event_code)
+		self._ifttt_alerts.fire_event(settings, event_code, temperature_threshold)
+		event_param = {'Tool0Threshold': temperature_threshold}
+		return self._send_base_notification(settings, False, event_code, event_param=event_param)
