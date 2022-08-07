@@ -50,11 +50,11 @@ class SocTempNotifications(BaseNotification):
 		if temp > soc_temp_threshold:
 			# If an alert was not sent in the last 2 hours
 			if self._checks_since_alert == -1:
-				self.__send__soc_temp_notification(settings, soc_temp_threshold)
+				self.__send__soc_temp_notification(settings, soc_temp_threshold, temp)
 				self._checks_since_alert = 0 # Start counting alerts since we sent this alert
 
-	def __send__soc_temp_notification(self, settings, soc_temp_threshold):
+	def __send__soc_temp_notification(self, settings, soc_temp_threshold, soc_current_temp):
 		# Send IFTTT Notifications
 		self._ifttt_alerts.fire_event(settings, "soc-temp-exceeded", soc_temp_threshold)
-
-		return self._send_base_notification(settings, False, "soc_temp_exceeded", event_param=soc_temp_threshold)
+		event_param = {'SoCThreshold': soc_temp_threshold, 'SoCTemp': soc_current_temp}
+		return self._send_base_notification(settings, False, "soc_temp_exceeded", event_param=event_param)

@@ -21,5 +21,5 @@ class Palette2Notifications(BaseNotification):
 	def __send_palette_notification(self, settings, event_code, error_code):
 		# Send IFTTT Notifications
 		self._ifttt_alerts.fire_event(settings, "palette2-error", error_code)
-
-		return self._send_base_notification(settings, False, event_code, event_param=error_code)
+		event_param = {'PaletteError': error_code}
+		return self._send_base_notification(settings, False, event_code, event_param=event_param)
