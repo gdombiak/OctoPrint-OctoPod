@@ -46,6 +46,10 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.3.14]** (8/06/2022)
+- IMPROVED: Alert notifications include better details. Thanks Ivan Dombiak & Arkadiusz Miśkiewicz
+- IMPROVED: Receive pause notification when M25 is detected. Thanks Ivan Dombiak
+
 **[0.3.13]** (4/16/2022)
 - IMPROVED: Pause notification now detects M600/M601 when printing from OctoPrint. Prusa Mini users can now receive notifications when printer paused
 
@@ -152,6 +156,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.14]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.14
 [0.3.13]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.13
 [0.3.12]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.12
 [0.3.11]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.11
