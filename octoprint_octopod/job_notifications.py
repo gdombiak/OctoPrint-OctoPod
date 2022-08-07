@@ -39,7 +39,8 @@ class JobNotifications(BaseNotification):
 		def _send_silent_notification(apns_token, image, printer_id, url):
 			self._alerts.send_job_request(apns_token, None, printer_id, "Printing", progress, url)
 
-		return self._send_base_notification(settings, True, "Print progress", event_param=progress,
+		event_param = {'PrintProgress': progress}
+		return self._send_base_notification(settings, True, "Print progress", event_param=event_param,
 											silent_code_block=_send_silent_notification)
 
 	def send__print_job_notification(self, settings, printer, event_payload, server_url=None, camera_snapshot_url=None,
