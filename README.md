@@ -11,6 +11,9 @@ include a snapshot of the configured camera. If you have multiple cameras then y
 a snapshot of any of them. Even if the cameras are not connected to OctoPrint you can still
 include a snapshot of the camera.
 
+This plugin is required for updating Live Activities on your iPhone and iPad. iOS 16.2 is required
+for this new feature to work.
+
 The plugin also has support for [IFTTT](https://ifttt.com/home). Build your own integration leveraging
 events fired by this plugin. Enter your [IFTTT Key](https://ifttt.com/maker_webhooks) and create your Applets.
 IFTTT setup guide can be found [here](https://github.com/gdombiak/OctoPrint-OctoPod/wiki/How-to-use-IFTTT%3F).
@@ -46,9 +49,13 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.3.15]** (3/18/2023)
+- NEW: Added support to updating Live Activities on your iPhone and iPad
+- IMPROVED: Better detection of RPi temperature. Thanks [Braxton Schafer](https://github.com/bjschafer)
+
 **[0.3.14]** (8/06/2022)
-- IMPROVED: Alert notifications include better details. Thanks Ivan Dombiak & Arkadiusz Miśkiewicz
-- IMPROVED: Receive pause notification when M25 is detected. Thanks Ivan Dombiak
+- IMPROVED: Alert notifications include better details. Thanks [Ivan Dombiak](https://github.com/ivannnito) & Arkadiusz Miśkiewicz
+- IMPROVED: Receive pause notification when M25 is detected. Thanks [Ivan Dombiak](https://github.com/ivannnito)
 
 **[0.3.13]** (4/16/2022)
 - IMPROVED: Pause notification now detects M600/M601 when printing from OctoPrint. Prusa Mini users can now receive notifications when printer paused
@@ -156,6 +163,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.15]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.15
 [0.3.14]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.14
 [0.3.13]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.13
 [0.3.12]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.12
