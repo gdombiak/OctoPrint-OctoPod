@@ -323,3 +323,20 @@ class Alerts:
 		except Exception as e:
 			self._logger.info("Could not send Silent MMU Notification: %s" % str(e))
 			return -500
+
+	def send_live_activity_notification(self, url, apns_tokens, printer_status, completion, print_time_left, update,
+										priority):
+		data = {"tokens": apns_tokens, "printerStatus": printer_status, "completion": completion,
+				"printTimeLeft": print_time_left, "update": update, "priority": priority, "useDev": self._use_dev}
+
+		try:
+			r = requests.post(url, json=data)
+
+			if r.status_code >= 400:
+				self._logger.warning("Live Activity Notification Response: %s" % str(r.content))
+			else:
+				self._logger.debug("Live Activity Notification Response code: %d" % r.status_code)
+			return r.status_code
+		except Exception as e:
+			self._logger.info("Could not send Live Activity Notification: %s" % str(e))
+			return -500
