@@ -150,7 +150,7 @@ class LiveActivities(BaseNotification):
 
 		# All fields need to be present for iOS to decode notification and update live activity
 		# Assume default values when printer is operational (usually when user cancelled print)
-		if printer_status == "Operational":
+		if printer.get_state_id() == "OPERATIONAL":
 			if completion is None:
 				completion = 0
 			if print_time_left_in_seconds is None:
