@@ -142,7 +142,7 @@ class LiveActivities(BaseNotification):
 		printer_status = None
 		if "progress" in current_data and current_data["progress"] is not None \
 				and "completion" in current_data["progress"] and current_data["progress"]["completion"] is not None:
-			completion = int(current_data["progress"]["completion"])
+			completion = round(current_data["progress"]["completion"])
 			print_time_left_in_seconds = current_data["progress"]["printTimeLeft"]
 
 		if "state" in current_data and current_data["state"] is not None:
