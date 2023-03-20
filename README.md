@@ -49,8 +49,8 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
-**[0.3.15]** (3/18/2023)
-- NEW: Added support to updating Live Activities on your iPhone and iPad
+**[0.3.15]** (3/19/2023)
+- NEW: Added support for updating Live Activities on iPhones. Requires OctoPod 3.26 to be released soon
 - IMPROVED: Better detection of RPi temperature. Thanks [Braxton Schafer](https://github.com/bjschafer)
 
 **[0.3.14]** (8/06/2022)
