@@ -6,3 +6,4 @@ date of first contribution):
   * [thelastWallE](https://github.com/thelastWallE)
   * [Mark Nebelung](https://github.com/mnebelung)
   * [Ivan Dombiak](https://github.com/ivannnito)
+  * [Braxton Schafer](https://github.com/bjschafer)

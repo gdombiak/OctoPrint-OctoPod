@@ -19,20 +19,20 @@ class JobNotifications(BaseNotification):
 			# Print notifications at 25%, 50%, 75% and 100%
 			# 100% is sent via #send__print_job_notification
 			if progress == 25 or progress == 50 or progress == 75:
-				self.send__print_job_progress(settings, progress)
+				self.__send_print_job_progress(settings, progress)
 			return
 		elif progress_type == '50':
 			# Print notifications at 50% and 100%
 			# 100% is sent via #send__print_job_notification
 			if progress == 50:
-				self.send__print_job_progress(settings, progress)
+				self.__send_print_job_progress(settings, progress)
 			return
 		else:
 			# Assume print notification only at 100% (once done printing)
 			# 100% is sent via #send__print_job_notification
 			return
 
-	def send__print_job_progress(self, settings, progress):
+	def __send_print_job_progress(self, settings, progress):
 		# Send IFTTT Notifications
 		self._ifttt_alerts.fire_event(settings, "print-progress", progress)
 
@@ -43,8 +43,8 @@ class JobNotifications(BaseNotification):
 		return self._send_base_notification(settings, True, "Print progress", event_param=event_param,
 											silent_code_block=_send_silent_notification)
 
-	def send__print_job_notification(self, settings, printer, event_payload, server_url=None, camera_snapshot_url=None,
-									 webcam_flipH=None, webcam_flipV=None, webcam_rotate90=None, test=False):
+	def send_print_job_notification(self, settings, printer, event_payload, server_url=None, camera_snapshot_url=None,
+									webcam_flipH=None, webcam_flipV=None, webcam_rotate90=None, test=False):
 		progress_type = settings.get(["progress_type"])
 		if progress_type == '0' and not test:
 			# Print notification disabled
