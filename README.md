@@ -49,6 +49,10 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.3.16]** (11/26/2023)
+- NEW: Added option to disable repeating bed temp notifications. Thanks [Jack Dalton](https://github.com/jackdalton2)
+- NEW: Send notification when not enough filament when starting a new print - requires Spool Manager plugin
+
 **[0.3.15]** (3/19/2023)
 - NEW: Added support for updating Live Activities on iPhones. Requires OctoPod 3.26 to be released soon
 - IMPROVED: Better detection of RPi temperature. Thanks [Braxton Schafer](https://github.com/bjschafer)
@@ -163,6 +167,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.16]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.16
 [0.3.15]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.15
 [0.3.14]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.14
 [0.3.13]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.13
