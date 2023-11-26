@@ -22,7 +22,7 @@ class PausedForUser(BaseNotification):
 					return
 
 				# Check that we are in the middle of a print
-				if not self.__is_printer_printing(printer):
+				if not self._is_printer_printing(printer):
 					return
 
 				# Check if we never alerted or 5 minutes have passed since last alert
@@ -43,7 +43,7 @@ class PausedForUser(BaseNotification):
 				return line
 
 			# Check that we are in the middle of a print
-			if not self.__is_printer_printing(printer):
+			if not self._is_printer_printing(printer):
 				return line
 
 			# Check if we never alerted or 5 minutes have passed since last alert
@@ -84,13 +84,3 @@ class PausedForUser(BaseNotification):
 				self._logger.debug("PausedForUser Notification skipped. Snoozing until {0}"
 								   .format(time.ctime(self._snooze_end_time)))
 
-	def __is_printer_printing(self, printer):
-		completion = None
-		current_data = printer.get_current_data()
-		if "progress" in current_data and current_data["progress"] is not None \
-				and "completion" in current_data["progress"] and current_data["progress"][
-			"completion"] is not None:
-			completion = current_data["progress"]["completion"]
-
-		# Check that we are in the middle of a print
-		return not(completion is None or completion == 0 or completion == 100)

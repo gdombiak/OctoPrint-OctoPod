@@ -11,6 +11,7 @@ import octoprint.plugin
 from octoprint.access.permissions import Permissions
 from octoprint.events import eventManager, Events
 from octoprint.util import RepeatedTimer
+from .spool_manager import SpoolManagerNotifications
 from .bed_notifications import BedNotifications
 from .custom_notifications import CustomNotifications
 from .ifttt_notifications import IFTTTAlerts
@@ -58,6 +59,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		self._custom_notifications = CustomNotifications(self._logger)
 		self._thermal_protection_notifications = ThermalProtectionNotifications(self._logger, self._ifttt_alerts)
 		self._live_activities = LiveActivities(self._logger)
+		self._spool_manager = SpoolManagerNotifications(self._logger, self._ifttt_alerts)
 
 	# StartupPlugin mixin
 
@@ -357,7 +359,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	# Plugin messages
 
 	def on_plugin_message(self, plugin, data, permissions=None):
-		self._palette2.check_plugin_message(self._settings, plugin, data)
+		self._palette2.check_plugin_message(self._settings, self._printer, plugin, data)
+		self._spool_manager.check_plugin_message(self._settings, self._printer, plugin, data)
 
 	def send_plugin_message(self, data):
 		self._plugin_manager.send_plugin_message(self._identifier, data)
