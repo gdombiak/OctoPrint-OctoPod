@@ -16,10 +16,10 @@ class BedNotifications(BaseNotification):
 		# Variable used for resetting notifications when new target temp is set.
 		self._printer_not_printing_initial_target_temp = None
 		# Variable used for preventing bed warming alerts from sending more than once
-    self._bed_warming_notification_was_sent = False
+                self._bed_warming_notification_was_sent = False
 		# The current/previously saved bed target temperature which is used
 		# to determine when to reset whether the notification has been sent or not yet
-    self._previous_bed_target_temp = 0 
+                self._previous_bed_target_temp = 0 
 
 	def check_temps(self, settings, printer):
 		temps = printer.get_current_temperatures()
