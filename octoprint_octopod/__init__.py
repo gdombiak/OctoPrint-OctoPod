@@ -100,6 +100,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			tool0_target_temp=False,
 			bed_low=30,
 			bed_target_temp_hold=10,
+			bed_warm_notify_once=False,
 			mmu_interval=5,
 			pause_interval=5,
 			palette2_printing_error_codes=[103, 104, 111, 121],
@@ -134,7 +135,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 13
+		return 14
 
 	def on_settings_migrate(self, target, current):
 		if current is None or current == 1:
@@ -188,6 +189,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 		if current is None or current <= 13:
 			self._settings.set(['notify_first_X_layers'], self.get_settings_defaults()["notify_first_X_layers"])
+		
+		if current is None or current <= 14:
+			self._settings.set(['bed_warm_notify_once'], self.get_settings_defaults()["bed_warm_notify_once"])
 
 	# AssetPlugin mixin
 
