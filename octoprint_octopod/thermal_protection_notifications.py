@@ -33,7 +33,7 @@ class ThermalProtectionNotifications(BaseNotification):
 			for k in temps.keys():
 				self.__check_thermal_runway(temps, k, thermal_threshold, settings)
 
-	def process_gcode(self, line):
+	def process_received_gcode(self, line):
 		# Firmware will print to terminal when printer has paused for user. If user does not respond
 		# quickly then heater will timeout and will start to cool down while keeping hotend target temp
 		# unmodified. We need to detect this case to not send incorrect thermal runaway alerts.

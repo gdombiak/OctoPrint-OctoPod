@@ -14,11 +14,14 @@ Last step is to define way of detecting platform type. It could be very differen
 
 import os
 import re
+import sys
 
 
 class SBCFactory(object):
     # Array of raspberry pi SoC's to check against, saves having a large if/then statement later
     piSocTypes = (["BCM2708", "BCM2709", "BCM2835", "BCM2711"])
+    vcGenPaths = ["/opt/vc/bin/vcgencmd", "/usr/bin/vcgencmd"]
+    vcGenPath = None
 
     # Create based on class name:
     def factory(self, logger):
@@ -30,7 +33,7 @@ class SBCFactory(object):
         if self._is_armbian():
             return Armbian(logger)
         elif self._is_rpi(logger):
-            return RPi(logger)
+            return RPi(logger, self.vcGenPath + " measure_temp")
         return SBC()
 
     def _is_rpi(self, logger):
@@ -45,6 +48,15 @@ class SBCFactory(object):
             cpuinfo = infile.read()
         # Match a line like 'Hardware   : BCM2709'
         match = re.search(r'Hardware\s+:\s+(\w+)', cpuinfo, flags=re.MULTILINE | re.IGNORECASE)
+
+        for path in self.vcGenPaths:
+            if os.path.exists(path):
+                self.vcGenPath = path
+                break
+
+        # for now, the only thing that matters is temp monitoring. if we don't have it, don't worry about it.
+        if not self.vcGenPath:
+            return False
 
         if not match:
             return False
@@ -104,9 +116,9 @@ class SBC(object):
 
 class RPi(SBC):
 
-    def __init__(self, logger):
+    def __init__(self, logger, temp_cmd):
         self.is_supported = True
-        self.temp_cmd = '/opt/vc/bin/vcgencmd measure_temp'
+        self.temp_cmd = temp_cmd
         self.parse_pattern = '=(.*)\''
         self._logger = logger
 

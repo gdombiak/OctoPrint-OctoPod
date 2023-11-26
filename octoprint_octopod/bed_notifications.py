@@ -9,10 +9,17 @@ class BedNotifications(BaseNotification):
 		BaseNotification.__init__(self, logger)
 		self._ifttt_alerts = ifttt_alerts
 		self._printer_was_printing_above_bed_low = False  # Variable used for bed cooling alerts
-		self._printer_not_printing_reached_target_temp_start_time = None  # Variable used for bed warming alerts
-		self._bed_warming_notification_was_sent = False # Variable used for preventing bed warming alerts from sending more than once
-		self._previous_bed_target_temp = 0 # The current/previously saved bed target temperature which is used
+		# Variable used for bed warming alerts. This variable resets after each notification.
+		self._printer_not_printing_reached_target_temp_start_time = None
+		# Variable used for bed warming alerts. This variable does not reset after each notification.
+		self._printer_not_printing_reached_target_temp_initial_time = None
+		# Variable used for resetting notifications when new target temp is set.
+		self._printer_not_printing_initial_target_temp = None
+		# Variable used for preventing bed warming alerts from sending more than once
+    self._bed_warming_notification_was_sent = False
+		# The current/previously saved bed target temperature which is used
 		# to determine when to reset whether the notification has been sent or not yet
+    self._previous_bed_target_temp = 0 
 
 	def check_temps(self, settings, printer):
 		temps = printer.get_current_temperatures()
@@ -50,21 +57,25 @@ class BedNotifications(BaseNotification):
 																							 temps[k]['actual']))
 				self._printer_was_printing_above_bed_low = False
 
-				self.__send__bed_notification(settings, "bed-cooled", threshold_low, None)
+				self.__send__bed_notification(settings, "bed-cooled", threshold_low, temps[k]['actual'], None, None)
 
 			# Check if bed has warmed to target temperature for the desired time before print starts
 			if temps[k]['target'] > 0:
 				bed_fluctuation = 1  # Temperatures fluctuate so accept this margin of error
 				# Mark time when bed reached target temp
-				if not self._printer_not_printing_reached_target_temp_start_time and not printer.is_printing() and \
-					temps[k]['actual'] > (temps[k]['target'] - bed_fluctuation):
-					self._printer_not_printing_reached_target_temp_start_time = time.time()
+				if not printer.is_printing() and temps[k]['actual'] > (temps[k]['target'] - bed_fluctuation):
+					if not self._printer_not_printing_reached_target_temp_start_time:
+						self._printer_not_printing_reached_target_temp_start_time = time.time()
+					if not self._printer_not_printing_reached_target_temp_initial_time:
+						self._printer_not_printing_reached_target_temp_initial_time = time.time()
+						self._printer_not_printing_initial_target_temp = temps[k]['target']
 
-				# Reset time if printing or bed is below target temp and we were tracking time
-				if printer.is_printing() or (
-					self._printer_not_printing_reached_target_temp_start_time and temps[k]['actual'] < (
-					temps[k]['target'] - bed_fluctuation)):
+				# Reset time if printing or bed target temperature has changed and we were tracking time
+				if printer.is_printing() or (self._printer_not_printing_reached_target_temp_start_time and temps[k][
+					'target'] != self._printer_not_printing_initial_target_temp):
 					self._printer_not_printing_reached_target_temp_start_time = None
+					self._printer_not_printing_reached_target_temp_initial_time = None
+					self._printer_not_printing_initial_target_temp = None
 
 				if self._previous_bed_target_temp != temps[k]['target']:
 					self._bed_warming_notification_was_sent = False
@@ -86,20 +97,32 @@ class BedNotifications(BaseNotification):
 						self._bed_warming_notification_was_sent = True
 						self._previous_bed_target_temp = temps[k]['target']
 
-						self.__send__bed_notification(settings, "bed-warmed", temps[k]['target'],
-													int(warmed_time_minutes))
+						total_warmed_time_seconds = time.time() - self._printer_not_printing_reached_target_temp_initial_time
+						total_warmed_time_minutes = total_warmed_time_seconds / 60
+
+						self.__send__bed_notification(settings, "bed-warmed", temps[k]['target'], temps[k]['actual'],
+													int(warmed_time_minutes), int(total_warmed_time_minutes))
+			else:
+				# When the bed is turned off, we clean the values of the variables.
+				self._printer_not_printing_reached_target_temp_start_time = None
+				self._printer_not_printing_reached_target_temp_initial_time = None
+				self._printer_not_printing_initial_target_temp = None
 
 	# Private functions - Bed Notifications
 
-	def __send__bed_notification(self, settings, event_code, temperature, minutes):
+	def __send__bed_notification(self, settings, event_code, temperature_threshold, temperature_current, minutes,
+								 total_minutes):
 		# Fire IFTTT webhook
-		self._ifttt_alerts.fire_event(settings, event_code, temperature)
+		self._ifttt_alerts.fire_event(settings, event_code, temperature_threshold)
 		# Send push notification via OctoPod app
-		self.__send__octopod_notification(settings, event_code, temperature, minutes)
+		self.__send__octopod_notification(settings, event_code, temperature_threshold, temperature_current, minutes,
+										  total_minutes)
 
-	def __send__octopod_notification(self, settings, event_code, temperature, minutes):
+	def __send__octopod_notification(self, settings, event_code, temperature_threshold, temperature_current, minutes,
+									 total_minutes):
 		def _send_legacy_notification(server_url, apns_token, printer_id):
 			url = server_url + '/v1/push_printer/bed_events'
-			return self._alerts.send_bed_request(url, apns_token, printer_id, event_code, temperature, minutes)
-
-		return self._send_base_notification(settings, False, event_code, legacy_code_block=_send_legacy_notification)
+			return self._alerts.send_bed_request(url, apns_token, printer_id, event_code, temperature_threshold, minutes)
+		event_param = {'BedThreshold': temperature_threshold, 'Duration': total_minutes, 'BedTemp': temperature_current}
+		return self._send_base_notification(settings, False, event_code, event_param=event_param,
+											legacy_code_block=_send_legacy_notification)

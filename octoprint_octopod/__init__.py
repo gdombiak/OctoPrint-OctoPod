@@ -11,12 +11,14 @@ import octoprint.plugin
 from octoprint.access.permissions import Permissions
 from octoprint.events import eventManager, Events
 from octoprint.util import RepeatedTimer
+from .spool_manager import SpoolManagerNotifications
 from .bed_notifications import BedNotifications
 from .custom_notifications import CustomNotifications
 from .ifttt_notifications import IFTTTAlerts
 from .job_notifications import JobNotifications
 from .layer_notifications import LayerNotifications
 from .libs.sbc import SBCFactory, RPi
+from .live_activities import LiveActivities
 from .mmu import MMUAssistance
 from .palette2 import Palette2Notifications
 from .paused_for_user import PausedForUser
@@ -56,6 +58,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 															debug_soc_temp)
 		self._custom_notifications = CustomNotifications(self._logger)
 		self._thermal_protection_notifications = ThermalProtectionNotifications(self._logger, self._ifttt_alerts)
+		self._live_activities = LiveActivities(self._logger)
+		self._spool_manager = SpoolManagerNotifications(self._logger, self._ifttt_alerts)
 
 	# StartupPlugin mixin
 
@@ -205,12 +209,14 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	def on_print_progress(self, storage, path, progress):
 		# progress 0 - 100
 		self._job_notifications.on_print_progress(self._settings, progress)
+		self._live_activities.on_print_progress(self._settings, self._printer)
 
 	# EventHandlerPlugin mixin
 
 	def on_event(self, event, payload):
 		if event == Events.PRINTER_STATE_CHANGED:
-			self._job_notifications.send__print_job_notification(self._settings, self._printer, payload)
+			self._job_notifications.send_print_job_notification(self._settings, self._printer, payload)
+			self._live_activities.on_printer_state_changed(self._settings, self._printer, payload)
 		elif event == "DisplayLayerProgress_layerChanged":
 			# Event sent from DisplayLayerProgress plugin when there was a detected layer changed
 			self._layerNotifications.layer_changed(self._settings, payload["currentLayer"])
@@ -276,7 +282,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	def get_api_commands(self):
 		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], test=[],
 					snooze=["eventCode", "minutes"], addLayer=["layer"], removeLayer=["layer"], getLayers=[],
-					getSoCTemps=[])
+					getSoCTemps=[], updateLAToken=["activityID", "token"])
 
 	def on_api_command(self, command, data):
 		# Use this permission (as good as any other) to see if user can use this plugin and read status
@@ -292,16 +298,22 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 			self.update_token("{oldToken}".format(**data), "{newToken}".format(**data), "{deviceName}".format(**data),
 							  "{printerID}".format(**data), printer_name, language_code)
+
+		elif command == 'updateLAToken':
+			activity_id = data["activityID"]
+			token = data["token"] if 'token' in data else None
+			self._live_activities.register_live_activity(activity_id, token)
+
 		elif command == 'test':
 			payload = dict(
 				state_id="OPERATIONAL",
 				state_string="Operational"
 			)
-			code = self._job_notifications.send__print_job_notification(self._settings, self._printer, payload,
-																		data["server_url"], data["camera_snapshot_url"],
-																		data["camera_flip_h"], data["camera_flip_v"],
-																		data["camera_rotate90"],
-																		True)
+			code = self._job_notifications.send_print_job_notification(self._settings, self._printer, payload,
+																	   data["server_url"], data["camera_snapshot_url"],
+																	   data["camera_flip_h"], data["camera_flip_v"],
+																	   data["camera_rotate90"],
+																	   True)
 			return flask.jsonify(dict(code=code))
 		elif command == 'snooze':
 			if data["eventCode"] == 'mmu-event':
@@ -351,7 +363,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	# Plugin messages
 
 	def on_plugin_message(self, plugin, data, permissions=None):
-		self._palette2.check_plugin_message(self._settings, plugin, data)
+		self._palette2.check_plugin_message(self._settings, self._printer, plugin, data)
+		self._spool_manager.check_plugin_message(self._settings, self._printer, plugin, data)
 
 	def send_plugin_message(self, data):
 		self._plugin_manager.send_plugin_message(self._identifier, data)
@@ -387,10 +400,13 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 	# GCODE hook
 
-	def process_gcode(self, comm, line, *args, **kwargs):
-		line = self._paused_for_user.process_gcode(self._settings, self._printer, line)
-		self._thermal_protection_notifications.process_gcode(line)
-		return self._mmu_assitance.process_gcode(self._settings, line)
+	def process_sent_gcode(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
+		self._paused_for_user.process_sent_gcode(self._settings, self._printer, gcode)
+
+	def process_received_gcode(self, comm, line, *args, **kwargs):
+		line = self._paused_for_user.process_received_gcode(self._settings, self._printer, line)
+		self._thermal_protection_notifications.process_received_gcode(line)
+		return self._mmu_assitance.process_received_gcode(self._settings, line)
 
 	# Helper functions
 
@@ -420,7 +436,8 @@ def __plugin_load__():
 	global __plugin_hooks__
 	__plugin_hooks__ = {
 		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
-		"octoprint.comm.protocol.gcode.received": __plugin_implementation__.process_gcode
+		"octoprint.comm.protocol.gcode.received": __plugin_implementation__.process_received_gcode,
+		"octoprint.comm.protocol.gcode.sent": __plugin_implementation__.process_sent_gcode
 	}
 
 	global __plugin_helpers__

@@ -12,7 +12,7 @@ class MMUAssistance(BaseNotification):
 		self._last_notification = None  # Keep track of when was user alerted last time. Helps avoid spamming
 		self._snooze_end_time = time.time()  # Track when snooze for mmu events ends. Assume snooze already expired
 
-	def process_gcode(self, settings, line):
+	def process_received_gcode(self, settings, line):
 		# MMU user assistance detection
 		# Firmware will use 2 different lines to indicate the there is an MMU issue
 		# and user assistance is required. There could be other lines present in the

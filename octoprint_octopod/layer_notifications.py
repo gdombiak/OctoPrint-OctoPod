@@ -37,5 +37,5 @@ class LayerNotifications(BaseNotification):
 	def __send__layer_notification(self, settings, current_layer):
 		# Send IFTTT Notifications
 		self._ifttt_alerts.fire_event(settings, "layer-changed", current_layer)
-
-		return self._send_base_notification(settings, True, "layer_changed", event_param=current_layer)
+		event_param = {'PrintLayer': current_layer}
+		return self._send_base_notification(settings, True, "layer_changed", event_param=event_param)

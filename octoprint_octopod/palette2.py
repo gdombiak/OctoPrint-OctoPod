@@ -7,7 +7,7 @@ class Palette2Notifications(BaseNotification):
 		BaseNotification.__init__(self, logger)
 		self._ifttt_alerts = ifttt_alerts
 
-	def check_plugin_message(self, settings, plugin, data):
+	def check_plugin_message(self, settings, printer, plugin, data):
 		if plugin == "palette2" and 'command' in data and data["command"] == "error":
 			# Only send notifications for error codes that may happen while printing
 			p2_printing_error_codes = settings.get(["palette2_printing_error_codes"])
@@ -21,5 +21,5 @@ class Palette2Notifications(BaseNotification):
 	def __send_palette_notification(self, settings, event_code, error_code):
 		# Send IFTTT Notifications
 		self._ifttt_alerts.fire_event(settings, "palette2-error", error_code)
-
-		return self._send_base_notification(settings, False, event_code, event_param=error_code)
+		event_param = {'PaletteError': error_code}
+		return self._send_base_notification(settings, False, event_code, event_param=event_param)
