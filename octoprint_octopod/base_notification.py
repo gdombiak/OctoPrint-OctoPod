@@ -29,7 +29,9 @@ class BaseNotification:
 			x, y = image_obj.size
 			if x > 1640 or y > 1232:
 				size = 1640, 1232
-				image_obj.thumbnail(size, Image.ANTIALIAS)
+				# ANTIALIAS was removed in Pillow 10.0.0 so check which variation we can use
+				image_obj.thumbnail(size, Image.ANTIALIAS if hasattr(Image, "ANTIALIAS") else Image.Resampling.LANCZOS)
+				# image_obj.thumbnail(size, Image.ANTIALIAS)
 				output = BytesIO()
 				image_obj.save(output, format="JPEG")
 				image = output.getvalue()
