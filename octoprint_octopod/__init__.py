@@ -45,21 +45,20 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		self._logger = logging.getLogger("octoprint.plugins.octopod")
 		self._checkTempTimer = None
 		self._ifttt_alerts = IFTTTAlerts(self._logger)
-		self._job_notifications = JobNotifications(self._logger, self._ifttt_alerts)
-		self._tool_notifications = ToolsNotifications(self._logger, self._ifttt_alerts)
-		self._bed_notifications = BedNotifications(self._logger, self._ifttt_alerts)
-		self._mmu_assitance = MMUAssistance(self._logger, self._ifttt_alerts)
-		self._paused_for_user = PausedForUser(self._logger, self._ifttt_alerts)
-		self._palette2 = Palette2Notifications(self._logger, self._ifttt_alerts)
-		self._layerNotifications = LayerNotifications(self._logger, self._ifttt_alerts)
 		self._check_soc_temp_timer = None
 		self._soc_timer_interval = 5.0 if debug_soc_temp else 30.0
-		self._soc_temp_notifications = SocTempNotifications(self._logger, self._ifttt_alerts, self._soc_timer_interval,
-															debug_soc_temp)
-		self._custom_notifications = CustomNotifications(self._logger)
-		self._thermal_protection_notifications = ThermalProtectionNotifications(self._logger, self._ifttt_alerts)
-		self._live_activities = LiveActivities(self._logger)
-		self._spool_manager = SpoolManagerNotifications(self._logger, self._ifttt_alerts)
+		self._job_notifications = None
+		self._tool_notifications = None
+		self._bed_notifications = None
+		self._mmu_assitance = None
+		self._paused_for_user = None
+		self._palette2 = None
+		self._layerNotifications = None
+		self._soc_temp_notifications = None
+		self._custom_notifications = None
+		self._thermal_protection_notifications = None
+		self._live_activities = None
+		self._spool_manager = None
 
 	# StartupPlugin mixin
 
@@ -70,6 +69,21 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.setLevel(logging.DEBUG)
 		else:
 			self._logger.setLevel(logging.INFO)
+
+		self._job_notifications = JobNotifications(self._logger, self._ifttt_alerts, self._plugin_manager)
+		self._tool_notifications = ToolsNotifications(self._logger, self._ifttt_alerts, self._plugin_manager)
+		self._bed_notifications = BedNotifications(self._logger, self._ifttt_alerts, self._plugin_manager)
+		self._mmu_assitance = MMUAssistance(self._logger, self._ifttt_alerts, self._plugin_manager)
+		self._paused_for_user = PausedForUser(self._logger, self._ifttt_alerts, self._plugin_manager)
+		self._palette2 = Palette2Notifications(self._logger, self._ifttt_alerts, self._plugin_manager)
+		self._layerNotifications = LayerNotifications(self._logger, self._ifttt_alerts, self._plugin_manager)
+		self._soc_temp_notifications = SocTempNotifications(self._logger, self._ifttt_alerts, self._plugin_manager,
+															self._soc_timer_interval, debug_soc_temp)
+		self._custom_notifications = CustomNotifications(self._logger, self._plugin_manager)
+		self._thermal_protection_notifications = ThermalProtectionNotifications(self._logger, self._ifttt_alerts,
+																				self._plugin_manager)
+		self._live_activities = LiveActivities(self._logger, self._plugin_manager)
+		self._spool_manager = SpoolManagerNotifications(self._logger, self._ifttt_alerts, self._plugin_manager)
 
 		# Register to listen for messages from other plugins
 		self._plugin_manager.register_message_receiver(self.on_plugin_message)
@@ -119,7 +133,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			webcam_flipV=False,
 			webcam_rotate90=False,
 			notify_first_X_layers=1,
-			print_complete_delay_seconds=0
+			print_complete_delay_seconds=0,
+			turn_HA_light_on_ifneeded = True
 		)
 
 	def on_settings_save(self, data):
@@ -135,7 +150,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				self._logger.setLevel(logging.INFO)
 
 	def get_settings_version(self):
-		return 14
+		return 15
 
 	def on_settings_migrate(self, target, current):
 		if current is None or current == 1:
@@ -189,9 +204,12 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 		if current is None or current <= 13:
 			self._settings.set(['notify_first_X_layers'], self.get_settings_defaults()["notify_first_X_layers"])
-		
+
 		if current is None or current <= 14:
 			self._settings.set(['bed_warm_notify_once'], self.get_settings_defaults()["bed_warm_notify_once"])
+
+		if current is None or current <= 15:
+			self._settings.set(['turn_HA_light_on_ifneeded'], self.get_settings_defaults()["turn_HA_light_on_ifneeded"])
 
 	# AssetPlugin mixin
 

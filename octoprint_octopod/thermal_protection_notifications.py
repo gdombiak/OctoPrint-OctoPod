@@ -5,8 +5,8 @@ from .base_notification import BaseNotification
 
 class ThermalProtectionNotifications(BaseNotification):
 
-	def __init__(self, logger, ifttt_alerts):
-		BaseNotification.__init__(self, logger)
+	def __init__(self, logger, ifttt_alerts, plugin_manager):
+		BaseNotification.__init__(self, logger, plugin_manager)
 		self._ifttt_alerts = ifttt_alerts
 		self._last_thermal_runaway_notification_time = None  # Variable used for spacing notifications
 		self._last_actual_temps = {} # Variable that helps know if we are cooling down or not

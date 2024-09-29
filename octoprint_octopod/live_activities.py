@@ -9,8 +9,8 @@ class LiveActivities(BaseNotification):
 	__MINUTES_BETWEEN_HIGH_PRIORITY = 7 # Use high priority every 7 minutes for progress notifications
 	__MINUTES_BETWEEN_LOW_PRIORITY = 1 # Send up to 1 low priority notification every minute
 
-	def __init__(self, logger):
-		BaseNotification.__init__(self, logger)
+	def __init__(self, logger, plugin_manager):
+		BaseNotification.__init__(self, logger, plugin_manager)
 		# TODO Test thread-safety of dictionaries
 		self._live_activities = {} # Track tokens to use for updating Live Activities
 		self._last_high_priority_notification = None  # Keep track of last time a high priority notification was sent

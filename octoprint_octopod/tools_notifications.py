@@ -3,8 +3,8 @@ from .base_notification import BaseNotification
 
 class ToolsNotifications(BaseNotification):
 
-	def __init__(self, logger, ifttt_alerts):
-		BaseNotification.__init__(self, logger)
+	def __init__(self, logger, ifttt_alerts, plugin_manager):
+		BaseNotification.__init__(self, logger, plugin_manager)
 		self._ifttt_alerts = ifttt_alerts
 		self._printer_was_printing_above_tool0_low = False  # Variable used for tool0 cooling alerts
 		self._printer_alerted_reached_tool0_target = False  # Variable used for tool0 warm alerts

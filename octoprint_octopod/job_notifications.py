@@ -6,8 +6,8 @@ from .base_notification import BaseNotification
 class JobNotifications(BaseNotification):
 	_lastPrinterState = None
 
-	def __init__(self, logger, ifttt_alerts):
-		BaseNotification.__init__(self, logger)
+	def __init__(self, logger, ifttt_alerts, plugin_manager):
+		BaseNotification.__init__(self, logger, plugin_manager)
 		self._ifttt_alerts = ifttt_alerts
 
 	def on_print_progress(self, settings, progress):
@@ -149,7 +149,8 @@ class JobNotifications(BaseNotification):
 				else:
 					camera_url = settings.get(["camera_snapshot_url"])
 				if camera_url and camera_url.strip():
-					image = self.image(camera_url, hflip, vflip, rotate)
+					turn_on_ifneeded = settings.get_boolean(['turn_HA_light_on_ifneeded'])
+					image = self.image(turn_on_ifneeded, camera_url, hflip, vflip, rotate)
 			except:
 				self._logger.info("Could not load image from url")
 		# Send IFTTT Notifications
@@ -230,7 +231,8 @@ class JobNotifications(BaseNotification):
 						else:
 							camera_url = settings.get(["camera_snapshot_url"])
 						if camera_url and camera_url.strip():
-							image = self.image(camera_url, hflip, vflip, rotate)
+							turn_on_ifneeded = settings.get_boolean(['turn_HA_light_on_ifneeded'])
+							image = self.image(turn_on_ifneeded, camera_url, hflip, vflip, rotate)
 					except:
 						self._logger.info("Could not load image from url")
 

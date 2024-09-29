@@ -5,8 +5,8 @@ from .base_notification import BaseNotification
 
 class MMUAssistance(BaseNotification):
 
-	def __init__(self, logger, ifttt_alerts):
-		BaseNotification.__init__(self, logger)
+	def __init__(self, logger, ifttt_alerts, plugin_manager):
+		BaseNotification.__init__(self, logger, plugin_manager)
 		self._ifttt_alerts = ifttt_alerts
 		self._mmu_lines_skipped = None
 		self._last_notification = None  # Keep track of when was user alerted last time. Helps avoid spamming

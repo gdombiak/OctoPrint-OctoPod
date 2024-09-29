@@ -10,7 +10,7 @@
             <div class="tab-pane active" id="tabGeneral">
 
                 <h4>{{ _('Server and Camera Settings') }}</h4>
-                <p>{{ _('Complete URLs below so that OctoPrint can send notifications to OctoPod once print is finished') }}</p>
+                <p>{{ _('Complete the URLs below so that OctoPrint can send notifications to OctoPod as the print progresses. If the room is dark, the light will automatically turn on before taking a snapshot and will turn off afterward.') }} <strong>{{ _('Requires <a href="https://plugins.octoprint.org/plugins/octolightHA/" target="_blank">OctoLight Home Assistant</a> plugin') }}</strong> </p>
 
                 <div class="control-group">
                     <label class="octopod-label" id="server_url_label">{{ _('Notification Server URL') }}</label>
@@ -40,6 +40,11 @@
                     <div class="controls">
                         <label class="octopod-checkbox">
                             <input type="checkbox" data-bind="checked: settings.plugins.octopod.webcam_rotate90" id="octopod-webcamRotate90"> {{ _('Rotate webcam 90 degrees counter clockwise') }}
+                        </label>
+                    </div>
+                    <div class="controls">
+                        <label class="octopod-checkbox">
+                            <input type="checkbox" data-bind="checked: settings.plugins.octopod.turn_HA_light_on_ifneeded" id="octopod-turn_HA_light_on_ifneeded"> {{ _('Turn on HomeAssistant light when room is dark before snapshot') }}
                         </label>
                     </div>
                 </div>
