@@ -22,7 +22,7 @@ class BaseNotification:
 		:return:
 		"""
 		self._logger.debug("Snapshot URL: %s " % str(snapshot_url))
-		image = requests.get(snapshot_url, stream=True, timeout=(4, 10)).content
+		image = self.__take_image_snapshot(snapshot_url)
 
 		try:
 			image_obj = Image.open(BytesIO(image))
@@ -30,35 +30,24 @@ class BaseNotification:
 			# if octolight HA plugin is installed then check if room is dark and turn on the light if needed
 			octolightHA = self._plugin_manager.plugins.get("octolightHA")
 			if octolightHA and turn_on_ifneeded:
-				# Check image luminance to detect if it's dark and we need to
-				# turn on the Home Assistant Light (if plugin is installed)
-				# Get the pixel values as a numpy array
-				pixels = list(image_obj.getdata())
-
-				# Calculate the total luminance of all pixels
-				lum_sum = 0
-				for pixel in pixels:
-					r, g, b = pixel
-					# Use perceived luminance formula
-					lum = (r * 0.299) + (g * 0.587) + (b * 0.114)
-					lum_sum += lum
-
-				# Get the average luminance
-				avg_lum = lum_sum / len(pixels)
-				# Luminance below threshold is considered a dark image. Use same value used in iOS app
-				threshold = 40
-				if avg_lum < threshold:
-					self._logger.debug("Camera image seems to have low light. Luminance: %s" % str(avg_lum))
-
-					# Turn on the light
-					octolightHA.implementation.toggle_HA_state()
-					# Add a delay of 1 second to wait for HA to turn on the light and camera tune to new luminance
+				if self.__is_image_dark(image_obj):
+					# Some webcams need a sec to adapt to lighting conditions. They initially see black. Wait a sec
 					time.sleep(1)
-					# Fetch image again
-					image = requests.get(snapshot_url, stream=True, timeout=(4, 10)).content
+					# Fetch another snapshot
+					image = self.__take_image_snapshot(snapshot_url)
 					image_obj = Image.open(BytesIO(image))
-					# Turn on the light
-					octolightHA.implementation.toggle_HA_state()
+					# Check again if still dark
+					if self.__is_image_dark(image_obj):
+						self._logger.debug("Toggling HA light")
+						# Turn on the light
+						octolightHA.implementation.toggle_HA_state()
+						# Add a delay of 1 second to wait for HA to turn on the light and camera tune to new luminance
+						time.sleep(1)
+						# Fetch image again
+						image = self.__take_image_snapshot(snapshot_url)
+						image_obj = Image.open(BytesIO(image))
+						# Turn on the light
+						octolightHA.implementation.toggle_HA_state()
 
 			# Reduce resolution of image to prevent 400 error when uploading content
 			# Besides this saves network bandwidth and iOS device or Apple Watch
@@ -96,6 +85,32 @@ class BaseNotification:
 				self._logger.debug("Error rotating image: %s" % str(e))
 
 		return image
+
+	def __take_image_snapshot(self, snapshot_url):
+		return requests.get(snapshot_url, stream=True, timeout=(4, 10)).content
+
+	def __is_image_dark(self, image_obj):
+		# Check image luminance to detect if it's dark and we need to
+		# turn on the Home Assistant Light (if plugin is installed)
+		# Get the pixel values as a numpy array
+		pixels = list(image_obj.getdata())
+
+		# Calculate the total luminance of all pixels
+		lum_sum = 0
+		for pixel in pixels:
+			r, g, b = pixel
+			# Use perceived luminance formula
+			lum = (r * 0.299) + (g * 0.587) + (b * 0.114)
+			lum_sum += lum
+
+		# Get the average luminance
+		avg_lum = lum_sum / len(pixels)
+		# Luminance below threshold is considered a dark image. Use same value used in iOS app
+		threshold = 40
+		if avg_lum < threshold:
+			self._logger.debug("Camera image seems to have low light. Luminance: %s" % str(avg_lum))
+			return True
+		return False
 
 	def _send_base_notification(self, settings, include_image, event_code, category=None, event_param=None,
 								apns_dict=None, silent_code_block=None, legacy_code_block=None):
