@@ -132,7 +132,8 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			webcam_flipH=False,
 			webcam_flipV=False,
 			webcam_rotate90=False,
-			notify_first_X_layers=1,
+			notify_first_X_layers=1, # Deprecated and replaced by notify_layers that has better control
+			notify_layers=[1],
 			print_complete_delay_seconds=0,
 			turn_HA_light_on_ifneeded = True
 		)
@@ -210,6 +211,11 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 
 		if current is None or current <= 15:
 			self._settings.set(['turn_HA_light_on_ifneeded'], self.get_settings_defaults()["turn_HA_light_on_ifneeded"])
+			# Read deprecated setting notify_first_X_layers. Notifications were sent AFTER layer was printed
+			notify_first_X_layers = self._settings.get_int(['notify_first_X_layers'])
+			# Initialize notify_layers with a list of numbers that start at 1 and the max is nofify_first_X_layers
+			# New setting prints once the layer is REACHED
+			self._settings.set(['notify_layers'], [i+1 for i in range(1, notify_first_X_layers + 1)])
 
 	# AssetPlugin mixin
 

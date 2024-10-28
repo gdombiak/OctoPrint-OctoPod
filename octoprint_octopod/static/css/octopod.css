@@ -16,6 +16,12 @@ td.octopod_device_action, th.octopod_device_action {
   white-space: nowrap;
 }
 
+td.octopod_notify_layer_action, th.octopod_notify_layer_action {
+  width: 70px;
+  text-align: center;
+  white-space: nowrap;
+}
+
 .octopod_ifttt_event_name {
   text-overflow: ellipsis;
   width: 130px;
