@@ -133,7 +133,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			webcam_flipV=False,
 			webcam_rotate90=False,
 			notify_first_X_layers=1, # Deprecated and replaced by notify_layers that has better control
-			notify_layers=[1],
+			notify_layers=[2],
 			print_complete_delay_seconds=0,
 			turn_HA_light_on_ifneeded = True
 		)
