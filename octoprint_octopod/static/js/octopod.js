@@ -76,8 +76,10 @@ $(function() {
             // Do nothing if inputNewLayer has no number
             const value = parseInt(self.inputNewLayer());
             if (!isNaN(value)) {
-                self.settings.plugins.octopod.notify_layers.push(value);
-                self.settings.plugins.octopod.notify_layers.sort((a, b) => a - b); // Sort layers ascending
+                if (self.settings.plugins.octopod.notify_layers.indexOf(value) == -1) {
+                    self.settings.plugins.octopod.notify_layers.push(value);
+                    self.settings.plugins.octopod.notify_layers.sort((a, b) => a - b); // Sort layers ascending
+                }
                 self.inputNewLayer("");  // Reset inputValue to an empty string
             }
         };
