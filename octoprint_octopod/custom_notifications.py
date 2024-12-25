@@ -8,8 +8,8 @@ class CustomNotifications(BaseNotification):
 	sending arbitrary notifications to OctoPod app.
 	"""
 
-	def __init__(self, logger):
-		BaseNotification.__init__(self, logger)
+	def __init__(self, logger, plugin_manager):
+		BaseNotification.__init__(self, logger, plugin_manager)
 
 	def send_notification(self, settings, message, image):
 		"""

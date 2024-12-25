@@ -16,6 +16,8 @@ $(function() {
         self.testSuccessful = ko.observable(false);
         self.testMessage = ko.observable();
 
+        self.inputNewLayer = ko.observable();
+
         self.testNotification  = function() {
             self.testActive(true);
             self.testResult(false);
@@ -68,6 +70,22 @@ $(function() {
 
         self.removeDevice = function(token) {
             self.settings.plugins.octopod.tokens.remove(token);
+        };
+
+        self.addPermanentLayer = function() {
+            // Do nothing if inputNewLayer has no number
+            const value = parseInt(self.inputNewLayer());
+            if (!isNaN(value)) {
+                if (self.settings.plugins.octopod.notify_layers.indexOf(value) == -1) {
+                    self.settings.plugins.octopod.notify_layers.push(value);
+                    self.settings.plugins.octopod.notify_layers.sort((a, b) => a - b); // Sort layers ascending
+                }
+                self.inputNewLayer("");  // Reset inputValue to an empty string
+            }
+        };
+
+        self.removePermanentLayer = function(layer) {
+            self.settings.plugins.octopod.notify_layers.remove(layer);
         };
 
         self.onBeforeBinding = function() {

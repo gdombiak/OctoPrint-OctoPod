@@ -3,8 +3,8 @@ from .base_notification import BaseNotification
 
 class SpoolManagerNotifications(BaseNotification):
 
-	def __init__(self, logger, ifttt_alerts):
-		BaseNotification.__init__(self, logger)
+	def __init__(self, logger, ifttt_alerts, plugin_manager):
+		BaseNotification.__init__(self, logger, plugin_manager)
 		self._ifttt_alerts = ifttt_alerts
 
 	def check_plugin_message(self, settings, printer, plugin, data):

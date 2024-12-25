@@ -5,8 +5,8 @@ from .base_notification import BaseNotification
 
 class BedNotifications(BaseNotification):
 
-	def __init__(self, logger, ifttt_alerts):
-		BaseNotification.__init__(self, logger)
+	def __init__(self, logger, ifttt_alerts, plugin_manager):
+		BaseNotification.__init__(self, logger, plugin_manager)
 		self._ifttt_alerts = ifttt_alerts
 		self._printer_was_printing_above_bed_low = False  # Variable used for bed cooling alerts
 		# Variable used for bed warming alerts. This variable resets after each notification.

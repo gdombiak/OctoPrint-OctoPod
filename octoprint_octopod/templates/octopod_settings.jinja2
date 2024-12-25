@@ -10,7 +10,7 @@
             <div class="tab-pane active" id="tabGeneral">
 
                 <h4>{{ _('Server and Camera Settings') }}</h4>
-                <p>{{ _('Complete URLs below so that OctoPrint can send notifications to OctoPod once print is finished') }}</p>
+                <p>{{ _('Complete the URLs below so that OctoPrint can send notifications to OctoPod as the print progresses. If the room is dark, the light will automatically turn on before taking a snapshot and will turn off afterward.') }} <strong>{{ _('Requires <a href="https://plugins.octoprint.org/plugins/octolightHA/" target="_blank">OctoLight Home Assistant</a> plugin') }}</strong> </p>
 
                 <div class="control-group">
                     <label class="octopod-label" id="server_url_label">{{ _('Notification Server URL') }}</label>
@@ -40,6 +40,11 @@
                     <div class="controls">
                         <label class="octopod-checkbox">
                             <input type="checkbox" data-bind="checked: settings.plugins.octopod.webcam_rotate90" id="octopod-webcamRotate90"> {{ _('Rotate webcam 90 degrees counter clockwise') }}
+                        </label>
+                    </div>
+                    <div class="controls">
+                        <label class="octopod-checkbox">
+                            <input type="checkbox" data-bind="checked: settings.plugins.octopod.turn_HA_light_on_ifneeded" id="octopod-turn_HA_light_on_ifneeded"> {{ _('Turn on HomeAssistant light when room is dark before snapshot') }}
                         </label>
                     </div>
                 </div>
@@ -96,12 +101,34 @@
 
                 <h4>{{ _('Layer Notifications') }}</h4>
 
-                <p>{{ _('Receive a notification with an image for the first X layers to confirm print started fine. A value of 0 will disable the notifications below. From OctoPod app you can also
-                configure to receive a notification at specific layers for current print job.') }} <strong>{{ _('Requires <a href="https://plugins.octoprint.org/plugins/DisplayLayerProgress/" target="_blank">DisplayLayerProgress</a> plugin') }}</strong></p>
-                <label class="octopod-label">{{ _('First') }}</label>
+                <p>{{ _('You will receive a notification with an image for the specified layers to confirm that the print is progressing smoothly.
+                Notifications are sent when the print reaches these specified layers. These notifications apply to both current and future prints.
+                In the OctoPod app, you can configure notifications to be sent at specific layers, but they apply only to the current print job.') }}
+                <strong>{{ _('Requires <a href="https://plugins.octoprint.org/plugins/DisplayLayerProgress/" target="_blank">DisplayLayerProgress</a> plugin') }}</strong></p>
+                <div class="tab-pane" id="notify_layers_div">
+                    <table class="table table-striped table-hover table-condensed table-hover" id="notify_layers_table" style="width: 40%; margin: auto;">
+                        <thead>
+                        <tr>
+                            <th class="octopod_notify_layer_number">{{ _('Layer') }}</th>
+                            <th class="octopod_notify_layer_action">{{ _('Action') }}</th>
+                        </tr>
+                        </thead>
+                        <tbody data-bind="foreach: settings.plugins.octopod.notify_layers">
+                        <tr data-bind="attr: {title: name}">
+                            <td class="octopod_notify_layer_number" data-bind="text: $data"></td>
+                            <td class="octopod_notify_layer_action">
+                                <a href="#" class="icon-trash" data-bind="click: $parent.removePermanentLayer"></a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <br>
+                <label class="octopod-label">{{ _('Notify on layer') }}</label>
                 <div class="controls">
                     <div class="input-append">
-                        <input type="number" class="input-mini text-right" id="notify_first_X_layers" data-bind="value: settings.plugins.octopod.notify_first_X_layers" min="0" max="10" step="1" value="0"><span class="add-on">{{ _('layers') }}</span>
+                        <input type="number" class="input-mini text-right" id="new_notify_layer" min="1" max="50" step="1" value="0" data-bind="value: inputNewLayer">
+                        <button data-bind="click: addPermanentLayer, disable: !inputNewLayer()">Add</button>
                     </div>
                 </div>
 

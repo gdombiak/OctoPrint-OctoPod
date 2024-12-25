@@ -49,6 +49,11 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.3.17]** (11/24/2024)
+- NEW: Turn on HomeAssistant light when room is dark before taking snapshot. Requires [OctoLight Home Assistant plugin](https://plugins.octoprint.org/plugins/octolightHA/)
+- NEW: Added support to receive notifications at specific heights
+- IMPROVED: Added compatibility with Pillow 10.0.0 or later
+
 **[0.3.16]** (11/26/2023)
 - NEW: Added option to disable repeating bed temp notifications. Thanks [Jack Dalton](https://github.com/jackdalton2)
 - NEW: Send notification when not enough filament when starting a new print - requires Spool Manager plugin
@@ -167,6 +172,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.17]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.17
 [0.3.16]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.16
 [0.3.15]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.15
 [0.3.14]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.14

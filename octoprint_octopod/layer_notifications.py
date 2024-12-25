@@ -3,8 +3,8 @@ from .base_notification import BaseNotification
 
 class LayerNotifications(BaseNotification):
 
-	def __init__(self, logger, ifttt_alerts):
-		BaseNotification.__init__(self, logger)
+	def __init__(self, logger, ifttt_alerts, plugin_manager):
+		BaseNotification.__init__(self, logger, plugin_manager)
 		self._layers = []
 		self._ifttt_alerts = ifttt_alerts
 		self.reset_layers()
@@ -26,12 +26,12 @@ class LayerNotifications(BaseNotification):
 		self._layers.remove(layer)
 
 	def layer_changed(self, settings, current_layer):
-		first_layers = settings.get_int(['notify_first_X_layers'])
+		permanent_layers = settings.get(['notify_layers'])
 		if current_layer in self._layers:
 			# User specified they wanted to get a notification when print started printing at this layer
 			self.__send__layer_notification(settings, current_layer)
-		elif first_layers > 0 and 1 < int(current_layer) <= first_layers + 1:
-			# Send a picture for first X layers (only send once layer was printed)
+		elif int(current_layer) in permanent_layers:
+			# Send a notification with a picture when starting to print layer configured via plugin's UI
 			self.__send__layer_notification(settings, current_layer)
 
 	def __send__layer_notification(self, settings, current_layer):

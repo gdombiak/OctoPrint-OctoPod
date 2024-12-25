@@ -1,35 +1,63 @@
 from io import BytesIO  ## for Python 2 & 3
 
 import requests
+import time
 from PIL import Image
 
 from .alerts import Alerts
 
 
 class BaseNotification:
+	_plugin_manager = None
 
-	def __init__(self, logger):
+	def __init__(self, logger, plugin_manager):
 		self._logger = logger
 		self._alerts = Alerts(self._logger)
+		self._plugin_manager = plugin_manager
 
-	def image(self, snapshot_url, hflip, vflip, rotate):
+	def image(self, turn_on_ifneeded, snapshot_url, hflip, vflip, rotate):
 		"""
 		Create an image by getting an image form the setting webcam-snapshot.
 		Transpose this image according the settings and returns it
 		:return:
 		"""
 		self._logger.debug("Snapshot URL: %s " % str(snapshot_url))
-		image = requests.get(snapshot_url, stream=True, timeout=(4, 10)).content
+		image = self.__take_image_snapshot(snapshot_url)
 
 		try:
+			image_obj = Image.open(BytesIO(image))
+
+			# if octolight HA plugin is installed then check if room is dark and turn on the light if needed
+			octolightHA = self._plugin_manager.plugins.get("octolightHA")
+			if octolightHA and turn_on_ifneeded:
+				if self.__is_image_dark(image_obj):
+					# Some webcams need a sec to adapt to lighting conditions. They initially see black. Wait a sec
+					time.sleep(1)
+					# Fetch another snapshot
+					image = self.__take_image_snapshot(snapshot_url)
+					image_obj = Image.open(BytesIO(image))
+					# Check again if still dark
+					if self.__is_image_dark(image_obj):
+						self._logger.debug("Toggling HA light")
+						# Turn on the light
+						octolightHA.implementation.toggle_HA_state()
+						# Add a delay of 1 second to wait for HA to turn on the light and camera tune to new luminance
+						time.sleep(1)
+						# Fetch image again
+						image = self.__take_image_snapshot(snapshot_url)
+						image_obj = Image.open(BytesIO(image))
+						# Turn on the light
+						octolightHA.implementation.toggle_HA_state()
+
 			# Reduce resolution of image to prevent 400 error when uploading content
 			# Besides this saves network bandwidth and iOS device or Apple Watch
 			# cannot tell the difference in resolution
-			image_obj = Image.open(BytesIO(image))
 			x, y = image_obj.size
 			if x > 1640 or y > 1232:
 				size = 1640, 1232
-				image_obj.thumbnail(size, Image.ANTIALIAS)
+				# ANTIALIAS was removed in Pillow 10.0.0 so check which variation we can use
+				image_obj.thumbnail(size, Image.ANTIALIAS if hasattr(Image, "ANTIALIAS") else Image.Resampling.LANCZOS)
+				# image_obj.thumbnail(size, Image.ANTIALIAS)
 				output = BytesIO()
 				image_obj.save(output, format="JPEG")
 				image = output.getvalue()
@@ -57,6 +85,32 @@ class BaseNotification:
 				self._logger.debug("Error rotating image: %s" % str(e))
 
 		return image
+
+	def __take_image_snapshot(self, snapshot_url):
+		return requests.get(snapshot_url, stream=True, timeout=(4, 10)).content
+
+	def __is_image_dark(self, image_obj):
+		# Check image luminance to detect if it's dark and we need to
+		# turn on the Home Assistant Light (if plugin is installed)
+		# Get the pixel values as a numpy array
+		pixels = list(image_obj.getdata())
+
+		# Calculate the total luminance of all pixels
+		lum_sum = 0
+		for pixel in pixels:
+			r, g, b = pixel
+			# Use perceived luminance formula
+			lum = (r * 0.299) + (g * 0.587) + (b * 0.114)
+			lum_sum += lum
+
+		# Get the average luminance
+		avg_lum = lum_sum / len(pixels)
+		# Luminance below threshold is considered a dark image. Use same value used in iOS app
+		threshold = 40
+		if avg_lum < threshold:
+			self._logger.debug("Camera image seems to have low light. Luminance: %s" % str(avg_lum))
+			return True
+		return False
 
 	def _send_base_notification(self, settings, include_image, event_code, category=None, event_param=None,
 								apns_dict=None, silent_code_block=None, legacy_code_block=None):
@@ -97,8 +151,9 @@ class BaseNotification:
 				vflip = settings.get(["webcam_flipV"])
 				rotate = settings.get(["webcam_rotate90"])
 				camera_url = settings.get(["camera_snapshot_url"])
+				turn_on_ifneeded = settings.get_boolean(['turn_HA_light_on_ifneeded'])
 				if camera_url and camera_url.strip():
-					image = self.image(camera_url, hflip, vflip, rotate)
+					image = self.image(turn_on_ifneeded, camera_url, hflip, vflip, rotate)
 			except:
 				self._logger.info("Could not load image from url")
 

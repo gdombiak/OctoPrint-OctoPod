@@ -5,8 +5,8 @@ from .base_notification import BaseNotification
 
 class SocTempNotifications(BaseNotification):
 
-	def __init__(self, logger, ifttt_alerts, interval, debugMode):
-		BaseNotification.__init__(self, logger)
+	def __init__(self, logger, ifttt_alerts, plugin_manager, interval, debugMode):
+		BaseNotification.__init__(self, logger, plugin_manager)
 		self._ifttt_alerts = ifttt_alerts
 		self._checks_per_minute = 60 / interval # number of times a check will be done per minute
 		self.sbc = None
