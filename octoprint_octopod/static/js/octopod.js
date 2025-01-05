@@ -47,16 +47,16 @@ $(function() {
                 contentType: "application/json; charset=UTF-8",
                 success: function(response) {
                     self.testResult(true);
-                    self.testSuccessful(response.code == 204);
-                    if (response.code == -1) {
+                    self.testSuccessful(response.code === 204);
+                    if (response.code === -1) {
                         self.testMessage("Complete 'Notification Server URL'");
-                    } else if (response.code == -2) {
+                    } else if (response.code === -2) {
                         self.testMessage("No iOS devices registered yet. Open OctoPod app on your iOS device");
-                    } else if (response.code == 404) {
+                    } else if (response.code === 404) {
                         self.testMessage("404 - Notification Server URL was not found");
-                    } else if (response.code == 500) {
+                    } else if (response.code === 500) {
                         self.testMessage("500 - Target server had an error");
-                    } else if (response.code == -500) {
+                    } else if (response.code === -500) {
                         self.testMessage("There was an error sending message. Check logs");
                     } else {
                         self.testMessage(undefined);
@@ -76,7 +76,7 @@ $(function() {
             // Do nothing if inputNewLayer has no number
             const value = parseInt(self.inputNewLayer());
             if (!isNaN(value)) {
-                if (self.settings.plugins.octopod.notify_layers.indexOf(value) == -1) {
+                if (self.settings.plugins.octopod.notify_layers.indexOf(value) === -1) {
                     self.settings.plugins.octopod.notify_layers.push(value);
                     self.settings.plugins.octopod.notify_layers.sort((a, b) => a - b); // Sort layers ascending
                 }
@@ -90,6 +90,17 @@ $(function() {
 
         self.onBeforeBinding = function() {
             self.settings = self.settingsViewModel.settings;
+        };
+
+        self.sanitizeServerURL = function(data, event) {
+                const input = event.target;
+                let url = input.value.trim(); // Trim leading/trailing spaces
+
+                // Remove trailing slashes
+                url = url.replace(/\/+$/, '');
+
+                // Update the bound property directly
+                self.settings.plugins.octopod.server_url(url);
         };
     }
 

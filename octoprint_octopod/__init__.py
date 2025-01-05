@@ -105,7 +105,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging=False,
-			server_url='http://octopodprint.com/',
+			server_url='http://octopodprint.com',
 			camera_snapshot_url='http://localhost:8080/?action=snapshot',
 			tokens=[],
 			sound_notification='default',
