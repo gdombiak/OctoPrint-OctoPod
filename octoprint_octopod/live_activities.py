@@ -136,14 +136,10 @@ class LiveActivities(BaseNotification):
 
 	def __get_notification_data(self, settings, printer):
 		url = self.__get_service_url(settings)
-		completion = None
-		print_time_left_in_seconds = None
 		current_data = printer.get_current_data()
 		printer_status = None
-		if "progress" in current_data and current_data["progress"] is not None \
-				and "completion" in current_data["progress"] and current_data["progress"]["completion"] is not None:
-			completion = round(current_data["progress"]["completion"])
-			print_time_left_in_seconds = current_data["progress"]["printTimeLeft"]
+		(completion, print_time_in_seconds, print_time_left_in_seconds) = self._get_progress_data(printer)
+		completion = round(completion) if completion is not None else None
 
 		if "state" in current_data and current_data["state"] is not None:
 			printer_status = current_data["state"]["text"]
