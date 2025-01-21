@@ -29,7 +29,7 @@ class BaseNotification:
 
 			# if octolight HA plugin is installed then check if room is dark and turn on the light if needed
 			octolightHA = self._plugin_manager.plugins.get("octolightHA")
-			if octolightHA and turn_on_ifneeded:
+			if octolightHA is not None and octolightHA.enabled and turn_on_ifneeded:
 				if self.__is_image_dark(image_obj):
 					# Some webcams need a sec to adapt to lighting conditions. They initially see black. Wait a sec
 					time.sleep(1)
