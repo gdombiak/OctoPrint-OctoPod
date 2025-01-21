@@ -15,7 +15,7 @@
                 <div class="control-group">
                     <label class="octopod-label" id="server_url_label">{{ _('Notification Server URL') }}</label>
                     <div class="controls">
-                        <input type="text" class="input-block-level" id="server_url" data-bind="value: settings.plugins.octopod.server_url">
+                        <input type="text" class="input-block-level" id="server_url" data-bind="value: settings.plugins.octopod.server_url, event: { blur: sanitizeServerURL }">
                         <span class="help-inline">{{ _('Enter URL address to the OctoPod server that sends Apple Push Notifications') }}</span>
                     </div>
                 </div>

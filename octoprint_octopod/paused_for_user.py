@@ -16,7 +16,7 @@ class PausedForUser(BaseNotification):
 		# print to terminal 'paused for user' message so this will help for those cases
 		# Prusa firmware supports M601 that is not supported by Marlin
 		if gcode:
-			if gcode == "M600" or gcode == "M601" or gcode == "M25":
+			if gcode == "M600" or gcode == "M601" or gcode == "M25" or gcode == "M0" or gcode == "M1":
 				# Check if this type of notification is disabled
 				if not self.__is_notification_enabled(settings):
 					return

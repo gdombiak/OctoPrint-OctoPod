@@ -10,7 +10,9 @@ class JobNotifications(BaseNotification):
 		BaseNotification.__init__(self, logger, plugin_manager)
 		self._ifttt_alerts = ifttt_alerts
 
-	def on_print_progress(self, settings, progress):
+	def on_print_progress(self, settings, progress, printer):
+		(completion, print_time_in_seconds, print_time_left_in_seconds) = self._get_progress_data(printer, progress)
+		progress = round(completion) if completion is not None else progress
 		progress_type = settings.get(["progress_type"])
 		if progress_type == '0':
 			# Print notification disabled
@@ -60,13 +62,9 @@ class JobNotifications(BaseNotification):
 		url = url + '/v1/push_printer'
 
 		# Gather information about progress completion of the job
-		completion = None
 		was_printing = False
 		current_data = printer.get_current_data()
-		if "progress" in current_data and current_data["progress"] is not None \
-				and "completion" in current_data["progress"] and current_data["progress"][
-			"completion"] is not None:
-			completion = current_data["progress"]["completion"]
+		(completion, print_time_in_seconds, print_time_left_in_seconds) = self._get_progress_data(printer)
 
 		current_printer_state_id = event_payload["state_id"]
 		if not test:

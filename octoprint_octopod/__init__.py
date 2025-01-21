@@ -105,7 +105,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	def get_settings_defaults(self):
 		return dict(
 			debug_logging=False,
-			server_url='http://octopodprint.com/',
+			server_url='http://octopodprint.com',
 			camera_snapshot_url='http://localhost:8080/?action=snapshot',
 			tokens=[],
 			sound_notification='default',
@@ -232,7 +232,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	# progress-hook
 	def on_print_progress(self, storage, path, progress):
 		# progress 0 - 100
-		self._job_notifications.on_print_progress(self._settings, progress)
+		self._job_notifications.on_print_progress(self._settings, progress, self._printer)
 		self._live_activities.on_print_progress(self._settings, self._printer)
 
 	# EventHandlerPlugin mixin

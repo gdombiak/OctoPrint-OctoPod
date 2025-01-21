@@ -49,6 +49,11 @@ You can test the configuration before saving it by using the _Send test notifica
 
 ## Changelog
 
+**[0.3.18]** (01/20/2025)
+- NEW: Added support for [PrintTimeGenius plugin](https://plugins.octoprint.org/plugins/PrintTimeGenius/). Progress notifications will report correct progress
+- NEW: 'Printer paused for user' notification is now sent for [M0 and M1 gcode commands](https://marlinfw.org/docs/gcode/M000-M001.html)
+- FIXED: Ensure 'Notification Server URL' has no trailing slash
+
 **[0.3.17]** (11/24/2024)
 - NEW: Turn on HomeAssistant light when room is dark before taking snapshot. Requires [OctoLight Home Assistant plugin](https://plugins.octoprint.org/plugins/octolightHA/)
 - NEW: Added support to receive notifications at specific heights
@@ -172,6 +177,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.18]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.18
 [0.3.17]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.17
 [0.3.16]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.16
 [0.3.15]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.15

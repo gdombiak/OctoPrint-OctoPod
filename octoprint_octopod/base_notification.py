@@ -29,7 +29,7 @@ class BaseNotification:
 
 			# if octolight HA plugin is installed then check if room is dark and turn on the light if needed
 			octolightHA = self._plugin_manager.plugins.get("octolightHA")
-			if octolightHA and turn_on_ifneeded:
+			if octolightHA is not None and octolightHA.enabled and turn_on_ifneeded:
 				if self.__is_image_dark(image_obj):
 					# Some webcams need a sec to adapt to lighting conditions. They initially see black. Wait a sec
 					time.sleep(1)
@@ -242,15 +242,25 @@ class BaseNotification:
 				return self._alerts.send_alert(settings, apns_token, url, printer_name, message, None, image) < 300
 
 	def _is_printer_printing(self, printer):
-		completion = None
+		(completion, print_time_in_seconds, print_time_left_in_seconds) = self._get_progress_data(printer)
+		# Check that we are in the middle of a print
+		return not(completion is None or completion == 0 or completion == 100)
+
+	def _get_progress_data(self, printer, reported_progress=None):
+		completion = None if reported_progress is None else reported_progress
+		print_time_in_seconds = None
+		print_time_left_in_seconds = None
 		current_data = printer.get_current_data()
 		if "progress" in current_data and current_data["progress"] is not None \
 				and "completion" in current_data["progress"] and current_data["progress"][
 			"completion"] is not None:
-			completion = current_data["progress"]["completion"]
+			print_time_left_in_seconds = current_data["progress"]["printTimeLeft"]
+			print_time_in_seconds = current_data["progress"]["printTime"]
+			completion = current_data["progress"]["completion"] if reported_progress is None else reported_progress
+			# Ugly hack - PrintTimeGenius changed reported completion so we need to use their conversion function
+			completion = self._convert_progress(completion, print_time_in_seconds, print_time_left_in_seconds)
+		return completion, print_time_in_seconds, print_time_left_in_seconds
 
-		# Check that we are in the middle of a print
-		return not(completion is None or completion == 0 or completion == 100)
 
 	@staticmethod
 	def _get_server_url(settings):
@@ -262,3 +272,17 @@ class BaseNotification:
 			if server_url.endswith('/'):
 				server_url = server_url[:-1]
 		return server_url
+
+	def _convert_progress(self, progress, print_time, time_left):
+		"""
+		PrintTimeGenius plugin changed the way progress is calculated. If this plugin is installed then the reported
+		progress by OctoPrint might be wrong and hence needs to be calculated based on printing time.
+		"""
+		if print_time is None or time_left is None:
+			return progress
+		# Check if PrintTimeGenius plugin is installed and enabled
+		print_time_genius_plugin = self._plugin_manager.plugins.get("PrintTimeGenius")
+		if print_time_genius_plugin is not None and print_time_genius_plugin.enabled and time_left > 0:
+			return print_time / (print_time + time_left) * 100
+		return progress
+
