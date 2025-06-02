@@ -6,6 +6,7 @@ import logging
 import sys
 
 import flask
+import requests
 
 import octoprint.plugin
 from octoprint.access.permissions import Permissions
@@ -304,7 +305,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			self._logger.debug("Tokens saved")
 
 	def get_api_commands(self):
-		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], test=[],
+		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], test=[], octoPodStatus=[],
 					snooze=["eventCode", "minutes"], addLayer=["layer"], removeLayer=["layer"], getLayers=[],
 					getSoCTemps=[], updateLAToken=["activityID", "token"])
 
@@ -339,6 +340,15 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 																	   data["camera_rotate90"],
 																	   True)
 			return flask.jsonify(dict(code=code))
+		elif command == 'octoPodStatus':
+			# Make HTTP request to OctoPod server to check if it's up and running
+			try:
+				endpoint = data["server_url"] + "/v1/octopod/status"
+				response = requests.get(endpoint, timeout=1)
+				return flask.jsonify(dict(code=response.status_code))
+			except Exception as e:
+				self._logger.error("Error checking OctoPod status: %s" % str(e))
+				return flask.jsonify(dict(code=-1))
 		elif command == 'snooze':
 			if data["eventCode"] == 'mmu-event':
 				self._mmu_assitance.snooze(data["minutes"])

@@ -9,13 +9,13 @@
             <!-- DISPLAY - TAB -->
             <div class="tab-pane active" id="tabGeneral">
 
-                <h4>{{ _('Server and Camera Settings') }}</h4>
+                <h4>{{ _('Server and Camera Settings') }} <span data-bind="css: { 'status-dot': true, green: isServerAvailable() === 204, red: isServerAvailable() !== null && isServerAvailable() !== 204, gray: isServerAvailable() === null }, attr: { title: isServerAvailable() === 204 ? '{{ _('Notification server is available') }}' : (isServerAvailable() !== null ? '{{ _('Notification server is unavailable') }}' : '') }"></span></h4>
                 <p>{{ _('Complete the URLs below so that OctoPrint can send notifications to OctoPod as the print progresses. If the room is dark, the light will automatically turn on before taking a snapshot and will turn off afterward.') }} <strong>{{ _('Requires <a href="https://plugins.octoprint.org/plugins/octolightHA/" target="_blank">OctoLight Home Assistant</a> plugin') }}</strong> </p>
 
                 <div class="control-group">
                     <label class="octopod-label" id="server_url_label">{{ _('Notification Server URL') }}</label>
                     <div class="controls">
-                        <input type="text" class="input-block-level" id="server_url" data-bind="value: settings.plugins.octopod.server_url, event: { blur: sanitizeServerURL }">
+                        <input type="text" class="input-block-level" id="server_url" data-bind="value: settings.plugins.octopod.server_url, event: { blur: serverURLChanging }">
                         <span class="help-inline">{{ _('Enter URL address to the OctoPod server that sends Apple Push Notifications') }}</span>
                     </div>
                 </div>
@@ -67,7 +67,7 @@
                 <p>{{ _('Open OctoPod on your iOS device and make sure to have the corresponding printer selected before testing notification that you would receive when print is finished') }}</p>
                 <div class="control-group">
                     <div class="controls">
-                        <button class="btn" data-bind="click: function() { testNotification() }"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Send test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
+                        <button class="btn" data-bind="click: function() { testNotification() }, disable: isServerAvailable() !== null && isServerAvailable() !== 204"><i class="icon-spinner icon-spin" data-bind="visible: testActive()"></i> {{ _('Send test notification') }}</button> <span data-bind="visible: testResult() && testSuccessful()">{{ _('Sent successfully') }}</span><span data-bind="visible: testResult() && !testSuccessful()">{{ _('Sending failed') }}: <span data-bind="text: testMessage"></span></span>
                     </div>
                 </div>
 

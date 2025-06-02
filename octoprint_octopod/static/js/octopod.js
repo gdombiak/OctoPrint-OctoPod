@@ -16,6 +16,8 @@ $(function() {
         self.testSuccessful = ko.observable(false);
         self.testMessage = ko.observable();
 
+        self.isServerAvailable = ko.observable(null);
+
         self.inputNewLayer = ko.observable();
 
         self.testNotification  = function() {
@@ -68,6 +70,30 @@ $(function() {
             });
         };
 
+        self.onSettingsShown = function () {
+            self.checkOctoPodStatus();
+        };
+
+        self.checkOctoPodStatus = function() {
+            var serverURL = $('#server_url').val();
+
+            var payload = {
+                command: "octoPodStatus",
+                server_url: serverURL
+            };
+
+            $.ajax({
+                url: API_BASEURL + "plugin/octopod",
+                type: "POST",
+                dataType: "json",
+                data: JSON.stringify(payload),
+                contentType: "application/json; charset=UTF-8",
+                success: function(response) {
+                    self.isServerAvailable(response.code);
+                }
+            });
+        };
+
         self.removeDevice = function(token) {
             self.settings.plugins.octopod.tokens.remove(token);
         };
@@ -92,8 +118,12 @@ $(function() {
             self.settings = self.settingsViewModel.settings;
         };
 
-        self.sanitizeServerURL = function(data, event) {
-                const input = event.target;
+        self.serverURLChanging = function(data, event) {
+            self.sanitizeServerURL(event.target);
+            self.checkOctoPodStatus();
+        }
+
+        self.sanitizeServerURL = function(input) {
                 let url = input.value.trim(); // Trim leading/trailing spaces
 
                 // Remove trailing slashes
