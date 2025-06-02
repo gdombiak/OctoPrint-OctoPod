@@ -65,3 +65,20 @@ hr.solid {
 #server_url_label, #snapshot_url_label, #progress_notification_label {
   width: 160px;
 }
+
+.status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-left: 10px;
+}
+.status-dot.green {
+    background-color: green;
+}
+.status-dot.red {
+    background-color: red;
+}
+.status-dot.gray {
+    background-color: gray;
+}
