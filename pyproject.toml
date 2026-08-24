@@ -1,0 +1,52 @@
+[build-system]
+requires = [
+    "setuptools>=68",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "OctoPrint-OctoPod"
+version = "0.3.19"
+description = "OctoPod extension for OctoPrint"
+authors = [
+    { name = "Gaston Dombiak", email = "gdombiak@gmail.com" },
+]
+requires-python = ">=3.7,<4"
+dependencies = [
+    "pillow",
+]
+dynamic = [
+    "license",
+]
+
+[project.entry-points."octoprint.plugin"]
+octopod = "octoprint_octopod"
+
+[project.urls]
+Homepage = "https://github.com/gdombiak/OctoPrint-OctoPod"
+
+[project.optional-dependencies]
+develop = [
+	"build",
+	"go-task-bin",
+	"pytest>=7",
+]
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = [
+    "octoprint_octopod",
+    "octoprint_octopod.*",
+]
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]
+addopts = "-ra"
