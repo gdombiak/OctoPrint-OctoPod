@@ -304,6 +304,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			eventManager().fire(Events.SETTINGS_UPDATED)
 			self._logger.debug("Tokens saved")
 
+	def is_api_protected(self):
+		return True
+
 	def get_api_commands(self):
 		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], test=[], octoPodStatus=[],
 					snooze=["eventCode", "minutes"], addLayer=["layer"], removeLayer=["layer"], getLayers=[],
@@ -371,6 +374,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		return [
 			dict(type="settings", name="OctoPod Notifications", custom_bindings=True)
 		]
+
+	def is_template_autoescaped(self):
+		return True
 
 	# Softwareupdate hook
 
