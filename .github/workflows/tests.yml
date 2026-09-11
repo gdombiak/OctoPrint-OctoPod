@@ -26,12 +26,12 @@ jobs:
           - name: OctoPrint 1.11.8 / Python 3.7
             python: "3.7"
             octoprint: "OctoPrint==1.11.8"
-          - name: OctoPrint 2.0.0rc4 / Python 3.9
+          - name: OctoPrint 2.0.0rc5 / Python 3.9
             python: "3.9"
-            octoprint: "OctoPrint==2.0.0rc4"
-          - name: OctoPrint 2.0.0rc4 / Python 3.13
+            octoprint: "OctoPrint==2.0.0rc5"
+          - name: OctoPrint 2.0.0rc5 / Python 3.13
             python: "3.13"
-            octoprint: "OctoPrint==2.0.0rc4"
+            octoprint: "OctoPrint==2.0.0rc5"
 
     steps:
       - name: Check out repository

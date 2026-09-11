@@ -82,6 +82,7 @@ GitHub Actions runs the suite for every pull request and for pushes to the `dev`
 - IMPROVED: Added automated functional tests and CI coverage for OctoPrint 1.11 and 2.0
 - IMPROVED: Replaced deprecated plugin APIs for OctoPrint 2.0 compatibility. Thanks [Jacopo Tediosi](https://github.com/jacopotediosi)
 - FIXED: Prevented an error when a printer connects before plugin startup completes. Thanks [Jacopo Tediosi](https://github.com/jacopotediosi)
+- FIXED: OctoPod settings failed to render when template autoescaping was enabled
 
 **[0.3.19]** (06/01/2025)
 - NEW: OctoPod notification server status now visually indicated in OctoPod Settings
