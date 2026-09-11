@@ -78,6 +78,11 @@ GitHub Actions runs the suite for every pull request and for pushes to the `dev`
 
 ## Changelog
 
+**[0.3.20]** (09/10/2026)
+- IMPROVED: Added automated functional tests and CI coverage for OctoPrint 1.11 and 2.0
+- IMPROVED: Replaced deprecated plugin APIs for OctoPrint 2.0 compatibility. Thanks [Jacopo Tediosi](https://github.com/jacopotediosi)
+- FIXED: Prevented an error when a printer connects before plugin startup completes. Thanks [Jacopo Tediosi](https://github.com/jacopotediosi)
+
 **[0.3.19]** (06/01/2025)
 - NEW: OctoPod notification server status now visually indicated in OctoPod Settings
 
@@ -209,6 +214,7 @@ GitHub Actions runs the suite for every pull request and for pushes to the `dev`
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.20]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.20
 [0.3.19]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.19
 [0.3.18]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.18
 [0.3.17]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.17
