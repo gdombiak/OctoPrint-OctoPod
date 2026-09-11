@@ -61,10 +61,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		self._live_activities = None
 		self._spool_manager = None
 
-	# StartupPlugin mixin
-
-	def on_after_startup(self):
-		self._logger.info("OctoPod loaded!")
+	def initialize(self):
 		# Set logging level to what we have in the settings
 		if self._settings.get_boolean(["debug_logging"]):
 			self._logger.setLevel(logging.DEBUG)
@@ -85,6 +82,11 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 																				self._plugin_manager)
 		self._live_activities = LiveActivities(self._logger, self._plugin_manager)
 		self._spool_manager = SpoolManagerNotifications(self._logger, self._ifttt_alerts, self._plugin_manager)
+
+	# StartupPlugin mixin
+
+	def on_after_startup(self):
+		self._logger.info("OctoPod loaded!")
 
 		# Register to listen for messages from other plugins
 		self._plugin_manager.register_message_receiver(self.on_plugin_message)
