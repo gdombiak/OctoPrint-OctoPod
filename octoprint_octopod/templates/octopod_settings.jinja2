@@ -10,7 +10,7 @@
             <div class="tab-pane active" id="tabGeneral">
 
                 <h4>{{ _('Server and Camera Settings') }} <span data-bind="css: { 'status-dot': true, green: isServerAvailable() === 204, red: isServerAvailable() !== null && isServerAvailable() !== 204, gray: isServerAvailable() === null }, attr: { title: isServerAvailable() === 204 ? '{{ _('Notification server is available') }}' : (isServerAvailable() !== null ? '{{ _('Notification server is unavailable') }}' : '') }"></span></h4>
-                <p>{{ _('Complete the URLs below so that OctoPrint can send notifications to OctoPod as the print progresses. If the room is dark, the light will automatically turn on before taking a snapshot and will turn off afterward.') }} <strong>{{ _('Requires <a href="https://plugins.octoprint.org/plugins/octolightHA/" target="_blank">OctoLight Home Assistant</a> plugin') }}</strong> </p>
+                <p>{{ _('Complete the URLs below so that OctoPrint can send notifications to OctoPod as the print progresses. If the room is dark, the light will automatically turn on before taking a snapshot and will turn off afterward.') }} <strong>{{ _('Requires <a href="https://plugins.octoprint.org/plugins/octolightHA/" target="_blank">OctoLight Home Assistant</a> plugin')|safe }}</strong> </p>
 
                 <div class="control-group">
                     <label class="octopod-label" id="server_url_label">{{ _('Notification Server URL') }}</label>
@@ -55,9 +55,9 @@
                         <input class="radio" type="radio" id="progress_type1" data-bind="checked: settings.plugins.octopod.progress_type" value="0">
                         <label class="radio_label" for="progress_type1">{{ _('Disabled') }}</label>
                         <input class="radio" type="radio" id="progress_type2" data-bind="checked: settings.plugins.octopod.progress_type" value="25">
-                        <label class="radio_label" for="progress_type2">{{ _('Every 25&#37;') }}</label>
+                        <label class="radio_label" for="progress_type2">{{ _('Every 25%%') }}</label>
                         <input class="radio" type="radio" id="progress_type3" data-bind="checked: settings.plugins.octopod.progress_type" value="50">
-                        <label class="radio_label" for="progress_type3">{{ _('Every 50&#37;') }}</label>
+                        <label class="radio_label" for="progress_type3">{{ _('Every 50%%') }}</label>
                         <input class="radio" type="radio" id="progress_type4" data-bind="checked: settings.plugins.octopod.progress_type" value="100">
                         <label class="radio_label" for="progress_type4">100%</label>
                     </div>
@@ -104,7 +104,7 @@
                 <p>{{ _('You will receive a notification with an image for the specified layers to confirm that the print is progressing smoothly.
                 Notifications are sent when the print reaches these specified layers. These notifications apply to both current and future prints.
                 In the OctoPod app, you can configure notifications to be sent at specific layers, but they apply only to the current print job.') }}
-                <strong>{{ _('Requires <a href="https://plugins.octoprint.org/plugins/DisplayLayerProgress/" target="_blank">DisplayLayerProgress</a> plugin') }}</strong></p>
+                <strong>{{ _('Requires <a href="https://plugins.octoprint.org/plugins/DisplayLayerProgress/" target="_blank">DisplayLayerProgress</a> plugin')|safe }}</strong></p>
                 <div class="tab-pane" id="notify_layers_div">
                     <table class="table table-striped table-hover table-condensed table-hover" id="notify_layers_table" style="width: 40%; margin: auto;">
                         <thead>
@@ -406,5 +406,4 @@
     </div>
 
 </form>
-
 

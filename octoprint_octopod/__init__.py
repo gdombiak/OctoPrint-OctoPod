@@ -61,10 +61,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		self._live_activities = None
 		self._spool_manager = None
 
-	# StartupPlugin mixin
-
-	def on_after_startup(self):
-		self._logger.info("OctoPod loaded!")
+	def initialize(self):
 		# Set logging level to what we have in the settings
 		if self._settings.get_boolean(["debug_logging"]):
 			self._logger.setLevel(logging.DEBUG)
@@ -85,6 +82,11 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 																				self._plugin_manager)
 		self._live_activities = LiveActivities(self._logger, self._plugin_manager)
 		self._spool_manager = SpoolManagerNotifications(self._logger, self._ifttt_alerts, self._plugin_manager)
+
+	# StartupPlugin mixin
+
+	def on_after_startup(self):
+		self._logger.info("OctoPod loaded!")
 
 		# Register to listen for messages from other plugins
 		self._plugin_manager.register_message_receiver(self.on_plugin_message)
@@ -304,6 +306,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 			eventManager().fire(Events.SETTINGS_UPDATED)
 			self._logger.debug("Tokens saved")
 
+	def is_api_protected(self):
+		return True
+
 	def get_api_commands(self):
 		return dict(updateToken=["oldToken", "newToken", "deviceName", "printerID"], test=[], octoPodStatus=[],
 					snooze=["eventCode", "minutes"], addLayer=["layer"], removeLayer=["layer"], getLayers=[],
@@ -371,6 +376,9 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		return [
 			dict(type="settings", name="OctoPod Notifications", custom_bindings=True)
 		]
+
+	def is_template_autoescaped(self):
+		return True
 
 	# Softwareupdate hook
 
@@ -460,7 +468,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 # ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
 # can be overwritten via __plugin_xyz__ control properties. See the documentation for that.
 __plugin_name__ = "OctoPod Plugin"
-__plugin_pythoncompat__ = ">=2.7,<4"
+__plugin_pythoncompat__ = ">=3.7,<4"
 
 
 def __plugin_load__():

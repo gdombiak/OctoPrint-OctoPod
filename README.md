@@ -47,7 +47,42 @@ the notification. Update Bed, MMU and other notifications as needed.
 
 You can test the configuration before saving it by using the _Send test notification_ button.
 
+## Development and testing
+
+The test suite requires Python 3.7 or newer and an environment where OctoPrint is installed. Tests use fake settings
+and printer objects, and do not start an OctoPrint server, access printer hardware, or make network requests.
+
+Create and activate a virtual environment, install OctoPrint, and install the plugin with its development dependencies:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install OctoPrint
+python -m pip install -e ".[develop]"
+```
+
+Run the tests directly with pytest:
+
+```bash
+python -m pytest
+```
+
+If [Task](https://taskfile.dev/) was installed through the `develop` extra, the equivalent command is:
+
+```bash
+task test
+```
+
+Pytest configuration is stored in `pyproject.toml`, and tests are located in the `tests` directory.
+GitHub Actions runs the suite for every pull request and for pushes to the `dev` and `master` branches.
+
 ## Changelog
+
+**[0.3.20]** (09/10/2026)
+- IMPROVED: Added automated functional tests and CI coverage for OctoPrint 1.11 and 2.0
+- IMPROVED: Replaced deprecated plugin APIs for OctoPrint 2.0 compatibility. Thanks [Jacopo Tediosi](https://github.com/jacopotediosi)
+- FIXED: Prevented an error when a printer connects before plugin startup completes. Thanks [Jacopo Tediosi](https://github.com/jacopotediosi)
+- FIXED: OctoPod settings failed to render when template autoescaping was enabled
 
 **[0.3.19]** (06/01/2025)
 - NEW: OctoPod notification server status now visually indicated in OctoPod Settings
@@ -180,6 +215,7 @@ You can test the configuration before saving it by using the _Send test notifica
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.20]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.20
 [0.3.19]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.19
 [0.3.18]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.18
 [0.3.17]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.17
