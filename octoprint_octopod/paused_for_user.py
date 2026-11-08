@@ -1,13 +1,16 @@
 import time
+from threading import Lock
 
 from .base_notification import BaseNotification
 
 
 class PausedForUser(BaseNotification):
 
-	def __init__(self, logger, ifttt_alerts, plugin_manager):
+	def __init__(self, logger, ifttt_alerts, plugin_manager, notification_worker):
 		BaseNotification.__init__(self, logger, plugin_manager)
 		self._ifttt_alerts = ifttt_alerts
+		self._notification_worker = notification_worker
+		self._notification_lock = Lock()
 		self._last_notification = None  # Keep track of when was user alerted last time. Helps avoid spamming
 		self._snooze_end_time = time.time()  # Track when snooze for events ends. Assume snooze already expired
 
@@ -31,7 +34,8 @@ class PausedForUser(BaseNotification):
 				# If sending gcode then printer is no longer paused. Clear timestamp of last
 				# notification so that new pause notifications can be sent. This helps in
 				# case of 2 consecutive pauses
-				self._last_notification = None
+				with self._notification_lock:
+					self._last_notification = None
 
 	def process_received_gcode(self, settings, printer, line):
 		# Firmware will print to terminal when printer has paused for user
@@ -71,6 +75,11 @@ class PausedForUser(BaseNotification):
 		return pause_interval != 0
 
 	def __send_notification_if_needed(self, settings):
+		# Sent and received hooks may report the same pause concurrently.
+		with self._notification_lock:
+			self.__queue_notification_if_needed(settings)
+
+	def __queue_notification_if_needed(self, settings):
 		pause_interval = settings.get_int(['pause_interval'])
 		if self._last_notification is None or (time.time() - self._last_notification) / 60 > pause_interval:
 			self._logger.info("*** Printer paused for user ***")
@@ -79,7 +88,7 @@ class PausedForUser(BaseNotification):
 			# Send APNS Notification only if interval is not zero (user requested to
 			# shutdown this notification) and there is no active snooze for this type of events
 			if time.time() > self._snooze_end_time:
-				self.__send_notification(settings)
+				self._notification_worker.submit(self.__send_notification, settings)
 			else:
 				self._logger.debug("PausedForUser Notification skipped. Snoozing until {0}"
 								   .format(time.ctime(self._snooze_end_time)))

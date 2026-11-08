@@ -1,7 +1,28 @@
 from copy import deepcopy
+from threading import Event
 from types import SimpleNamespace
+from unittest.mock import Mock
 
 import pytest
+
+from octoprint_octopod.notification_worker import NotificationWorker
+
+
+def wait_for_notifications(worker):
+	"""A marker runs only after all previously queued notifications finish."""
+	completed = Event()
+	assert worker.submit(completed.set)
+	assert completed.wait(2), "Notification worker did not finish queued work"
+
+
+@pytest.fixture
+def notification_worker():
+	worker = NotificationWorker(Mock())
+	yield worker
+	worker.shutdown()
+	if worker._thread is not None:
+		worker._thread.join(timeout=2)
+		assert not worker._thread.is_alive()
 
 
 class FakeSettings:

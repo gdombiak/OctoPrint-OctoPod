@@ -1,5 +1,7 @@
 import requests
 
+from .http_client import REQUEST_TIMEOUT
+
 
 class IFTTTAlerts:
 
@@ -23,7 +25,7 @@ class IFTTTAlerts:
 
 			payload = {'value1': ifttt_name, 'value2': value1, 'value3': ""}
 
-			response = requests.post(url, json=payload)
+			response = requests.post(url, json=payload, timeout=REQUEST_TIMEOUT)
 
 			if response.status_code == 200:
 				self._logger.debug("IFTTT event (%s) fired!" % ifttt_event)
@@ -31,4 +33,4 @@ class IFTTTAlerts:
 				self._logger.debug(
 					"Error firing IFTTT event (%s). Response: %s" % (ifttt_event, str(response.status_code)))
 		except Exception as e:
-			self._logger.warn("Could not send IFTTT event: %s" % str(e))
+			self._logger.warning("Could not send IFTTT event: %s" % str(e))

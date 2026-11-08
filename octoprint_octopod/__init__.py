@@ -21,6 +21,7 @@ from .layer_notifications import LayerNotifications
 from .libs.sbc import SBCFactory, RPi
 from .live_activities import LiveActivities
 from .mmu import MMUAssistance
+from .notification_worker import NotificationWorker
 from .palette2 import Palette2Notifications
 from .paused_for_user import PausedForUser
 from .soc_temp_notifications import SocTempNotifications
@@ -37,6 +38,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 					octoprint.plugin.AssetPlugin,
 					octoprint.plugin.TemplatePlugin,
 					octoprint.plugin.StartupPlugin,
+					octoprint.plugin.ShutdownPlugin,
 					octoprint.plugin.SimpleApiPlugin,
 					octoprint.plugin.EventHandlerPlugin,
 					octoprint.plugin.ProgressPlugin):
@@ -44,6 +46,7 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 	def __init__(self):
 		super(OctopodPlugin, self).__init__()
 		self._logger = logging.getLogger("octoprint.plugins.octopod")
+		self._notification_worker = NotificationWorker(self._logger)
 		self._checkTempTimer = None
 		self._ifttt_alerts = IFTTTAlerts(self._logger)
 		self._check_soc_temp_timer = None
@@ -71,8 +74,10 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 		self._job_notifications = JobNotifications(self._logger, self._ifttt_alerts, self._plugin_manager)
 		self._tool_notifications = ToolsNotifications(self._logger, self._ifttt_alerts, self._plugin_manager)
 		self._bed_notifications = BedNotifications(self._logger, self._ifttt_alerts, self._plugin_manager)
-		self._mmu_assitance = MMUAssistance(self._logger, self._ifttt_alerts, self._plugin_manager)
-		self._paused_for_user = PausedForUser(self._logger, self._ifttt_alerts, self._plugin_manager)
+		self._mmu_assitance = MMUAssistance(self._logger, self._ifttt_alerts, self._plugin_manager,
+										self._notification_worker)
+		self._paused_for_user = PausedForUser(self._logger, self._ifttt_alerts, self._plugin_manager,
+										self._notification_worker)
 		self._palette2 = Palette2Notifications(self._logger, self._ifttt_alerts, self._plugin_manager)
 		self._layerNotifications = LayerNotifications(self._logger, self._ifttt_alerts, self._plugin_manager)
 		self._soc_temp_notifications = SocTempNotifications(self._logger, self._ifttt_alerts, self._plugin_manager,
@@ -102,6 +107,11 @@ class OctopodPlugin(octoprint.plugin.SettingsPlugin,
 				sbc.debugMode = debug_soc_temp
 				self._soc_temp_notifications.send_plugin_message = self.send_plugin_message
 				self.start_soc_timer(self._soc_timer_interval)
+
+	# ShutdownPlugin mixin
+
+	def on_shutdown(self):
+		self._notification_worker.shutdown()
 
 	# SettingsPlugin mixin
 

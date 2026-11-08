@@ -5,9 +5,10 @@ from .base_notification import BaseNotification
 
 class MMUAssistance(BaseNotification):
 
-	def __init__(self, logger, ifttt_alerts, plugin_manager):
+	def __init__(self, logger, ifttt_alerts, plugin_manager, notification_worker):
 		BaseNotification.__init__(self, logger, plugin_manager)
 		self._ifttt_alerts = ifttt_alerts
+		self._notification_worker = notification_worker
 		self._mmu_lines_skipped = None
 		self._last_notification = None  # Keep track of when was user alerted last time. Helps avoid spamming
 		self._snooze_end_time = time.time()  # Track when snooze for mmu events ends. Assume snooze already expired
@@ -38,7 +39,7 @@ class MMUAssistance(BaseNotification):
 						# Send APNS Notification only if interval is not zero (user requested to
 						# shutdown this notification) and there is no active snooze for MMU events
 						if mmu_interval > 0 and time.time() > self._snooze_end_time:
-							self.__send__mmu_notification(settings)
+							self._notification_worker.submit(self.__send__mmu_notification, settings)
 						else:
 							self._logger.debug("MMU Notification skipped. Snoozing until {0}"
 											   .format(time.ctime(self._snooze_end_time)))
