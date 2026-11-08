@@ -78,6 +78,9 @@ GitHub Actions runs the suite for every pull request and for pushes to the `dev`
 
 ## Changelog
 
+**[0.3.21]** (11/08/2026)
+- FIXED: Prevented printer communication from stalling when a pause or MMU notification could not reach the server over IPv6. Thanks [agrif](https://github.com/agrif)
+
 **[0.3.20]** (09/10/2026)
 - IMPROVED: Added automated functional tests and CI coverage for OctoPrint 1.11 and 2.0
 - IMPROVED: Replaced deprecated plugin APIs for OctoPrint 2.0 compatibility. Thanks [Jacopo Tediosi](https://github.com/jacopotediosi)
@@ -215,6 +218,7 @@ GitHub Actions runs the suite for every pull request and for pushes to the `dev`
 **[0.1.2]** (05/28/2019)
 - Initial Release
 
+[0.3.21]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.21
 [0.3.20]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.20
 [0.3.19]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.19
 [0.3.18]: https://github.com/gdombiak/OctoPrint-OctoPod/tree/0.3.18

@@ -7,7 +7,7 @@ from octoprint_octopod.job_notifications import JobNotifications
 from octoprint_octopod.layer_notifications import LayerNotifications
 from octoprint_octopod.paused_for_user import PausedForUser
 
-from conftest import FakePrinter, FakeSettings
+from conftest import FakePrinter, FakeSettings, wait_for_notifications
 
 
 @pytest.fixture
@@ -100,10 +100,10 @@ def test_print_time_genius_progress_is_used_when_plugin_is_enabled(logger, ifttt
 	ifttt.fire_event.assert_called_once_with(settings, "print-progress", 50)
 
 
-def test_pause_gcode_notifies_once_per_interval(monkeypatch, logger, ifttt, plugin_manager):
+def test_pause_gcode_notifies_once_per_interval(monkeypatch, logger, ifttt, plugin_manager, notification_worker):
 	clock = Mock(return_value=1_000.0)
 	monkeypatch.setattr(paused_module.time, "time", clock)
-	notifications = PausedForUser(logger, ifttt, plugin_manager)
+	notifications = PausedForUser(logger, ifttt, plugin_manager, notification_worker)
 	notifications._snooze_end_time = 0
 	notifications._send_base_notification = Mock(return_value=True)
 	settings = FakeSettings({"pause_interval": 5})
@@ -115,13 +115,14 @@ def test_pause_gcode_notifies_once_per_interval(monkeypatch, logger, ifttt, plug
 	clock.return_value = 1_301.0
 	notifications.process_sent_gcode(settings, printer, "M600")
 
+	wait_for_notifications(notification_worker)
 	assert notifications._send_base_notification.call_count == 2
 	assert ifttt.fire_event.call_count == 2
 
 
-def test_pause_notification_requires_an_active_print(monkeypatch, logger, ifttt, plugin_manager):
+def test_pause_notification_requires_an_active_print(monkeypatch, logger, ifttt, plugin_manager, notification_worker):
 	monkeypatch.setattr(paused_module.time, "time", Mock(return_value=1_000.0))
-	notifications = PausedForUser(logger, ifttt, plugin_manager)
+	notifications = PausedForUser(logger, ifttt, plugin_manager, notification_worker)
 	notifications._snooze_end_time = 0
 	notifications._send_base_notification = Mock()
 	settings = FakeSettings({"pause_interval": 5})
@@ -129,13 +130,14 @@ def test_pause_notification_requires_an_active_print(monkeypatch, logger, ifttt,
 
 	notifications.process_sent_gcode(settings, printer, "M600")
 
+	wait_for_notifications(notification_worker)
 	notifications._send_base_notification.assert_not_called()
 	ifttt.fire_event.assert_not_called()
 
 
-def test_zero_pause_interval_disables_notifications(monkeypatch, logger, ifttt, plugin_manager):
+def test_zero_pause_interval_disables_notifications(monkeypatch, logger, ifttt, plugin_manager, notification_worker):
 	monkeypatch.setattr(paused_module.time, "time", Mock(return_value=1_000.0))
-	notifications = PausedForUser(logger, ifttt, plugin_manager)
+	notifications = PausedForUser(logger, ifttt, plugin_manager, notification_worker)
 	notifications._snooze_end_time = 0
 	notifications._send_base_notification = Mock()
 	settings = FakeSettings({"pause_interval": 0})
@@ -143,14 +145,15 @@ def test_zero_pause_interval_disables_notifications(monkeypatch, logger, ifttt, 
 
 	notifications.process_received_gcode(settings, printer, "echo:busy: paused for user")
 
+	wait_for_notifications(notification_worker)
 	notifications._send_base_notification.assert_not_called()
 	ifttt.fire_event.assert_not_called()
 
 
-def test_snooze_suppresses_pause_notification(monkeypatch, logger, ifttt, plugin_manager):
+def test_snooze_suppresses_pause_notification(monkeypatch, logger, ifttt, plugin_manager, notification_worker):
 	clock = Mock(return_value=1_000.0)
 	monkeypatch.setattr(paused_module.time, "time", clock)
-	notifications = PausedForUser(logger, ifttt, plugin_manager)
+	notifications = PausedForUser(logger, ifttt, plugin_manager, notification_worker)
 	notifications._send_base_notification = Mock()
 	settings = FakeSettings({"pause_interval": 5})
 	printer = FakePrinter(completion=40, printing=True)
@@ -159,6 +162,7 @@ def test_snooze_suppresses_pause_notification(monkeypatch, logger, ifttt, plugin
 	clock.return_value = 1_100.0
 	notifications.process_received_gcode(settings, printer, "// action:paused")
 
+	wait_for_notifications(notification_worker)
 	notifications._send_base_notification.assert_not_called()
 	ifttt.fire_event.assert_not_called()
 

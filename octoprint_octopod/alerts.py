@@ -3,6 +3,8 @@ import json
 
 import requests
 
+from .http_client import REQUEST_TIMEOUT
+
 
 class Alerts:
 
@@ -243,9 +245,9 @@ class Alerts:
 				files = {'image': ("image.jpg", image, "image/jpeg"),
 						 'json': (None, json.dumps(data), "application/json")}
 
-				r = requests.post(url, files=files)
+				r = requests.post(url, files=files, timeout=REQUEST_TIMEOUT)
 			else:
-				r = requests.post(url, json=data)
+				r = requests.post(url, json=data, timeout=REQUEST_TIMEOUT)
 
 			if r.status_code >= 400:
 				self._logger.info("Notification Response: %s" % str(r.content))
@@ -253,7 +255,7 @@ class Alerts:
 				self._logger.debug("Notification Response code: %d" % r.status_code)
 			return r.status_code
 		except Exception as e:
-			self._logger.warn("Could not send message: %s" % str(e))
+			self._logger.warning("Could not send message: %s" % str(e))
 			return -500
 
 	# Silent notifications. Legacy mode uses them and also to ask OctoPod app to update
@@ -274,9 +276,9 @@ class Alerts:
 				files = {'image': ("image.jpg", image, "image/jpeg"),
 						 'json': (None, json.dumps(data), "application/json")}
 
-				r = requests.post(url, files=files)
+				r = requests.post(url, files=files, timeout=REQUEST_TIMEOUT)
 			else:
-				r = requests.post(url, json=data)
+				r = requests.post(url, json=data, timeout=REQUEST_TIMEOUT)
 
 			if r.status_code >= 400:
 				self._logger.info(
@@ -297,7 +299,7 @@ class Alerts:
 			data["minutes"] = minutes
 
 		try:
-			r = requests.post(url, json=data)
+			r = requests.post(url, json=data, timeout=REQUEST_TIMEOUT)
 
 			if r.status_code >= 400:
 				self._logger.info("Silent Bed Notification Response: %s" % str(r.content))
@@ -313,7 +315,7 @@ class Alerts:
 				"useDev": self._use_dev}
 
 		try:
-			r = requests.post(url, json=data)
+			r = requests.post(url, json=data, timeout=REQUEST_TIMEOUT)
 
 			if r.status_code >= 400:
 				self._logger.info("Silent MMU Notification Response: %s" % str(r.content))
@@ -330,7 +332,7 @@ class Alerts:
 				"printTimeLeft": print_time_left, "update": update, "priority": priority, "useDev": self._use_dev}
 
 		try:
-			r = requests.post(url, json=data)
+			r = requests.post(url, json=data, timeout=REQUEST_TIMEOUT)
 
 			if r.status_code >= 400:
 				self._logger.warning("Live Activity Notification Response: %s" % str(r.content))
